@@ -1,0 +1,73 @@
+backend/
+├── config/
+│   ├── db.js                 # Kết nối MongoDB
+│   ├── env.js                # Biến môi trường (dotenv)
+│   └── constants.js          # Hằng số (status code, role...)
+│
+├── models/                   # Mongoose schemas
+│   ├── User.js
+│   ├── Category.js
+│   ├── Product.js
+│   ├── Review.js
+│   ├── Cart.js
+│   ├── Order.js
+│   ├── Inventory.js
+│   └── LoginLog.js
+│
+├── services/                 # Xử lý logic nghiệp vụ & biến đổi dữ liệu
+│   ├── userService.js
+│   ├── categoryService.js
+│   ├── productService.js
+│   ├── reviewService.js
+│   ├── cartService.js
+│   ├── orderService.js
+│   ├── inventoryService.js
+│   └── authService.js         # Đăng nhập, đăng ký, JWT
+│
+├── controllers/              # Gọi services, xử lý request/response
+│   ├── authController.js
+│   ├── userController.js
+│   ├── categoryController.js
+│   ├── productController.js
+│   ├── reviewController.js
+│   ├── cartController.js
+│   ├── orderController.js
+│   ├── inventoryController.js
+│   └── adminController.js
+│
+├── routes/                   # Định nghĩa endpoint
+│   ├── authRoutes.js
+│   ├── userRoutes.js
+│   ├── categoryRoutes.js
+│   ├── productRoutes.js
+│   ├── reviewRoutes.js
+│   ├── cartRoutes.js
+│   ├── orderRoutes.js
+│   ├── inventoryRoutes.js
+│   └── adminRoutes.js
+│
+├── middleware/
+│   ├── authMiddleware.js     # Xác thực JWT
+│   ├── adminMiddleware.js    # Kiểm tra quyền admin
+│   ├── uploadMiddleware.js   # Upload ảnh (multer)
+│   ├── validateMiddleware.js # Validate request (Joi hoặc express-validator)
+│   └── errorMiddleware.js    # Xử lý lỗi tập trung
+│
+├── utils/                    # Hàm tiện ích
+│   ├── generateToken.js      # Tạo JWT
+│   ├── hashPassword.js       # Bcrypt
+│   ├── slugify.js            # Tạo slug cho sản phẩm, danh mục
+│   ├── sendEmail.js          # Gửi email (nodemailer)
+│   └── apiResponse.js        # Chuẩn hóa response { success, data, message }
+│
+├── seeders/                  # Dữ liệu mẫu
+│   ├── seeder.js             # Script seed toàn bộ
+│   └── data/                 # File JSON mẫu (products.json, users.json...)
+│
+├── logs/                     # Lưu file log (nếu dùng morgan, winston)
+│   └── .gitkeep
+│
+├── .env                      # Biến môi trường (không commit)
+├── .gitignore
+├── package.json
+└── server.js                 # Khởi tạo app, kết nối DB, mount routes
