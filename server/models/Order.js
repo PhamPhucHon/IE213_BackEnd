@@ -34,4 +34,102 @@ const orderSchema = new mongoose.Schema({
   note: String
 }, { timestamps: true });
 
+// 1. INDEXES
+orderSchema.index({ orderNumber: 1 });
+orderSchema.index({ userId: 1 });
+orderSchema.index({ status: 1 });
+orderSchema.index({ createdAt: -1 });
+
+// 2. MIDDLEWARES 
+// Tự động tạo orderNumber trước khi validate nếu chưa có
+orderSchema.pre('save', function(next) {
+  if (this.isNew && !this.orderNumber) {
+    // Sinh mã theo định dạng: ORD-YYYYMMDD-RandomString
+    const date = new Date();
+    const dateString = date.toISOString().slice(0, 10).replace(/-/g, ''); // VD: 20260403
+    const randomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
+    this.orderNumber = `ORD-${dateString}-${randomCode}`;
+  }
+  next();
+});
+
+// 3. INSTANCE METHODS
+// Đánh dấu thanh toán thành công
+orderSchema.methods.markAsPaid = async function() {
+  if (this.paymentStatus === 'Paid') throw new Error('Đơn hàng này đã được thanh toán rồi.');
+  
+  this.paymentStatus = 'Paid';
+  this.paidAt = Date.now();
+  
+  // Nếu là đơn đang chờ xử lý thì chuyển sang đang xử lý luôn
+  if (this.status === 'Pending') {
+    this.status = 'Processing';
+  }
+  
+  return await this.save();
+};
+
+// Đánh dấu giao hàng thành công & XUẤT KHO THẬT
+orderSchema.methods.markAsDelivered = async function() {
+  if (this.status === 'Delivered') throw new Error('Đơn hàng đã ở trạng thái Đã Giao.');
+  if (this.status === 'Cancelled') throw new Error('Không thể giao một đơn hàng đã bị hủy.');
+
+  const Inventory = mongoose.model('Inventory');
+
+  // Lặp qua từng sản phẩm để gọi hàm xuất kho thực tế (issueStock)
+  for (const item of this.items) {
+    const inventory = await Inventory.findOne({ sku: item.sku });
+    if (inventory) {
+      // Hàm này sẽ trừ thật sự stock và reserved trong kho
+      await inventory.issueStock(item.quantity);
+    }
+  }
+
+  this.status = 'Delivered';
+  this.deliveredAt = Date.now();
+  
+  // Nếu là COD thì khi nhận hàng cũng là lúc thanh toán
+  if (this.paymentMethod === 'COD' && this.paymentStatus !== 'Paid') {
+    this.paymentStatus = 'Paid';
+    this.paidAt = Date.now();
+  }
+
+  return await this.save();
+};
+
+// Hủy đơn hàng & NHẢ KHO
+orderSchema.methods.cancelOrder = async function(reason) {
+  if (this.status === 'Delivered') throw new Error('Không thể hủy đơn hàng đã giao thành công.');
+  if (this.status === 'Cancelled') throw new Error('Đơn hàng này đã bị hủy trước đó.');
+
+  const Inventory = mongoose.model('Inventory');
+
+  // Lặp qua từng sản phẩm để gọi hàm nhả kho ảo (releaseStock)
+  // Việc này trả lại số lượng cho khách khác mua
+  for (const item of this.items) {
+    const inventory = await Inventory.findOne({ sku: item.sku });
+    if (inventory) {
+      await inventory.releaseStock(item.quantity);
+    }
+  }
+
+  this.status = 'Cancelled';
+  this.cancelReason = reason || 'Hủy theo yêu cầu';
+  return await this.save();
+};
+
+// 4. STATIC METHODS
+// Lấy đơn hàng theo userId với phân trang
+orderSchema.statics.getOrdersByUser = async function(userId, page = 1, limit = 10) {
+  const skip = (page - 1) * limit;
+  const orders = await this.find({ userId }).sort({ createdAt: -1 }).skip(skip).limit(limit);
+  const totalOrders = await this.countDocuments({ userId });
+  
+  return {
+    orders,
+    totalPages: Math.ceil(totalOrders / limit),
+    currentPage: page
+  };
+};
+
 module.exports = mongoose.model('Order', orderSchema);

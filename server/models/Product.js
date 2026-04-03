@@ -37,5 +37,48 @@ const productSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
-// productSchema.index({ name: 'text', brand: 'text' });
+// 1. INDEXES
+productSchema.index({ name: 'text', brand: 'text' });
+productSchema.index({ categoryId: 1, basePrice: 1 });
+productSchema.index({ isActive: 1, isFeatured: -1 });
+
+
+// 2. MIDDLEWARES 
+// Tự động tạo slug chuẩn SEO trước khi validate dữ liệu
+productSchema.pre('validate', function(next) {
+  if (this.name && !this.slug) {
+    this.slug = slugify(this.name);
+  }
+  next();
+});
+
+
+// 3. INSTANCE METHODS
+// Ẩn sản phẩm thay vì xóa hẳn khỏi database
+productSchema.methods.softDelete = async function() {
+  this.isActive = false;
+  return await this.save();
+};
+
+// Hàm cập nhật đánh giá trung bình sau khi có đánh giá mới
+productSchema.methods.updateRating = async function(newRating) {
+  const totalRating = this.rating.avg * this.rating.count + newRating;
+  this.rating.count += 1;
+  this.rating.avg = totalRating / this.rating.count;
+  return await this.save();
+};
+
+// 4. STATIC METHODS
+// Lấy sản phẩm theo category với phân trang và sắp xếp
+productSchema.statics.findByCategory = function(categoryId, options) {
+  const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = options;
+  const skip = (page - 1) * limit;
+  
+  return this.find({ categoryId, isActive: true })
+             .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+             .skip(skip)
+             .limit(limit);
+};
+
+
 module.exports = mongoose.model('Product', productSchema);
