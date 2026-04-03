@@ -70,4 +70,5 @@ backend/
 ├── .env                      # Biến môi trường (không commit)
 ├── .gitignore
 ├── package.json
+|-- docker-compose.yml
 └── server.js                 # Khởi tạo app, kết nối DB, mount routes
