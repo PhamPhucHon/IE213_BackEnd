@@ -1,0 +1,37 @@
+# ==============================
+# 1. Chọn base image Node.js
+# alpine = nhẹ hơn (khuyên dùng)
+# ==============================
+FROM node:18-alpine
+
+# ==============================
+# 2. Tạo thư mục làm việc trong container
+# ==============================
+WORKDIR /app
+
+# ==============================
+# 3. Copy package.json trước
+# để tận dụng cache khi build
+# ==============================
+COPY package*.json ./
+
+# ==============================
+# 4. Cài dependencies
+# ==============================
+RUN npm install
+
+# ==============================
+# 5. Copy toàn bộ source code
+# ==============================
+COPY . .
+
+# ==============================
+# 6. Mở port (phải trùng server.js)
+# ==============================
+EXPOSE 5000
+
+# ==============================
+# 7. Chạy app
+# Nếu dùng nodemon → npm run dev
+# ==============================
+CMD ["npm", "run", "dev"]

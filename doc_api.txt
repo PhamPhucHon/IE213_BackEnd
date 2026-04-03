@@ -1,0 +1,89 @@
+1. Authentication (/api/auth)
+Method	Endpoint	Mô tả	Quyền
+POST	/api/auth/register	Đăng ký tài khoản mới (name, email, password)	Public
+POST	/api/auth/login	Đăng nhập, trả về JWT token	Public
+POST	/api/auth/logout	Đăng xuất (xóa token ở client, có thể blacklist)	User
+POST	/api/auth/refresh-token	Làm mới token (nếu dùng refresh token)	User
+POST	/api/auth/forgot-password	Gửi email đặt lại mật khẩu	Public
+POST	/api/auth/reset-password	Đặt lại mật khẩu (dùng token từ email)	Public
+Ghi chú: authController.js và authService.js xử lý các logic này.
+
+2. User (/api/users)
+Method	Endpoint	Mô tả	Quyền
+GET	/api/users/profile	Lấy thông tin cá nhân của user đang đăng nhập	User
+PUT	/api/users/profile	Cập nhật hồ sơ (name, phone, avatar)	User
+GET	/api/users/addresses	Lấy danh sách địa chỉ giao hàng	User
+POST	/api/users/addresses	Thêm địa chỉ mới	User
+PUT	/api/users/addresses/:id	Cập nhật địa chỉ theo id	User
+DELETE	/api/users/addresses/:id	Xóa địa chỉ	User
+PUT	/api/users/change-password	Đổi mật khẩu (cần mật khẩu cũ)	User
+3. Category (/api/categories)
+Method	Endpoint	Mô tả	Quyền
+GET	/api/categories	Lấy danh sách danh mục (dạng cây, có phân trang)	Public
+GET	/api/categories/:id	Chi tiết danh mục theo id	Public
+GET	/api/categories/slug/:slug	Chi tiết danh mục theo slug	Public
+POST	/api/categories	Tạo danh mục mới	Admin
+PUT	/api/categories/:id	Cập nhật danh mục	Admin
+DELETE	/api/categories/:id	Xóa danh mục (chỉ khi không có sản phẩm con)	Admin
+4. Product (/api/products)
+Method	Endpoint	Mô tả	Quyền
+GET	/api/products	Danh sách sản phẩm (lọc theo category, brand, giá, tìm kiếm, phân trang, sắp xếp)	Public
+GET	/api/products/:id	Chi tiết sản phẩm theo id	Public
+GET	/api/products/slug/:slug	Chi tiết sản phẩm theo slug (SEO)	Public
+GET	/api/products/top	Top sản phẩm bán chạy / đánh giá cao	Public
+POST	/api/products	Tạo sản phẩm mới (kèm upload ảnh)	Admin
+PUT	/api/products/:id	Cập nhật sản phẩm	Admin
+DELETE	/api/products/:id	Xóa sản phẩm (cần xóa inventory liên quan)	Admin
+POST	/api/products/:id/upload-images	Upload thêm ảnh cho sản phẩm	Admin
+5. Review (/api/reviews)
+Method	Endpoint	Mô tả	Quyền
+GET	/api/products/:productId/reviews	Lấy danh sách đánh giá của một sản phẩm (phân trang, lọc theo số sao)	Public
+POST	/api/products/:productId/reviews	Tạo đánh giá mới (chỉ được phép nếu đã mua hàng)	User
+PUT	/api/reviews/:id	Cập nhật đánh giá của chính mình	User
+DELETE	/api/reviews/:id	Xóa đánh giá (user của review hoặc admin)	User/Admin
+POST	/api/reviews/:id/like	Thích / bỏ thích đánh giá	User
+GET	/api/reviews/stats/:productId	Thống kê số sao, % của sản phẩm	Public
+Lưu ý: Review controller gọi reviewService để kiểm tra verified purchase và cập nhật ratingStats trong product.
+
+6. Cart (/api/cart)
+Method	Endpoint	Mô tả	Quyền
+GET	/api/cart	Lấy giỏ hàng hiện tại của user	User
+POST	/api/cart	Thêm sản phẩm (variant) vào giỏ (hoặc tăng số lượng)	User
+PUT	/api/cart/items/:sku	Cập nhật số lượng của một item (sku)	User
+DELETE	/api/cart/items/:sku	Xóa một item khỏi giỏ	User
+DELETE	/api/cart	Xóa toàn bộ giỏ hàng	User
+POST	/api/cart/apply-coupon	Không có coupon nên bỏ	-
+Giải thích: Giỏ hàng lưu theo userId (mỗi user chỉ có một cart). Khi thêm sản phẩm, cần kiểm tra tồn kho (gọi inventoryService).
+
+7. Order (/api/orders)
+Method	Endpoint	Mô tả	Quyền
+POST	/api/orders	Tạo đơn hàng mới từ giỏ hàng hiện tại (cập nhật inventory, xóa cart)	User
+GET	/api/orders	Lấy danh sách đơn hàng của user (phân trang)	User
+GET	/api/orders/:id	Chi tiết một đơn hàng (kiểm tra quyền sở hữu)	User
+PUT	/api/orders/:id/cancel	Hủy đơn hàng (nếu trạng thái cho phép)	User
+POST	/api/orders/:id/pay	Xác nhận thanh toán (callback từ cổng thanh toán)	User/Public
+GET	/api/orders/:id/invoice	Xuất hóa đơn PDF (tùy chọn)	User
+Lưu ý: Khi tạo đơn, cần dùng atomic update cho inventory (findOneAndUpdate với điều kiện stock >= quantity).
+
+8. Inventory (/api/inventory) – Dành cho admin
+Method	Endpoint	Mô tả	Quyền
+GET	/api/inventory	Xem danh sách tồn kho (có thể lọc theo productId, sku)	Admin
+GET	/api/inventory/:sku	Xem chi tiết tồn kho của một SKU	Admin
+PUT	/api/inventory/:sku	Cập nhật tồn kho (điều chỉnh số lượng)	Admin
+POST	/api/inventory/restock	Nhập hàng (tăng stock)	Admin
+GET	/api/inventory/low-stock	Báo cáo các sản phẩm sắp hết hàng (dưới ngưỡng)	Admin
+9. Admin (/api/admin) – Các API quản trị tổng hợp
+Method	Endpoint	Mô tả	Quyền
+GET	/api/admin/users	Danh sách người dùng (phân trang, tìm kiếm)	Admin
+PUT	/api/admin/users/:id/role	Cập nhật role (user/admin)	Admin
+PUT	/api/admin/users/:id/block	Khóa / mở khóa tài khoản	Admin
+GET	/api/admin/orders	Danh sách tất cả đơn hàng (lọc theo status, ngày)	Admin
+PUT	/api/admin/orders/:id/status	Cập nhật trạng thái đơn hàng (Processing, Shipped, Delivered, Cancelled)	Admin
+GET	/api/admin/stats	Thống kê tổng quan (doanh thu, số đơn, top sản phẩm, số lượng user)	Admin
+GET	/api/admin/login-logs	Xem lịch sử đăng nhập của người dùng (lọc theo user, thời gian)	Admin
+📌 Ghi chú về quyền truy cập
+Public: Không cần token.
+
+User: Cần gửi token JWT trong header Authorization: Bearer <token>.
+
+Admin: Cần token và user.isAdmin === true. Middleware adminMiddleware.js sẽ kiểm tra sau khi authMiddleware.

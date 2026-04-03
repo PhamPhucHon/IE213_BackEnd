@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  app:
+    # ==============================
+    # Build từ thư mục backend
+    # ==============================
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: sneaker_backend
+
+    # ==============================
+    # Map port máy thật → container
+    # ==============================
+    ports:
+      - "5000:5000"
+
+    # ==============================
+    # Load biến môi trường
+    # ==============================
+    env_file:
+      - ./backend/.env
+
+    # ==============================
+    # Mount code (dev mode)
+    # sửa code không cần rebuild
+    # ==============================
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+    # ==============================
+    # Tự restart nếu crash
+    # ==============================
+    restart: always
