@@ -72,3 +72,7 @@ backend/
 ├── package.json
 |-- docker-compose.yml
 └── server.js                 # Khởi tạo app, kết nối DB, mount routes
+
+
+// Cài thư viện dể upload ảnh
+npm install multer-storage-cloudinary
