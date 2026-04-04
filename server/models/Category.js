@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('../utils/slugify');
 
 const categorySchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },

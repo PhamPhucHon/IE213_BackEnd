@@ -56,36 +56,36 @@ reviewSchema.post('findOneAndDelete', async function(doc) {
  
 // 3. STATIC METHODS
 reviewSchema.statics.calculateAverageRating = async function(productId) {
-  // 'this' ở đây trỏ tới toàn bộ Collection Review
   const stats = await this.aggregate([
     {
-      // Bước 1: Lọc ra tất cả các review thuộc về productId này
       $match: { productId: productId }
     },
     {
-      // Bước 2: Gom nhóm lại và tính toán
       $group: {
         _id: '$productId',
-        averageRating: { $avg: '$rating' }, // Tính trung bình cộng cột rating
-        numOfReviews: { $sum: 1 }           // Đếm tổng số lượng review
+        avgRating: { $avg: '$rating' },
+        totalReviews: { $sum: 1 }
       }
     }
   ]);
 
   try {
-    // Gọi model Product để cập nhật kết quả vừa tính được
     const Product = mongoose.model('Product');
-    
+
     if (stats.length > 0) {
       await Product.findByIdAndUpdate(productId, {
-        averageRating: Math.round(stats[0].averageRating * 10) / 10, // Làm tròn 1 chữ số thập phân (VD: 4.5)
-        numReviews: stats[0].numOfReviews
+        $set: {
+          'rating.avg': Math.round(stats[0].avgRating * 10) / 10,
+          'rating.count': stats[0].totalReviews
+        }
       });
     } else {
-      // Nếu sản phẩm bị xóa hết review thì reset về 0
+      // Reset khi không còn review
       await Product.findByIdAndUpdate(productId, {
-        averageRating: 0,
-        numReviews: 0
+        $set: {
+          'rating.avg': 0,
+          'rating.count': 0
+        }
       });
     }
   } catch (error) {
