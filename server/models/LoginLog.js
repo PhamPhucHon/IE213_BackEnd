@@ -33,7 +33,7 @@ loginLogSchema.statics.isBruteForceAttack = async function(email, limit = 5, min
   
   const failedAttempts = await this.countDocuments({
     email: email,
-    status: 'Failed',
+    status: 'failed',
     createdAt: { $gte: timeThreshold } // Lọc các log thất bại từ 15 phút trước đến nay
   });
 

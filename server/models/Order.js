@@ -56,41 +56,45 @@ orderSchema.pre('save', function(next) {
 // 3. INSTANCE METHODS
 // Đánh dấu thanh toán thành công
 orderSchema.methods.markAsPaid = async function() {
-  if (this.paymentStatus === 'Paid') throw new Error('Đơn hàng này đã được thanh toán rồi.');
-  
-  this.paymentStatus = 'Paid';
+  if (this.isPaid) {
+    throw new Error('Đơn hàng này đã được thanh toán rồi.');
+  }
+
+  this.isPaid = true;
   this.paidAt = Date.now();
-  
-  // Nếu là đơn đang chờ xử lý thì chuyển sang đang xử lý luôn
+
+  // Nếu là đơn đang chờ xử lý thì chuyển sang đang xử lý
   if (this.status === 'Pending') {
     this.status = 'Processing';
   }
-  
+
   return await this.save();
 };
 
 // Đánh dấu giao hàng thành công & XUẤT KHO THẬT
 orderSchema.methods.markAsDelivered = async function() {
-  if (this.status === 'Delivered') throw new Error('Đơn hàng đã ở trạng thái Đã Giao.');
-  if (this.status === 'Cancelled') throw new Error('Không thể giao một đơn hàng đã bị hủy.');
+  if (this.status === 'Delivered') {
+    throw new Error('Đơn hàng đã ở trạng thái Đã Giao.');
+  }
+
+  if (this.status === 'Cancelled') {
+    throw new Error('Không thể giao một đơn hàng đã bị hủy.');
+  }
 
   const Inventory = mongoose.model('Inventory');
 
-  // Lặp qua từng sản phẩm để gọi hàm xuất kho thực tế (issueStock)
   for (const item of this.items) {
     const inventory = await Inventory.findOne({ sku: item.sku });
     if (inventory) {
-      // Hàm này sẽ trừ thật sự stock và reserved trong kho
       await inventory.issueStock(item.quantity);
     }
   }
 
   this.status = 'Delivered';
   this.deliveredAt = Date.now();
-  
-  // Nếu là COD thì khi nhận hàng cũng là lúc thanh toán
-  if (this.paymentMethod === 'COD' && this.paymentStatus !== 'Paid') {
-    this.paymentStatus = 'Paid';
+
+  if (this.paymentMethod === 'COD' && !this.isPaid) {
+    this.isPaid = true;
     this.paidAt = Date.now();
   }
 
@@ -99,13 +103,16 @@ orderSchema.methods.markAsDelivered = async function() {
 
 // Hủy đơn hàng & NHẢ KHO
 orderSchema.methods.cancelOrder = async function(reason) {
-  if (this.status === 'Delivered') throw new Error('Không thể hủy đơn hàng đã giao thành công.');
-  if (this.status === 'Cancelled') throw new Error('Đơn hàng này đã bị hủy trước đó.');
+  if (this.status === 'Delivered') {
+    throw new Error('Không thể hủy đơn hàng đã giao thành công.');
+  }
+
+  if (this.status === 'Cancelled') {
+    throw new Error('Đơn hàng này đã bị hủy trước đó.');
+  }
 
   const Inventory = mongoose.model('Inventory');
 
-  // Lặp qua từng sản phẩm để gọi hàm nhả kho ảo (releaseStock)
-  // Việc này trả lại số lượng cho khách khác mua
   for (const item of this.items) {
     const inventory = await Inventory.findOne({ sku: item.sku });
     if (inventory) {
@@ -114,7 +121,9 @@ orderSchema.methods.cancelOrder = async function(reason) {
   }
 
   this.status = 'Cancelled';
-  this.cancelReason = reason || 'Hủy theo yêu cầu';
+
+  this.note = reason || 'Hủy theo yêu cầu';
+
   return await this.save();
 };
 

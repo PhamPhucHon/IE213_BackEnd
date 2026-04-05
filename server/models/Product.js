@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('../utils/slugify');
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
@@ -39,8 +40,8 @@ const productSchema = new mongoose.Schema({
 
 // 1. INDEXES
 productSchema.index({ name: 'text', brand: 'text' });
-productSchema.index({ categoryId: 1, basePrice: 1 });
-productSchema.index({ isActive: 1, isFeatured: -1 });
+productSchema.index({ categoryId: 1, 'variants.price': 1 });
+productSchema.index({ isActive: 1, 'rating.avg': -1 });
 
 
 // 2. MIDDLEWARES 

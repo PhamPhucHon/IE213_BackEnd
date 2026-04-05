@@ -61,7 +61,6 @@ inventorySchema.methods.issueStock = async function(quantity) {
   if (this.reserved < quantity) {
     throw new Error(`Lỗi xuất kho: Chưa có đủ số lượng đặt trước cho SKU ${this.sku}`);
   }
-  
   // Trừ đi ở cả 2 nơi (vì hàng giữ chỗ nay đã thực sự biến mất khỏi kho)
   this.stock -= quantity;
   this.reserved -= quantity;
