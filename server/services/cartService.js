@@ -1,6 +1,7 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const inventoryService = require('./inventoryService');
+const { cartDTO } = require('../utils/dto');
 
 
 // Hàm phụ trợ để tính tổng tiền của giỏ hàng
@@ -22,7 +23,7 @@ exports.getCart = async (userId) => {
     cart = await Cart.create({ userId, items: [], totalPrice: 0 });
   }
   
-  return cart;
+  return cartDTO(cart);
 };
 
 /**
@@ -86,7 +87,7 @@ exports.addToCart = async (userId, { sku, quantity }) => {
 
   // 6. Tính tổng tiền & Lưu
   cart.totalPrice = calculateTotalPrice(cart.items);
-  return await cart.save();
+  return cartDTO(await cart.save());
 };
 
 /**
@@ -99,7 +100,7 @@ exports.addToCart = async (userId, { sku, quantity }) => {
 exports.updateCartItem = async (userId, sku, quantity) => {
   // Nếu khách bấm giảm số lượng về 0 -> Tự động xóa khỏi giỏ
   if (quantity <= 0) {
-    return await this.removeCartItem(userId, sku);
+    return await exports.removeCartItem(userId, sku);
   }
 
   const cart = await Cart.findOne({ userId });
@@ -121,7 +122,7 @@ exports.updateCartItem = async (userId, sku, quantity) => {
   
   // Tính tổng tiền & Lưu
   cart.totalPrice = calculateTotalPrice(cart.items);
-  return await cart.save();
+  return cartDTO(await cart.save());
 };
 
 /**
@@ -139,7 +140,7 @@ exports.removeCartItem = async (userId, sku) => {
   
   // Tính tổng tiền & Lưu
   cart.totalPrice = calculateTotalPrice(cart.items);
-  return await cart.save();
+  return cartDTO(await cart.save());
 };
 
 /**
@@ -153,5 +154,5 @@ exports.clearCart = async (userId) => {
   cart.items = [];
   cart.totalPrice = 0;
   
-  return await cart.save();
+  return cartDTO(await cart.save());
 };

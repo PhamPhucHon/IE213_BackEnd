@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { userDTO } = require('../utils/dto');
 
 // ==========================================
 // QUẢN LÝ THÔNG TIN CÁ NHÂN 
@@ -10,7 +11,7 @@ exports.getUserProfile = async (userId) => {
   if (!user) {
     throw new Error('Không tìm thấy thông tin người dùng.');
   }
-  return user;
+  return userDTO(user);
 };
 
 
@@ -24,9 +25,8 @@ exports.updateUserProfile = async (userId, updateData) => {
   if (updateData.phone) user.phone = updateData.phone;
   if (updateData.avatar) user.avatar = updateData.avatar;
 
-  // Lấy ra thông tin đã cập nhật (Hook toJSON trong Model sẽ tự ẩn password)
   const updatedUser = await user.save();
-  return updatedUser;
+  return userDTO(updatedUser);
 };
 
 // Đổi mật khẩu 

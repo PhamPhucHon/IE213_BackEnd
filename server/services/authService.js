@@ -1,21 +1,7 @@
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const LoginLog = require('../models/LoginLog');
-
-
-// Các hàm tiện ích
-/**
- * Tạo JWT Token
- * @param {String} userId - ID của user
- * @returns {String} - Chuỗi token
- */
-const generateToken = (userId) => {
-  // Lấy secret key từ biến môi trường (Nên có dự phòng mặc định nếu thiếu)
-  const secret = process.env.JWT_SECRET || 'glass_store_secret_2026';
-  const expiresIn = process.env.JWT_EXPIRES || '7d';
-
-  return jwt.sign({ id: userId }, secret, { expiresIn });
-};
+const generateToken = require('../utils/generateToken');
+const { userDTO } = require('../utils/dto');
 
 
 // Các hàm chính của service
@@ -40,10 +26,9 @@ exports.registerUser = async (userData) => {
   });
 
   // 3. Tạo Token để user có thể đăng nhập ngay sau khi đăng ký
-  const token = generateToken(user._id);
+  const token = generateToken(user._id.toString());
 
-  // Mongoose tự động gọi hàm toJSON() ẩn password trước khi trả về
-  return { user, token };
+  return { user: userDTO(user), token };
 };
 
 /**
@@ -85,9 +70,9 @@ exports.loginUser = async (email, password, clientInfo = {}) => {
   // 5. Đăng nhập thành công -> Ghi Log và tạo Token
   await LoginLog.recordLog({ userId: user._id, email, ipAddress, userAgent, status: 'success' });
   
-  const token = generateToken(user._id);
+  const token = generateToken(user._id.toString());
 
-  return { user, token };
+  return { user: userDTO(user), token };
 };
 
 /**
@@ -100,5 +85,5 @@ exports.getUserProfile = async (userId) => {
   if (!user) {
     throw new Error('Không tìm thấy thông tin người dùng.');
   }
-  return user;
+  return userDTO(user);
 };
