@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const inventoryService = require('./inventoryService');
+const { orderDTO } = require('../utils/dto');
 
 /**
  * Tạo đơn hàng mới từ giỏ hàng hiện tại (Transaction)
@@ -61,7 +62,7 @@ exports.createOrder = async (userId, shippingAddress, paymentMethod) => {
     await session.commitTransaction();
     session.endSession();
 
-    return newOrder;
+    return orderDTO(newOrder);
   } catch (error) {
     // Nếu có bất kỳ lỗi nào (Hết hàng, lỗi DB...), Rollback toàn bộ!
     await session.abortTransaction();
@@ -86,7 +87,7 @@ exports.getUserOrders = async (userId, page = 1, limit = 10) => {
   ]);
 
   return {
-    orders,
+    orders: orders.map(orderDTO),
     pagination: {
       totalOrders,
       currentPage: Number(page),
@@ -112,7 +113,7 @@ exports.getOrderById = async (orderId, userId) => {
     throw new Error('Bạn không có quyền xem đơn hàng này.');
   }
 
-  return order;
+  return orderDTO(order);
 };
 
 /**
@@ -148,7 +149,7 @@ exports.cancelOrder = async (orderId, userId) => {
     await session.commitTransaction();
     session.endSession();
 
-    return order;
+    return orderDTO(order);
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -198,5 +199,5 @@ exports.updateOrderStatus = async (orderId, status, adminOnly = true) => {
   }
 
   order.status = status;
-  return await order.save();
+  return orderDTO(await order.save());
 };
