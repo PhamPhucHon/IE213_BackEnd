@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const Inventory = require('../models/Inventory');
 const Review = require('../models/Review');
+const { productDTO } = require('../utils/dto');
 
 /**
  * Lọc, phân trang, tìm kiếm, sắp xếp sản phẩm
@@ -51,7 +52,7 @@ exports.getProducts = async (filters = {}, page = 1, limit = 12, sort = 'newest'
   ]);
 
   return {
-    products,
+    products: products.map(productDTO),
     pagination: {
       totalProducts,
       currentPage: Number(page),
@@ -67,7 +68,7 @@ exports.getProductById = async (id) => {
   if (!product) {
     throw new Error('Không tìm thấy sản phẩm.');
   }
-  return product;
+  return productDTO(product);
 };
 
 // Lấy chi tiết sản phẩm theo Slug (Dùng cho trang chi tiết sản phẩm SEO)
@@ -77,7 +78,7 @@ exports.getProductBySlug = async (slug) => {
   if (!product) {
     throw new Error('Không tìm thấy sản phẩm.');
   }
-  return product;
+  return productDTO(product);
 };
 
 // Tạo sản phẩm mới (Kèm tạo tự động Inventory cho từng Variant)
@@ -117,7 +118,7 @@ exports.createProduct = async (productData) => {
     await session.commitTransaction();
     session.endSession();
 
-    return newProduct;
+    return productDTO(newProduct);
   } catch (error) {
     // Nếu có lỗi (ví dụ thiếu trường required), hủy bỏ toàn bộ
     await session.abortTransaction();
@@ -127,15 +128,24 @@ exports.createProduct = async (productData) => {
 };
 
 // Cập nhật thông tin sản phẩm
+// Chỉ cho phép cập nhật các trường an toàn (whitelist) — tránh mass-assignment
+const ALLOWED_PRODUCT_UPDATE_FIELDS = [
+  'name', 'description', 'brand', 'categoryId', 'variants', 'images', 'isActive'
+];
+
 exports.updateProduct = async (id, updateData) => {
   const product = await Product.findById(id);
   if (!product) {
     throw new Error('Không tìm thấy sản phẩm.');
   }
 
-  Object.assign(product, updateData);
+  ALLOWED_PRODUCT_UPDATE_FIELDS.forEach((field) => {
+    if (typeof updateData[field] !== 'undefined') {
+      product[field] = updateData[field];
+    }
+  });
 
-  return await product.save();
+  return productDTO(await product.save());
 };
 
 // Xóa sản phẩm

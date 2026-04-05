@@ -1,4 +1,5 @@
 const Category = require('../models/Category');
+const { categoryDTO } = require('../utils/dto');
 
 /**
  * Lấy danh sách toàn bộ danh mục (Dùng cho Admin và trang chủ)
@@ -7,7 +8,7 @@ const Category = require('../models/Category');
 exports.getAllCategories = async () => {
   const categories = await Category.find({ isActive: true })
                                    .sort({ order: 1 });
-  return categories;
+  return categories.map(categoryDTO);
 };
 
 /**
@@ -20,7 +21,7 @@ exports.getCategoryById = async (id) => {
   if (!category) {
     throw new Error('Không tìm thấy danh mục với ID này.');
   }
-  return category;
+  return categoryDTO(category);
 };
 
 /**
@@ -33,7 +34,7 @@ exports.getCategoryBySlug = async (slug) => {
   if (!category) {
     throw new Error('Không tìm thấy danh mục.');
   }
-  return category;
+  return categoryDTO(category);
 };
 
 /**
@@ -49,7 +50,7 @@ exports.createCategory = async (data) => {
 
   // Tạo mới (Trường Slug sẽ được Model tự động sinh ra nhờ Hook pre-validate)
   const newCategory = await Category.create(data);
-  return newCategory;
+  return categoryDTO(newCategory);
 };
 
 /**
@@ -80,7 +81,7 @@ exports.updateCategory = async (id, data) => {
   if (typeof data.isActive !== 'undefined') category.isActive = data.isActive;
   if (typeof data.order !== 'undefined') category.order = data.order;
 
-  return await category.save();
+  return categoryDTO(await category.save());
 };
 
 /**

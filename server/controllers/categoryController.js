@@ -1,63 +1,40 @@
 const categoryService = require('../services/categoryService');
-const { successResponse, errorResponse } = require('../utils/apiResponse');
+const { successResponse } = require('../utils/apiResponse');
 const { HTTP_STATUS, MESSAGES } = require('../config/constants');
+const { asyncHandler } = require('../utils/asyncHandler');
 
 // GET /api/categories
-exports.getAllCategories = async (req, res) => {
-  try {
-    const categories = await categoryService.getAllCategories();
-    return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, categories);
-  } catch (error) {
-    return errorResponse(res, HTTP_STATUS.INTERNAL_SERVER_ERROR, error.message, error);
-  }
-};
+exports.getAllCategories = asyncHandler(async (req, res) => {
+  const categories = await categoryService.getAllCategories();
+  return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, categories);
+});
 
 // GET /api/categories/:id
-exports.getCategoryById = async (req, res) => {
-  try {
-    const category = await categoryService.getCategoryById(req.params.id);
-    return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, category);
-  } catch (error) {
-    return errorResponse(res, HTTP_STATUS.NOT_FOUND, error.message, error);
-  }
-};
+exports.getCategoryById = asyncHandler(async (req, res) => {
+  const category = await categoryService.getCategoryById(req.params.id);
+  return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, category);
+});
 
 // GET /api/categories/slug/:slug
-exports.getCategoryBySlug = async (req, res) => {
-  try {
-    const category = await categoryService.getCategoryBySlug(req.params.slug);
-    return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, category);
-  } catch (error) {
-    return errorResponse(res, HTTP_STATUS.NOT_FOUND, error.message, error);
-  }
-};
+exports.getCategoryBySlug = asyncHandler(async (req, res) => {
+  const category = await categoryService.getCategoryBySlug(req.params.slug);
+  return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, category);
+});
 
 // POST /api/categories  (Admin only)
-exports.createCategory = async (req, res) => {
-  try {
-    const category = await categoryService.createCategory(req.body);
-    return successResponse(res, HTTP_STATUS.CREATED, 'Tạo danh mục thành công', category);
-  } catch (error) {
-    return errorResponse(res, HTTP_STATUS.BAD_REQUEST, error.message, error);
-  }
-};
+exports.createCategory = asyncHandler(async (req, res) => {
+  const category = await categoryService.createCategory(req.body);
+  return successResponse(res, HTTP_STATUS.CREATED, 'Tạo danh mục thành công', category);
+});
 
 // PUT /api/categories/:id  (Admin only)
-exports.updateCategory = async (req, res) => {
-  try {
-    const category = await categoryService.updateCategory(req.params.id, req.body);
-    return successResponse(res, HTTP_STATUS.OK, 'Cập nhật danh mục thành công', category);
-  } catch (error) {
-    return errorResponse(res, HTTP_STATUS.BAD_REQUEST, error.message, error);
-  }
-};
+exports.updateCategory = asyncHandler(async (req, res) => {
+  const category = await categoryService.updateCategory(req.params.id, req.body);
+  return successResponse(res, HTTP_STATUS.OK, 'Cập nhật danh mục thành công', category);
+});
 
 // DELETE /api/categories/:id  (Admin only)
-exports.deleteCategory = async (req, res) => {
-  try {
-    const result = await categoryService.deleteCategory(req.params.id);
-    return successResponse(res, HTTP_STATUS.OK, result.message, null);
-  } catch (error) {
-    return errorResponse(res, HTTP_STATUS.BAD_REQUEST, error.message, error);
-  }
-};
+exports.deleteCategory = asyncHandler(async (req, res) => {
+  const result = await categoryService.deleteCategory(req.params.id);
+  return successResponse(res, HTTP_STATUS.OK, result.message, null);
+});

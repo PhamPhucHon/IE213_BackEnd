@@ -1,4 +1,5 @@
 const Inventory = require('../models/Inventory');
+const { inventoryDTO } = require('../utils/dto');
 
 /**
  * Lấy thông tin tồn kho của một SKU
@@ -10,7 +11,7 @@ exports.getStock = async (sku) => {
   if (!inventory) {
     throw new Error(`Không tìm thấy thông tin tồn kho cho SKU: ${sku}`);
   }
-  return inventory;
+  return inventoryDTO(inventory);
 };
 
 /**
@@ -135,5 +136,5 @@ exports.updateStock = async (sku, newStock) => {
     throw new Error(`Không tìm thấy SKU ${sku} để cập nhật.`);
   }
 
-  return inventory;
+  return inventoryDTO(inventory);
 };

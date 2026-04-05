@@ -2,6 +2,7 @@ const Review = require('../models/Review');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const productService = require('./productService');
+const { reviewDTO } = require('../utils/dto');
 
 /**
  * Tạo đánh giá mới
@@ -44,7 +45,7 @@ exports.createReview = async (userId, productId, reviewData) => {
   // 4. Cập nhật lại Rating Stats bên bảng Product
   await productService.updateRatingStats(productId);
 
-  return review;
+  return reviewDTO(review);
 };
 
 /**
@@ -74,7 +75,7 @@ exports.getReviewsByProduct = async (productId, page = 1, limit = 5, ratingFilte
   ]);
 
   return {
-    reviews,
+    reviews: reviews.map(reviewDTO),
     pagination: {
       totalReviews,
       currentPage: Number(page),
@@ -108,7 +109,7 @@ exports.updateReview = async (reviewId, userId, updateData) => {
     await productService.updateRatingStats(review.productId);
   }
 
-  return review;
+  return reviewDTO(review);
 };
 
 /**
