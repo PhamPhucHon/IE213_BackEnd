@@ -12,7 +12,7 @@ const LoginLog = require('../models/LoginLog');
 const generateToken = (userId) => {
   // Lấy secret key từ biến môi trường (Nên có dự phòng mặc định nếu thiếu)
   const secret = process.env.JWT_SECRET || 'glass_store_secret_2026';
-  const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
+  const expiresIn = process.env.JWT_EXPIRES || '7d';
 
   return jwt.sign({ id: userId }, secret, { expiresIn });
 };
@@ -65,25 +65,25 @@ exports.loginUser = async (email, password, clientInfo = {}) => {
   // 2. Tìm User trong Database
   const user = await User.findOne({ email });
   if (!user) {
-    await LoginLog.recordLog({ email, ipAddress, userAgent, status: 'Failed', failureReason: 'Email không tồn tại' });
+    await LoginLog.recordLog({ email, ipAddress, userAgent, status: 'failed', failureReason: 'Email không tồn tại' });
     throw new Error('Email hoặc mật khẩu không chính xác.');
   }
 
   // 3. Kiểm tra Business Rule: Trạng thái tài khoản
   if (!user.isActive) {
-    await LoginLog.recordLog({ userId: user._id, email, ipAddress, userAgent, status: 'Failed', failureReason: 'Tài khoản bị khóa' });
+    await LoginLog.recordLog({ userId: user._id, email, ipAddress, userAgent, status: 'failed', failureReason: 'Tài khoản bị khóa' });
     throw new Error('Tài khoản của bạn đã bị vô hiệu hóa bởi Quản trị viên.');
   }
 
   // 4. So sánh mật khẩu (Sử dụng Instance Method ở model)
   const isMatch = await user.matchPassword(password);
   if (!isMatch) {
-    await LoginLog.recordLog({ userId: user._id, email, ipAddress, userAgent, status: 'Failed', failureReason: 'Sai mật khẩu' });
+    await LoginLog.recordLog({ userId: user._id, email, ipAddress, userAgent, status: 'failed', failureReason: 'Sai mật khẩu' });
     throw new Error('Email hoặc mật khẩu không chính xác.');
   }
 
   // 5. Đăng nhập thành công -> Ghi Log và tạo Token
-  await LoginLog.recordLog({ userId: user._id, email, ipAddress, userAgent, status: 'Success' });
+  await LoginLog.recordLog({ userId: user._id, email, ipAddress, userAgent, status: 'success' });
   
   const token = generateToken(user._id);
 

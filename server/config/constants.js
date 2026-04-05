@@ -4,11 +4,12 @@ module.exports = {
   HTTP_STATUS: {
     OK: 200,
     CREATED: 201,
+    NO_CONTENT: 204,
     BAD_REQUEST: 400,
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,
     NOT_FOUND: 404,
-    CONFLICT: 409,
+    UNPROCESSABLE_ENTITY: 422,
     INTERNAL_SERVER_ERROR: 500,
   },
 
@@ -20,6 +21,7 @@ module.exports = {
     UNAUTHORIZED: 'Chưa xác thực',
     FORBIDDEN: 'Không có quyền truy cập',
     VALIDATION_FAILED: 'Dữ liệu không hợp lệ',
+    UNPROCESSABLE_ENTITY: 'Dữ liệu không thể xử lý',
   },
 
   // Phân trang mặc định

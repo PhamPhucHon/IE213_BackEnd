@@ -49,7 +49,7 @@ exports.changeUserPassword = async (userId, currentPassword, newPassword) => {
 
 
 // ==========================================
-// QUẢN LÝ SỔ ĐỊA CHỈ (ADDRESS BOOK)
+// QUẢN LÝ SỔ ĐỊA CHỈ 
 // ==========================================
 
 // Thêm địa chỉ mới
