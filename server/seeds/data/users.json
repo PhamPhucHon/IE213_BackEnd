@@ -1,0 +1,740 @@
+[
+  {
+    "name": "Quản Trị Viên",
+    "email": "admin@glassstore.vn",
+    "password": "Admin@123",
+    "avatar": "https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff",
+    "phone": "0901234567",
+    "isAdmin": true,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Văn phòng",
+        "address": "123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Nguyễn Văn Phúc",
+    "email": "phuc.admin@glassstore.vn",
+    "password": "Admin@123",
+    "avatar": "https://ui-avatars.com/api/?name=Phuc+Nguyen&background=E74C3C&color=fff",
+    "phone": "0912345678",
+    "isAdmin": true,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà riêng",
+        "address": "45 Trần Phú, Quận Hải Châu, TP. Đà Nẵng",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Trần Thị Hoa",
+    "email": "hoa.admin@glassstore.vn",
+    "password": "Admin@123",
+    "avatar": "https://ui-avatars.com/api/?name=Hoa+Tran&background=27AE60&color=fff",
+    "phone": "0933456789",
+    "isAdmin": true,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà riêng",
+        "address": "89 Lê Lợi, Quận Hoàn Kiếm, Hà Nội",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Nguyễn Minh Tuấn",
+    "email": "tuan.nguyen@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0901111222",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "12 Đinh Tiên Hoàng, Quận 1, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Lê Thị Lan",
+    "email": "lan.le@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0912222333",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "34 Nguyễn Trãi, Quận Thanh Xuân, Hà Nội",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Phạm Quang Hùng",
+    "email": "hung.pham@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0923333444",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "78 Trần Hưng Đạo, Quận Ngũ Hành Sơn, TP. Đà Nẵng",
+        "isDefault": true
+      },
+      {
+        "label": "Công ty",
+        "address": "5 Ngô Quyền, Quận Sơn Trà, TP. Đà Nẵng",
+        "isDefault": false
+      }
+    ]
+  },
+  {
+    "name": "Hoàng Thị Linh",
+    "email": "linh.hoang@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0934444555",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": []
+  },
+  {
+    "name": "Vũ Đức Nam",
+    "email": "nam.vu@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0945555666",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "56 Lê Duẩn, TP. Huế, Thừa Thiên Huế",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Đặng Thị Ngọc",
+    "email": "ngoc.dang@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0956666777",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "23 Phạm Văn Đồng, Quận Gò Vấp, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Bùi Văn Thành",
+    "email": "thanh.bui@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0967777888",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "90 Võ Văn Tần, Quận 3, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Ngô Thị Hương",
+    "email": "huong.ngo@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0978888999",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": []
+  },
+  {
+    "name": "Dương Văn Phong",
+    "email": "phong.duong@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0989999000",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "15 Hoàng Diệu, Quận Lê Chân, TP. Hải Phòng",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Phan Thị Thảo",
+    "email": "thao.phan@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0901010101",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "67 Nguyễn Văn Cừ, Quận Ninh Kiều, TP. Cần Thơ",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Hồ Văn Khoa",
+    "email": "khoa.ho@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0912020202",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "101 Lý Thường Kiệt, Quận Hai Bà Trưng, Hà Nội",
+        "isDefault": true
+      },
+      {
+        "label": "Ký túc xá",
+        "address": "Đại học Bách Khoa, Quận Đống Đa, Hà Nội",
+        "isDefault": false
+      }
+    ]
+  },
+  {
+    "name": "Lý Thị Mai",
+    "email": "mai.ly@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0923030303",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "5 Trần Phú, Nha Trang, Khánh Hòa",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Trương Văn Bình",
+    "email": "binh.truong@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0934040404",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": []
+  },
+  {
+    "name": "Đinh Thị Trang",
+    "email": "trang.dinh@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0945050505",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "38 Nguyễn Thị Minh Khai, Quận 1, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Võ Thành Long",
+    "email": "long.vo@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0956060606",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "72 Bùi Thị Xuân, Quận Bình Thạnh, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Nguyễn Thị Vy",
+    "email": "vy.nguyen@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0967070707",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "19 Hai Bà Trưng, Quận Hoàn Kiếm, Hà Nội",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Trần Văn Đức",
+    "email": "duc.tran@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0978080808",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": []
+  },
+  {
+    "name": "Lê Thị Nhung",
+    "email": "nhung.le@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0989090909",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "44 Lê Văn Việt, TP. Thủ Đức, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Phạm Văn Quang",
+    "email": "quang.pham@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0901111000",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "88 Điện Biên Phủ, Quận Thanh Khê, TP. Đà Nẵng",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Hoàng Văn Trung",
+    "email": "trung.hoang@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0912222000",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "33 Trần Nhân Tông, Quận Hai Bà Trưng, Hà Nội",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Vũ Thị Hằng",
+    "email": "hang.vu@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0923333000",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": []
+  },
+  {
+    "name": "Đặng Văn Hiếu",
+    "email": "hieu.dang@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0934444000",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "21 Trần Quang Khải, Quận 1, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Bùi Thị Phương",
+    "email": "phuong.bui@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0945555000",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "60 Nguyễn Công Trứ, Quận Ngô Quyền, TP. Hải Phòng",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Ngô Văn Tuấn",
+    "email": "tuan.ngo@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0956666000",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "17 Hùng Vương, Quận Ninh Kiều, TP. Cần Thơ",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Dương Thị Diễm",
+    "email": "diem.duong@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0967777000",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": []
+  },
+  {
+    "name": "Phan Văn Lâm",
+    "email": "lam.phan@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0978888000",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "55 Lê Thánh Tông, Quận Lê Chân, TP. Hải Phòng",
+        "isDefault": true
+      },
+      {
+        "label": "Công ty",
+        "address": "KCN Nomura, An Dương, Hải Phòng",
+        "isDefault": false
+      }
+    ]
+  },
+  {
+    "name": "Hồ Thị Yến",
+    "email": "yen.ho@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0989999111",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "3 Quang Trung, TP. Nha Trang, Khánh Hòa",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Lý Văn Tú",
+    "email": "tu.ly@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0901222333",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "29 Ngô Gia Tự, TP. Bắc Ninh, Bắc Ninh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Trương Thị Châu",
+    "email": "chau.truong@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0912333444",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "47 Lý Tự Trọng, Quận 1, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Đinh Văn Đạt",
+    "email": "dat.dinh@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0923444555",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": []
+  },
+  {
+    "name": "Võ Thị Nhi",
+    "email": "nhi.vo@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0934555666",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "81 Nguyễn Huệ, TP. Pleiku, Gia Lai",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Nguyễn Văn Hải",
+    "email": "hai.nguyen@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0945666777",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "14 Lạc Long Quân, Quận 11, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Trần Thị Bích",
+    "email": "bich.tran@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0956777888",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "62 Tô Hiến Thành, Quận Hai Bà Trưng, Hà Nội",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Lê Văn Dũng",
+    "email": "dung.le@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0967888999",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": []
+  },
+  {
+    "name": "Phạm Thị Thu",
+    "email": "thu.pham@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0978999000",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "39 Lê Lợi, TP. Vinh, Nghệ An",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Hoàng Minh Khôi",
+    "email": "khoi.hoang@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0989000111",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "7 Nguyễn Chí Thanh, Quận Đống Đa, Hà Nội",
+        "isDefault": true
+      },
+      {
+        "label": "Công ty",
+        "address": "Keangnam Hanoi Landmark Tower, Quận Nam Từ Liêm, Hà Nội",
+        "isDefault": false
+      }
+    ]
+  },
+  {
+    "name": "Vũ Thị Hoa",
+    "email": "hoa.vu@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0901000222",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "53 Trần Quốc Toản, Quận 3, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Đặng Văn Kiên",
+    "email": "kien.dang@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0912000333",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "26 Trần Phú, Quận Hải Châu, TP. Đà Nẵng",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Bùi Thị Ly",
+    "email": "ly.bui@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0923000444",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": []
+  },
+  {
+    "name": "Ngô Văn Sơn",
+    "email": "son.ngo@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0934000555",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "75 Đinh Bộ Lĩnh, Quận Bình Thạnh, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Dương Thị Xuân",
+    "email": "xuan.duong@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0945000666",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "11 Quốc lộ 1A, TP. Quy Nhơn, Bình Định",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Phan Văn Minh",
+    "email": "minh.phan@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0956000777",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "48 Lê Duẩn, TP. Buôn Ma Thuột, Đắk Lắk",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Hồ Văn Phát",
+    "email": "phat.ho@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0967000888",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": []
+  },
+  {
+    "name": "Lý Thị Kim",
+    "email": "kim.ly@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0978000999",
+    "isAdmin": false,
+    "isActive": true,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "94 Lê Lai, Quận 1, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Trương Văn Toàn",
+    "email": "toan.truong@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0901999888",
+    "isAdmin": false,
+    "isActive": false,
+    "addresses": [
+      {
+        "label": "Nhà",
+        "address": "6 Phạm Ngọc Thạch, Quận 3, TP. Hồ Chí Minh",
+        "isDefault": true
+      }
+    ]
+  },
+  {
+    "name": "Đinh Thị Lan",
+    "email": "lan.dinh@gmail.com",
+    "password": "123456",
+    "avatar": "",
+    "phone": "0912999777",
+    "isAdmin": false,
+    "isActive": false,
+    "addresses": []
+  }
+]

@@ -1,0 +1,1142 @@
+[
+  {
+    "orderNumber": "ORD-20260407-0001",
+    "userEmail": "admin@glassstore.vn",
+    "items": [
+      {
+        "productSlug": "the-paper-knife-01",
+        "sku": "the-paper-knife-01-brown",
+        "name": "THE PAPER KNIFE 01",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681257/MyProject/the-paper-knife-01-brown/jforeddc8d6age19pklb.jpg",
+        "price": 2500000,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Quản Trị Viên",
+      "phone": "0901234567",
+      "address": "123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh"
+    },
+    "paymentMethod": "COD",
+    "itemsPrice": 2500000,
+    "shippingPrice": 0,
+    "totalPrice": 2500000,
+    "status": "Pending",
+    "isPaid": false,
+    "note": "",
+    "createdAt": "2026-04-07T08:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0002",
+    "userEmail": "phuc.admin@glassstore.vn",
+    "items": [
+      {
+        "productSlug": "the-paper-knife-01",
+        "sku": "the-paper-knife-01-black",
+        "name": "THE PAPER KNIFE 01",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681484/MyProject/the-paper-knife-01-black/t3rhjyzt7spai3qksmnf.png",
+        "price": 2500000,
+        "quantity": 2
+      },
+      {
+        "productSlug": "the-ruler-06",
+        "sku": "the-ruler-06-brown",
+        "name": "THE RULER 06",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681128/MyProject/the-ruler-06-brown/hirkfvko1tg6vbc0ippk.jpg",
+        "price": 2550000,
+        "quantity": 3
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Nguyễn Văn Phúc",
+      "phone": "0912345678",
+      "address": "45 Trần Phú, Quận Hải Châu, TP. Đà Nẵng"
+    },
+    "paymentMethod": "Momo",
+    "paymentResult": {
+      "id": "PAY-20260407-0002",
+      "status": "COMPLETED",
+      "updateTime": "2026-04-06T21:38:34.233Z"
+    },
+    "itemsPrice": 12650000,
+    "shippingPrice": 0,
+    "totalPrice": 12650000,
+    "status": "Processing",
+    "isPaid": true,
+    "paidAt": "2026-04-06T21:38:34.233Z",
+    "note": "",
+    "createdAt": "2026-04-06T21:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0003",
+    "userEmail": "hoa.admin@glassstore.vn",
+    "items": [
+      {
+        "productSlug": "the-ruler-07",
+        "sku": "the-ruler-07-grey",
+        "name": "THE RULER 07",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681606/MyProject/the-ruler-07-grey/kusqialr7yv997j41qp7.jpg",
+        "price": 2550000,
+        "quantity": 3
+      },
+      {
+        "productSlug": "the-ruler-06",
+        "sku": "the-ruler-06-black",
+        "name": "THE RULER 06",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681629/MyProject/the-ruler-06-black/mcfzp6h3twdmgdxk4gku.jpg",
+        "price": 2550000,
+        "quantity": 1
+      },
+      {
+        "productSlug": "the-ruler-03",
+        "sku": "the-ruler-03-gunmetal",
+        "name": "THE RULER 03",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681146/MyProject/the-ruler-03-gunmetal/r30ipns0m7kippefj2ov.jpg",
+        "price": 2750000,
+        "quantity": 2
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Trần Thị Hoa",
+      "phone": "0933456789",
+      "address": "89 Lê Lợi, Quận Hoàn Kiếm, Hà Nội"
+    },
+    "paymentMethod": "BankTransfer",
+    "paymentResult": {
+      "id": "PAY-20260407-0003",
+      "status": "COMPLETED",
+      "updateTime": "2026-04-06T10:38:34.233Z"
+    },
+    "itemsPrice": 15700000,
+    "shippingPrice": 0,
+    "totalPrice": 15700000,
+    "status": "Shipped",
+    "isPaid": true,
+    "paidAt": "2026-04-06T10:38:34.233Z",
+    "note": "",
+    "createdAt": "2026-04-06T10:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0004",
+    "userEmail": "tuan.nguyen@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-paper-knife-02",
+        "sku": "the-paper-knife-02-havana",
+        "name": "THE PAPER KNIFE 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681568/MyProject/the-paper-knife-02-havana/qgvjj496dtvxpd6gp8bk.jpg",
+        "price": 2500000,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Nguyễn Minh Tuấn",
+      "phone": "0901111222",
+      "address": "12 Đinh Tiên Hoàng, Quận 1, TP. Hồ Chí Minh"
+    },
+    "paymentMethod": "COD",
+    "paymentResult": {
+      "id": "PAY-20260407-0004",
+      "status": "COMPLETED",
+      "updateTime": "2026-04-05T23:38:34.233Z"
+    },
+    "itemsPrice": 2500000,
+    "shippingPrice": 0,
+    "totalPrice": 2500000,
+    "status": "Delivered",
+    "isPaid": true,
+    "paidAt": "2026-04-05T23:38:34.233Z",
+    "deliveredAt": "2026-04-08T23:08:34.233Z",
+    "note": "",
+    "createdAt": "2026-04-05T23:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0005",
+    "userEmail": "lan.le@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-paper-knife-02",
+        "sku": "the-paper-knife-02-grey",
+        "name": "THE PAPER KNIFE 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681636/MyProject/the-paper-knife-02-grey/flhw9gtjf1m9ar7bma3n.jpg",
+        "price": 2500000,
+        "quantity": 2
+      },
+      {
+        "productSlug": "the-set-square-02",
+        "sku": "the-set-square-02-black",
+        "name": "THE SET SQUARE 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681586/MyProject/the-set-square-02-black/pycjrjvnoe4yu1rw6aun.jpg",
+        "price": 2600000,
+        "quantity": 3
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Lê Thị Lan",
+      "phone": "0912222333",
+      "address": "34 Nguyễn Trãi, Quận Thanh Xuân, Hà Nội"
+    },
+    "paymentMethod": "Momo",
+    "itemsPrice": 12800000,
+    "shippingPrice": 0,
+    "totalPrice": 12800000,
+    "status": "Cancelled",
+    "isPaid": false,
+    "note": "Huy theo yeu cau khach hang",
+    "createdAt": "2026-04-05T12:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0006",
+    "userEmail": "hung.pham@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-ruler-06",
+        "sku": "the-ruler-06-grey",
+        "name": "THE RULER 06",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681524/MyProject/the-ruler-06-grey/tgcxsntclpdebzv8ldb1.jpg",
+        "price": 2550000,
+        "quantity": 3
+      },
+      {
+        "productSlug": "the-soap-10",
+        "sku": "the-soap-10-black",
+        "name": "THE SOAP 10",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681169/MyProject/the-soap-10-black/xlz6asqbselmpniuh83k.jpg",
+        "price": 2750000,
+        "quantity": 1
+      },
+      {
+        "productSlug": "the-soap-07-sunglasses---grey",
+        "sku": "the-soap-07-sunglasses-grey-rhino",
+        "name": "THE SOAP 07 SUNGLASSES - Grey",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681443/MyProject/the-soap-07-sunglasses-grey-rhino/te12v9wtdquas32tglhd.jpg",
+        "price": 2450000,
+        "quantity": 2
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Phạm Quang Hùng",
+      "phone": "0923333444",
+      "address": "78 Trần Hưng Đạo, Quận Ngũ Hành Sơn, TP. Đà Nẵng"
+    },
+    "paymentMethod": "BankTransfer",
+    "itemsPrice": 15300000,
+    "shippingPrice": 0,
+    "totalPrice": 15300000,
+    "status": "Pending",
+    "isPaid": false,
+    "note": "",
+    "createdAt": "2026-04-05T01:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0007",
+    "userEmail": "linh.hoang@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-ruler-06",
+        "sku": "the-ruler-06-dark-grey",
+        "name": "THE RULER 06",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681087/MyProject/the-ruler-06-dark-grey/y1dkynziiq0zfqofxqkv.png",
+        "price": 2550000,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Hoàng Thị Linh",
+      "phone": "0934444555",
+      "address": "Dia chi mac dinh, TP. Ho Chi Minh"
+    },
+    "paymentMethod": "COD",
+    "itemsPrice": 2550000,
+    "shippingPrice": 0,
+    "totalPrice": 2550000,
+    "status": "Processing",
+    "isPaid": false,
+    "note": "",
+    "createdAt": "2026-04-04T14:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0008",
+    "userEmail": "nam.vu@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-soap-11",
+        "sku": "the-soap-11-green",
+        "name": "THE SOAP 11",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681381/MyProject/the-soap-11-green/xj47oqzgunukbqgmreyr.jpg",
+        "price": 2450000,
+        "quantity": 2
+      },
+      {
+        "productSlug": "the-ruler-04",
+        "sku": "the-ruler-04-gunmetal",
+        "name": "THE RULER 04",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681230/MyProject/the-ruler-04-gunmetal/ux6x3vqdlidon66tdijz.jpg",
+        "price": 2750000,
+        "quantity": 3
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Vũ Đức Nam",
+      "phone": "0945555666",
+      "address": "56 Lê Duẩn, TP. Huế, Thừa Thiên Huế"
+    },
+    "paymentMethod": "Momo",
+    "paymentResult": {
+      "id": "PAY-20260407-0008",
+      "status": "COMPLETED",
+      "updateTime": "2026-04-04T03:38:34.233Z"
+    },
+    "itemsPrice": 13150000,
+    "shippingPrice": 0,
+    "totalPrice": 13150000,
+    "status": "Shipped",
+    "isPaid": true,
+    "paidAt": "2026-04-04T03:38:34.233Z",
+    "note": "",
+    "createdAt": "2026-04-04T03:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0009",
+    "userEmail": "ngoc.dang@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-soap-10",
+        "sku": "the-soap-10-dark-grey",
+        "name": "THE SOAP 10",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681318/MyProject/the-soap-10-dark-grey/dmtxuozznni6khxxkr7i.jpg",
+        "price": 2750000,
+        "quantity": 3
+      },
+      {
+        "productSlug": "the-ruler-01",
+        "sku": "the-ruler-01-marble-black",
+        "name": "THE RULER 01",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681459/MyProject/the-ruler-01-marble-black/xhgqspq9pcrzh2g962cc.jpg",
+        "price": 2850000,
+        "quantity": 1
+      },
+      {
+        "productSlug": "the-snorkel-02",
+        "sku": "the-snorkel-02-crystal",
+        "name": "THE SNORKEL 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681412/MyProject/the-snorkel-02-crystal/blf7vljyei6uzy1ulvpg.jpg",
+        "price": 2400000,
+        "quantity": 2
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Đặng Thị Ngọc",
+      "phone": "0956666777",
+      "address": "23 Phạm Văn Đồng, Quận Gò Vấp, TP. Hồ Chí Minh"
+    },
+    "paymentMethod": "BankTransfer",
+    "paymentResult": {
+      "id": "PAY-20260407-0009",
+      "status": "COMPLETED",
+      "updateTime": "2026-04-03T16:38:34.233Z"
+    },
+    "itemsPrice": 15900000,
+    "shippingPrice": 0,
+    "totalPrice": 15900000,
+    "status": "Delivered",
+    "isPaid": true,
+    "paidAt": "2026-04-03T16:38:34.233Z",
+    "deliveredAt": "2026-04-06T16:08:34.233Z",
+    "note": "",
+    "createdAt": "2026-04-03T16:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0010",
+    "userEmail": "thanh.bui@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-ruler-03",
+        "sku": "the-ruler-03-gunmetal",
+        "name": "THE RULER 03",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681146/MyProject/the-ruler-03-gunmetal/r30ipns0m7kippefj2ov.jpg",
+        "price": 2750000,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Bùi Văn Thành",
+      "phone": "0967777888",
+      "address": "90 Võ Văn Tần, Quận 3, TP. Hồ Chí Minh"
+    },
+    "paymentMethod": "COD",
+    "itemsPrice": 2750000,
+    "shippingPrice": 0,
+    "totalPrice": 2750000,
+    "status": "Cancelled",
+    "isPaid": false,
+    "note": "Huy theo yeu cau khach hang",
+    "createdAt": "2026-04-03T05:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0011",
+    "userEmail": "huong.ngo@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-ruler-04",
+        "sku": "the-ruler-04-silver",
+        "name": "THE RULER 04",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681079/MyProject/the-ruler-04-silver/zaltp6whzkcqgaubho6t.jpg",
+        "price": 2750000,
+        "quantity": 2
+      },
+      {
+        "productSlug": "the-soap-02-sunglasses---grey",
+        "sku": "the-soap-02-sunglasses-grey-rhino",
+        "name": "THE SOAP 02 SUNGLASSES - Grey",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681294/MyProject/the-soap-02-sunglasses-grey-rhino/pye2xgaw0sri5tspmynw.png",
+        "price": 2350000,
+        "quantity": 3
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Ngô Thị Hương",
+      "phone": "0978888999",
+      "address": "Dia chi mac dinh, TP. Ho Chi Minh"
+    },
+    "paymentMethod": "Momo",
+    "itemsPrice": 12550000,
+    "shippingPrice": 0,
+    "totalPrice": 12550000,
+    "status": "Pending",
+    "isPaid": false,
+    "note": "",
+    "createdAt": "2026-04-02T18:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0012",
+    "userEmail": "phong.duong@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-set-square-02-sunglasses---grey",
+        "sku": "the-set-square-02-sunglasses-grey-rhino",
+        "name": "THE SET SQUARE 02 SUNGLASSES - Grey",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681211/MyProject/the-set-square-02-sunglasses-grey-rhino/pab0datpf73yhpietcpt.jpg",
+        "price": 2600000,
+        "quantity": 3
+      },
+      {
+        "productSlug": "the-snorkel-02",
+        "sku": "the-snorkel-02-black",
+        "name": "THE SNORKEL 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681283/MyProject/the-snorkel-02-black/zpn8gjqlikddyz6k48l4.jpg",
+        "price": 2400000,
+        "quantity": 1
+      },
+      {
+        "productSlug": "the-soap-09",
+        "sku": "the-soap-09-grey",
+        "name": "THE SOAP 09",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681455/MyProject/the-soap-09-grey/dtmqlyfbnhlx56tuqbbo.jpg",
+        "price": 2750000,
+        "quantity": 2
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Dương Văn Phong",
+      "phone": "0989999000",
+      "address": "15 Hoàng Diệu, Quận Lê Chân, TP. Hải Phòng"
+    },
+    "paymentMethod": "BankTransfer",
+    "paymentResult": {
+      "id": "PAY-20260407-0012",
+      "status": "COMPLETED",
+      "updateTime": "2026-04-02T07:38:34.233Z"
+    },
+    "itemsPrice": 15700000,
+    "shippingPrice": 0,
+    "totalPrice": 15700000,
+    "status": "Processing",
+    "isPaid": true,
+    "paidAt": "2026-04-02T07:38:34.233Z",
+    "note": "",
+    "createdAt": "2026-04-02T07:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0013",
+    "userEmail": "thao.phan@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-soap-07-sunglasses---grey",
+        "sku": "the-soap-07-sunglasses-grey-rhino",
+        "name": "THE SOAP 07 SUNGLASSES - Grey",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681443/MyProject/the-soap-07-sunglasses-grey-rhino/te12v9wtdquas32tglhd.jpg",
+        "price": 2450000,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Phan Thị Thảo",
+      "phone": "0901010101",
+      "address": "67 Nguyễn Văn Cừ, Quận Ninh Kiều, TP. Cần Thơ"
+    },
+    "paymentMethod": "COD",
+    "itemsPrice": 2450000,
+    "shippingPrice": 0,
+    "totalPrice": 2450000,
+    "status": "Shipped",
+    "isPaid": false,
+    "note": "",
+    "createdAt": "2026-04-01T20:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0014",
+    "userEmail": "khoa.ho@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-obsidian-02",
+        "sku": "the-obsidian-02-matte-black",
+        "name": "THE OBSIDIAN 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681600/MyProject/the-obsidian-02-matte-black/eejjgnxjsbe5eotlv6eq.jpg",
+        "price": 2350000,
+        "quantity": 2
+      },
+      {
+        "productSlug": "the-soap-08-sunglasses---grey",
+        "sku": "the-soap-08-sunglasses-grey-rhino",
+        "name": "THE SOAP 08 SUNGLASSES - Grey",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681267/MyProject/the-soap-08-sunglasses-grey-rhino/bugvxdtgpvxcy3krih5v.jpg",
+        "price": 2450000,
+        "quantity": 3
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Hồ Văn Khoa",
+      "phone": "0912020202",
+      "address": "101 Lý Thường Kiệt, Quận Hai Bà Trưng, Hà Nội"
+    },
+    "paymentMethod": "Momo",
+    "paymentResult": {
+      "id": "PAY-20260407-0014",
+      "status": "COMPLETED",
+      "updateTime": "2026-04-01T09:38:34.233Z"
+    },
+    "itemsPrice": 12050000,
+    "shippingPrice": 0,
+    "totalPrice": 12050000,
+    "status": "Delivered",
+    "isPaid": true,
+    "paidAt": "2026-04-01T09:38:34.233Z",
+    "deliveredAt": "2026-04-04T09:08:34.233Z",
+    "note": "",
+    "createdAt": "2026-04-01T09:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0015",
+    "userEmail": "mai.ly@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-snorkel-02",
+        "sku": "the-snorkel-02-matte-black",
+        "name": "THE SNORKEL 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681448/MyProject/the-snorkel-02-matte-black/jxsoj3xjxie4rpfnxvtt.jpg",
+        "price": 2400000,
+        "quantity": 3
+      },
+      {
+        "productSlug": "the-soap-08",
+        "sku": "the-soap-08-grey",
+        "name": "THE SOAP 08",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681418/MyProject/the-soap-08-grey/dhh6qpzyw7yv6jib9qyv.jpg",
+        "price": 2450000,
+        "quantity": 1
+      },
+      {
+        "productSlug": "the-athletes-02",
+        "sku": "the-athletes-02-milky-grey",
+        "name": "THE ATHLETES 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681157/MyProject/the-athletes-02-milky-grey/iyi0g2rmxvklxzvgb635.png",
+        "price": 2800000,
+        "quantity": 2
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Lý Thị Mai",
+      "phone": "0923030303",
+      "address": "5 Trần Phú, Nha Trang, Khánh Hòa"
+    },
+    "paymentMethod": "BankTransfer",
+    "itemsPrice": 15250000,
+    "shippingPrice": 0,
+    "totalPrice": 15250000,
+    "status": "Cancelled",
+    "isPaid": false,
+    "note": "Huy theo yeu cau khach hang",
+    "createdAt": "2026-03-31T22:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0016",
+    "userEmail": "binh.truong@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-snorkel-02",
+        "sku": "the-snorkel-02-crystal",
+        "name": "THE SNORKEL 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681412/MyProject/the-snorkel-02-crystal/blf7vljyei6uzy1ulvpg.jpg",
+        "price": 2400000,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Trương Văn Bình",
+      "phone": "0934040404",
+      "address": "Dia chi mac dinh, TP. Ho Chi Minh"
+    },
+    "paymentMethod": "COD",
+    "itemsPrice": 2400000,
+    "shippingPrice": 0,
+    "totalPrice": 2400000,
+    "status": "Pending",
+    "isPaid": false,
+    "note": "",
+    "createdAt": "2026-03-31T11:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0017",
+    "userEmail": "trang.dinh@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-snorkel-01",
+        "sku": "the-snorkel-01-black",
+        "name": "THE SNORKEL 01",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681141/MyProject/the-snorkel-01-black/dykmfkjsvaga6bzhts4g.jpg",
+        "price": 2400000,
+        "quantity": 2
+      },
+      {
+        "productSlug": "the-assembled-02",
+        "sku": "the-assembled-02-transparent-beige",
+        "name": "THE ASSEMBLED 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681466/MyProject/the-assembled-02-transparent-beige/jhfse7e3orncpnedcroy.jpg",
+        "price": 2100000,
+        "quantity": 3
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Đinh Thị Trang",
+      "phone": "0945050505",
+      "address": "38 Nguyễn Thị Minh Khai, Quận 1, TP. Hồ Chí Minh"
+    },
+    "paymentMethod": "Momo",
+    "paymentResult": {
+      "id": "PAY-20260407-0017",
+      "status": "COMPLETED",
+      "updateTime": "2026-03-31T00:38:34.233Z"
+    },
+    "itemsPrice": 11100000,
+    "shippingPrice": 0,
+    "totalPrice": 11100000,
+    "status": "Processing",
+    "isPaid": true,
+    "paidAt": "2026-03-31T00:38:34.233Z",
+    "note": "",
+    "createdAt": "2026-03-31T00:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0018",
+    "userEmail": "long.vo@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-soap-08",
+        "sku": "the-soap-08-green",
+        "name": "THE SOAP 08",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681407/MyProject/the-soap-08-green/ozeuaomp4imto9zepg6k.jpg",
+        "price": 2450000,
+        "quantity": 3
+      },
+      {
+        "productSlug": "the-athletes-02---beige",
+        "sku": "the-athletes-02-beige-rhino",
+        "name": "THE ATHLETES 02 - Beige",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681117/MyProject/the-athletes-02-beige-rhino/jjmqrgjc0jv8y9daptd4.png",
+        "price": 2800000,
+        "quantity": 1
+      },
+      {
+        "productSlug": "the-athletes-11---green",
+        "sku": "the-athletes-11-green-rhino",
+        "name": "THE ATHLETES 11 - Green",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681302/MyProject/the-athletes-11-green-rhino/gjoskgxl5asac5l3bjbq.png",
+        "price": 2800000,
+        "quantity": 2
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Võ Thành Long",
+      "phone": "0956060606",
+      "address": "72 Bùi Thị Xuân, Quận Bình Thạnh, TP. Hồ Chí Minh"
+    },
+    "paymentMethod": "BankTransfer",
+    "paymentResult": {
+      "id": "PAY-20260407-0018",
+      "status": "COMPLETED",
+      "updateTime": "2026-03-30T13:38:34.233Z"
+    },
+    "itemsPrice": 15750000,
+    "shippingPrice": 0,
+    "totalPrice": 15750000,
+    "status": "Shipped",
+    "isPaid": true,
+    "paidAt": "2026-03-30T13:38:34.233Z",
+    "note": "",
+    "createdAt": "2026-03-30T13:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0019",
+    "userEmail": "vy.nguyen@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-soap-09",
+        "sku": "the-soap-09-grey",
+        "name": "THE SOAP 09",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681455/MyProject/the-soap-09-grey/dtmqlyfbnhlx56tuqbbo.jpg",
+        "price": 2750000,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Nguyễn Thị Vy",
+      "phone": "0967070707",
+      "address": "19 Hai Bà Trưng, Quận Hoàn Kiếm, Hà Nội"
+    },
+    "paymentMethod": "COD",
+    "paymentResult": {
+      "id": "PAY-20260407-0019",
+      "status": "COMPLETED",
+      "updateTime": "2026-03-30T02:38:34.233Z"
+    },
+    "itemsPrice": 2750000,
+    "shippingPrice": 0,
+    "totalPrice": 2750000,
+    "status": "Delivered",
+    "isPaid": true,
+    "paidAt": "2026-03-30T02:38:34.233Z",
+    "deliveredAt": "2026-04-02T02:08:34.233Z",
+    "note": "",
+    "createdAt": "2026-03-30T02:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0020",
+    "userEmail": "duc.tran@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-soap-09",
+        "sku": "the-soap-09-faded-ash",
+        "name": "THE SOAP 09",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681438/MyProject/the-soap-09-faded-ash/fk29v8nfo9rjtv1zduil.jpg",
+        "price": 2750000,
+        "quantity": 2
+      },
+      {
+        "productSlug": "the-athletes-10",
+        "sku": "the-athletes-10-milky-grey",
+        "name": "THE ATHLETES 10",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681512/MyProject/the-athletes-10-milky-grey/m2fi0kwxom6voetqekzf.png",
+        "price": 2700000,
+        "quantity": 3
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Trần Văn Đức",
+      "phone": "0978080808",
+      "address": "Dia chi mac dinh, TP. Ho Chi Minh"
+    },
+    "paymentMethod": "Momo",
+    "itemsPrice": 13600000,
+    "shippingPrice": 0,
+    "totalPrice": 13600000,
+    "status": "Cancelled",
+    "isPaid": false,
+    "note": "Huy theo yeu cau khach hang",
+    "createdAt": "2026-03-29T15:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0021",
+    "userEmail": "nhung.le@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-athletes-03",
+        "sku": "the-athletes-03-silver",
+        "name": "THE ATHLETES 03",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681066/MyProject/the-athletes-03-silver/yhduvw8vf6tapt77nucx.png",
+        "price": 2700000,
+        "quantity": 3
+      },
+      {
+        "productSlug": "the-athletes-14---black",
+        "sku": "the-athletes-14-black-rhino",
+        "name": "THE ATHLETES 14 - Black",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681332/MyProject/the-athletes-14-black-rhino/lfwp2asqnuo3h4tdy47g.png",
+        "price": 2700000,
+        "quantity": 1
+      },
+      {
+        "productSlug": "the-athletes-13",
+        "sku": "the-athletes-13-black",
+        "name": "THE ATHLETES 13",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681132/MyProject/the-athletes-13-black/rog50ed9xuxmnduzmiiy.png",
+        "price": 2800000,
+        "quantity": 2
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Lê Thị Nhung",
+      "phone": "0989090909",
+      "address": "44 Lê Văn Việt, TP. Thủ Đức, TP. Hồ Chí Minh"
+    },
+    "paymentMethod": "BankTransfer",
+    "itemsPrice": 16400000,
+    "shippingPrice": 0,
+    "totalPrice": 16400000,
+    "status": "Pending",
+    "isPaid": false,
+    "note": "",
+    "createdAt": "2026-03-29T04:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0022",
+    "userEmail": "quang.pham@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-athletes-02",
+        "sku": "the-athletes-02-milky-grey",
+        "name": "THE ATHLETES 02",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681157/MyProject/the-athletes-02-milky-grey/iyi0g2rmxvklxzvgb635.png",
+        "price": 2800000,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Phạm Văn Quang",
+      "phone": "0901111000",
+      "address": "88 Điện Biên Phủ, Quận Thanh Khê, TP. Đà Nẵng"
+    },
+    "paymentMethod": "COD",
+    "itemsPrice": 2800000,
+    "shippingPrice": 0,
+    "totalPrice": 2800000,
+    "status": "Processing",
+    "isPaid": false,
+    "note": "",
+    "createdAt": "2026-03-28T17:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0023",
+    "userEmail": "trung.hoang@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-athletes-11---dark-grey",
+        "sku": "the-athletes-11-dark-grey-rhino",
+        "name": "THE ATHLETES 11 - Dark Grey",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681337/MyProject/the-athletes-11-dark-grey-rhino/uhrafp2z5dwef4gbeguv.png",
+        "price": 2800000,
+        "quantity": 2
+      },
+      {
+        "productSlug": "the-athletes-13---olive",
+        "sku": "the-athletes-13-olive-rhino",
+        "name": "THE ATHLETES 13 - Olive",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681490/MyProject/the-athletes-13-olive-rhino/nhurg2yv6l7agrpbpzkc.png",
+        "price": 2800000,
+        "quantity": 3
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Hoàng Văn Trung",
+      "phone": "0912222000",
+      "address": "33 Trần Nhân Tông, Quận Hai Bà Trưng, Hà Nội"
+    },
+    "paymentMethod": "Momo",
+    "paymentResult": {
+      "id": "PAY-20260407-0023",
+      "status": "COMPLETED",
+      "updateTime": "2026-03-28T06:38:34.233Z"
+    },
+    "itemsPrice": 14000000,
+    "shippingPrice": 0,
+    "totalPrice": 14000000,
+    "status": "Shipped",
+    "isPaid": true,
+    "paidAt": "2026-03-28T06:38:34.233Z",
+    "note": "",
+    "createdAt": "2026-03-28T06:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0024",
+    "userEmail": "hang.vu@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-athletes-14",
+        "sku": "the-athletes-14-faded-ash",
+        "name": "THE ATHLETES 14",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681313/MyProject/the-athletes-14-faded-ash/etwjhxmpu5v22im6il0d.png",
+        "price": 2700000,
+        "quantity": 3
+      },
+      {
+        "productSlug": "the-athletes-14---grey",
+        "sku": "the-athletes-14-grey-rhino",
+        "name": "THE ATHLETES 14 - Grey",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681610/MyProject/the-athletes-14-grey-rhino/npjkb9gllqzqwmdnwngt.png",
+        "price": 2700000,
+        "quantity": 1
+      },
+      {
+        "productSlug": "the-athletes-12",
+        "sku": "the-athletes-12-faded-ash",
+        "name": "THE ATHLETES 12",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681196/MyProject/the-athletes-12-faded-ash/tindudqzegsvkqrsxnnz.png",
+        "price": 2700000,
+        "quantity": 2
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Vũ Thị Hằng",
+      "phone": "0923333000",
+      "address": "Dia chi mac dinh, TP. Ho Chi Minh"
+    },
+    "paymentMethod": "BankTransfer",
+    "paymentResult": {
+      "id": "PAY-20260407-0024",
+      "status": "COMPLETED",
+      "updateTime": "2026-03-27T19:38:34.233Z"
+    },
+    "itemsPrice": 16200000,
+    "shippingPrice": 0,
+    "totalPrice": 16200000,
+    "status": "Delivered",
+    "isPaid": true,
+    "paidAt": "2026-03-27T19:38:34.233Z",
+    "deliveredAt": "2026-03-30T19:08:34.233Z",
+    "note": "",
+    "createdAt": "2026-03-27T19:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0025",
+    "userEmail": "hieu.dang@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-athletes-11---green",
+        "sku": "the-athletes-11-green-rhino",
+        "name": "THE ATHLETES 11 - Green",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681302/MyProject/the-athletes-11-green-rhino/gjoskgxl5asac5l3bjbq.png",
+        "price": 2800000,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Đặng Văn Hiếu",
+      "phone": "0934444000",
+      "address": "21 Trần Quang Khải, Quận 1, TP. Hồ Chí Minh"
+    },
+    "paymentMethod": "COD",
+    "itemsPrice": 2800000,
+    "shippingPrice": 0,
+    "totalPrice": 2800000,
+    "status": "Cancelled",
+    "isPaid": false,
+    "note": "Huy theo yeu cau khach hang",
+    "createdAt": "2026-03-27T08:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0026",
+    "userEmail": "phuong.bui@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-athletes-10---blue",
+        "sku": "the-athletes-10-blue-rhino",
+        "name": "THE ATHLETES 10 - Blue",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681546/MyProject/the-athletes-10-blue-rhino/cnwm9ckmtd5wysuhq1n2.png",
+        "price": 2700000,
+        "quantity": 2
+      },
+      {
+        "productSlug": "the-athletes-08",
+        "sku": "the-athletes-08-black",
+        "name": "THE ATHLETES 08",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681173/MyProject/the-athletes-08-black/aqjvhogwhc17hwzpvbnv.png",
+        "price": 2700000,
+        "quantity": 3
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Bùi Thị Phương",
+      "phone": "0945555000",
+      "address": "60 Nguyễn Công Trứ, Quận Ngô Quyền, TP. Hải Phòng"
+    },
+    "paymentMethod": "Momo",
+    "itemsPrice": 13500000,
+    "shippingPrice": 0,
+    "totalPrice": 13500000,
+    "status": "Pending",
+    "isPaid": false,
+    "note": "",
+    "createdAt": "2026-03-26T21:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0027",
+    "userEmail": "tuan.ngo@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-athletes-05",
+        "sku": "the-athletes-05-silver",
+        "name": "THE ATHLETES 05",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681253/MyProject/the-athletes-05-silver/kf7mbdyw8qaumqpbiciz.png",
+        "price": 2800000,
+        "quantity": 3
+      },
+      {
+        "productSlug": "the-athletes-08",
+        "sku": "the-athletes-08-dark-grey",
+        "name": "THE ATHLETES 08",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681187/MyProject/the-athletes-08-dark-grey/tvfr3yadcjcz1qbgsiuw.png",
+        "price": 2700000,
+        "quantity": 1
+      },
+      {
+        "productSlug": "the-athletes-12---grey",
+        "sku": "the-athletes-12-grey-rhino",
+        "name": "THE ATHLETES 12 - Grey",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681153/MyProject/the-athletes-12-grey-rhino/ireaanc07zvy1npxwu8h.png",
+        "price": 2700000,
+        "quantity": 2
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Ngô Văn Tuấn",
+      "phone": "0956666000",
+      "address": "17 Hùng Vương, Quận Ninh Kiều, TP. Cần Thơ"
+    },
+    "paymentMethod": "BankTransfer",
+    "paymentResult": {
+      "id": "PAY-20260407-0027",
+      "status": "COMPLETED",
+      "updateTime": "2026-03-26T10:38:34.233Z"
+    },
+    "itemsPrice": 16500000,
+    "shippingPrice": 0,
+    "totalPrice": 16500000,
+    "status": "Processing",
+    "isPaid": true,
+    "paidAt": "2026-03-26T10:38:34.233Z",
+    "note": "",
+    "createdAt": "2026-03-26T10:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0028",
+    "userEmail": "diem.duong@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-athletes-13",
+        "sku": "the-athletes-13-black",
+        "name": "THE ATHLETES 13",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681132/MyProject/the-athletes-13-black/rog50ed9xuxmnduzmiiy.png",
+        "price": 2800000,
+        "quantity": 1
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Dương Thị Diễm",
+      "phone": "0967777000",
+      "address": "Dia chi mac dinh, TP. Ho Chi Minh"
+    },
+    "paymentMethod": "COD",
+    "itemsPrice": 2800000,
+    "shippingPrice": 0,
+    "totalPrice": 2800000,
+    "status": "Shipped",
+    "isPaid": false,
+    "note": "",
+    "createdAt": "2026-03-25T23:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0029",
+    "userEmail": "lam.phan@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-athletes-12---green",
+        "sku": "the-athletes-12-green-rhino",
+        "name": "THE ATHLETES 12 - Green",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681107/MyProject/the-athletes-12-green-rhino/iwjitlrazawyeo2cmf3c.png",
+        "price": 2700000,
+        "quantity": 2
+      },
+      {
+        "productSlug": "the-athletes-07",
+        "sku": "the-athletes-07-silver",
+        "name": "THE ATHLETES 07",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681322/MyProject/the-athletes-07-silver/rbvewheshdmqs0gtpwfl.png",
+        "price": 2800000,
+        "quantity": 3
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Phan Văn Lâm",
+      "phone": "0978888000",
+      "address": "55 Lê Thánh Tông, Quận Lê Chân, TP. Hải Phòng"
+    },
+    "paymentMethod": "Momo",
+    "paymentResult": {
+      "id": "PAY-20260407-0029",
+      "status": "COMPLETED",
+      "updateTime": "2026-03-25T12:38:34.233Z"
+    },
+    "itemsPrice": 13800000,
+    "shippingPrice": 0,
+    "totalPrice": 13800000,
+    "status": "Delivered",
+    "isPaid": true,
+    "paidAt": "2026-03-25T12:38:34.233Z",
+    "deliveredAt": "2026-03-28T12:08:34.233Z",
+    "note": "",
+    "createdAt": "2026-03-25T12:08:34.233Z"
+  },
+  {
+    "orderNumber": "ORD-20260407-0030",
+    "userEmail": "yen.ho@gmail.com",
+    "items": [
+      {
+        "productSlug": "the-athletes-08",
+        "sku": "the-athletes-08-milky-grey",
+        "name": "THE ATHLETES 08",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681275/MyProject/the-athletes-08-milky-grey/ngk3dfhwat1exmkbechf.png",
+        "price": 2700000,
+        "quantity": 3
+      },
+      {
+        "productSlug": "the-athletes-10---grey",
+        "sku": "the-athletes-10-grey-rhino",
+        "name": "THE ATHLETES 10 - Grey",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681309/MyProject/the-athletes-10-grey-rhino/yjrcudb1b3827lmm4aeb.png",
+        "price": 2700000,
+        "quantity": 1
+      },
+      {
+        "productSlug": "the-layered-09",
+        "sku": "the-layered-09-layered-grey",
+        "name": "THE LAYERED 09",
+        "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1774681179/MyProject/the-layered-09-layered-grey/j7ikgzcuxqahzcayetpy.jpg",
+        "price": 2240000,
+        "quantity": 2
+      }
+    ],
+    "shippingAddress": {
+      "fullName": "Hồ Thị Yến",
+      "phone": "0989999111",
+      "address": "3 Quang Trung, TP. Nha Trang, Khánh Hòa"
+    },
+    "paymentMethod": "BankTransfer",
+    "itemsPrice": 15280000,
+    "shippingPrice": 0,
+    "totalPrice": 15280000,
+    "status": "Cancelled",
+    "isPaid": false,
+    "note": "Huy theo yeu cau khach hang",
+    "createdAt": "2026-03-25T01:08:34.233Z"
+  }
+]

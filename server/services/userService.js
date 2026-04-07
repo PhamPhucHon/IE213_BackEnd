@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { userDTO } = require('../utils/dto');
+const { AppError } = require('../utils/asyncHandler');
 
 // ==========================================
 // QUẢN LÝ THÔNG TIN CÁ NHÂN 
@@ -9,35 +10,52 @@ const { userDTO } = require('../utils/dto');
 exports.getUserProfile = async (userId) => {
   const user = await User.findById(userId);
   if (!user) {
-    throw new Error('Không tìm thấy thông tin người dùng.');
+    throw new AppError('Không tìm thấy thông tin người dùng.', 404);
   }
   return userDTO(user);
 };
 
-
-// Cập nhật thông tin cơ bản (Không bao gồm đổi mật khẩu hay email)
+// Cập nhật thông tin cá nhân (Tên, Số điện thoại, Avatar)
 exports.updateUserProfile = async (userId, updateData) => {
-  const user = await User.findById(userId);
-  if (!user) throw new Error('Không tìm thấy người dùng.');
+  const fieldsToUpdate = {};
+  const allowedFields = ['name', 'phone', 'avatar'];
 
-  // Chỉ cho phép cập nhật các trường an toàn
-  if (updateData.name) user.name = updateData.name;
-  if (updateData.phone) user.phone = updateData.phone;
-  if (updateData.avatar) user.avatar = updateData.avatar;
+  for (const field of allowedFields) {
+    if (Object.prototype.hasOwnProperty.call(updateData, field)) {
+      fieldsToUpdate[field] = updateData[field];
+    }
+  }
 
-  const updatedUser = await user.save();
-  return userDTO(updatedUser);
+  if (Object.keys(fieldsToUpdate).length === 0) {
+    throw new AppError('Không có dữ liệu hợp lệ để cập nhật.', 400); //
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $set: fieldsToUpdate },
+    { 
+      new: true,           
+      runValidators: true, 
+      context: 'query'     
+    }
+  ).lean(); 
+
+  if (!updatedUser) {
+    throw new AppError('Không tìm thấy người dùng.', 404); //
+  }
+
+  return userDTO(updatedUser); //
 };
 
 // Đổi mật khẩu 
 exports.changeUserPassword = async (userId, currentPassword, newPassword) => {
   const user = await User.findById(userId);
-  if (!user) throw new Error('Không tìm thấy người dùng.');
+  if (!user) throw new AppError('Không tìm thấy người dùng.', 404);
 
   // 1. Kiểm tra mật khẩu cũ có đúng không (Dùng instance method ở model User)
   const isMatch = await user.matchPassword(currentPassword);
   if (!isMatch) {
-    throw new Error('Mật khẩu hiện tại không chính xác.');
+    throw new AppError('Mật khẩu hiện tại không chính xác.', 401);
   }
 
   // 2. Cập nhật mật khẩu mới (Mongoose Hook pre-save sẽ tự động Hash)
@@ -55,7 +73,7 @@ exports.changeUserPassword = async (userId, currentPassword, newPassword) => {
 // Thêm địa chỉ mới
 exports.addAddress = async (userId, addressData) => {
   const user = await User.findById(userId);
-  if (!user) throw new Error('Không tìm thấy người dùng.');
+  if (!user) throw new AppError('Không tìm thấy người dùng.', 404);
 
   // Logic: Nếu địa chỉ mới được set là Mặc định, phải gỡ Mặc định của các địa chỉ cũ
   if (addressData.isDefault) {
@@ -76,11 +94,11 @@ exports.addAddress = async (userId, addressData) => {
 // Cập nhật một địa chỉ
 exports.updateAddress = async (userId, addressId, addressData) => {
   const user = await User.findById(userId);
-  if (!user) throw new Error('Không tìm thấy người dùng.');
+  if (!user) throw new AppError('Không tìm thấy người dùng.', 404);
 
   // Tìm địa chỉ cần sửa trong mảng
   const addressItem = user.addresses.id(addressId);
-  if (!addressItem) throw new Error('Không tìm thấy địa chỉ này.');
+  if (!addressItem) throw new AppError('Không tìm thấy địa chỉ này.', 404);
 
   // Logic: Nếu cập nhật thành Mặc định, gỡ mặc định các cái khác
   if (addressData.isDefault && !addressItem.isDefault) {
@@ -101,10 +119,10 @@ exports.updateAddress = async (userId, addressId, addressData) => {
 // Xóa một địa chỉ
 exports.deleteAddress = async (userId, addressId) => {
   const user = await User.findById(userId);
-  if (!user) throw new Error('Không tìm thấy người dùng.');
+  if (!user) throw new AppError('Không tìm thấy người dùng.', 404);
 
   const addressItem = user.addresses.id(addressId);
-  if (!addressItem) throw new Error('Không tìm thấy địa chỉ này.');
+  if (!addressItem) throw new AppError('Không tìm thấy địa chỉ này.', 404);
 
   const wasDefault = addressItem.isDefault;
 
@@ -123,10 +141,10 @@ exports.deleteAddress = async (userId, addressId) => {
 // Chuyển một địa chỉ thành Mặc định
 exports.setDefaultAddress = async (userId, addressId) => {
   const user = await User.findById(userId);
-  if (!user) throw new Error('Không tìm thấy người dùng.');
+  if (!user) throw new AppError('Không tìm thấy người dùng.', 404);
 
   const addressItem = user.addresses.id(addressId);
-  if (!addressItem) throw new Error('Không tìm thấy địa chỉ này.');
+  if (!addressItem) throw new AppError('Không tìm thấy địa chỉ này.', 404);
 
   // Reset toàn bộ về false
   user.addresses.forEach(addr => {
