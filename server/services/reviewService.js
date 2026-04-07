@@ -3,6 +3,7 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 const productService = require('./productService');
 const { reviewDTO } = require('../utils/dto');
+const { AppError } = require('../utils/asyncHandler');
 
 /**
  * Tạo đánh giá mới
@@ -14,7 +15,7 @@ exports.createReview = async (userId, productId, reviewData) => {
   // 1. Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
   const existingReview = await Review.findOne({ productId, userId });
   if (existingReview) {
-    throw new Error('Bạn đã đánh giá sản phẩm này rồi.');
+    throw new AppError('Bạn đã đánh giá sản phẩm này rồi.', 409);
   }
 
   // 2. Kiểm tra Verified Purchase (Khách đã mua và nhận hàng chưa?)
@@ -91,9 +92,9 @@ exports.getReviewsByProduct = async (productId, page = 1, limit = 5, ratingFilte
 exports.updateReview = async (reviewId, userId, updateData) => {
   const review = await Review.findById(reviewId);
   
-  if (!review) throw new Error('Không tìm thấy đánh giá.');
+  if (!review) throw new AppError('Không tìm thấy đánh giá.', 404);
   if (review.userId.toString() !== userId.toString()) {
-    throw new Error('Bạn không có quyền chỉnh sửa đánh giá này.');
+    throw new AppError('Bạn không có quyền chỉnh sửa đánh giá này.', 403);
   }
 
   // Cập nhật các trường cho phép
@@ -118,11 +119,11 @@ exports.updateReview = async (reviewId, userId, updateData) => {
 exports.deleteReview = async (reviewId, userId, isAdmin = false) => {
   const review = await Review.findById(reviewId);
   
-  if (!review) throw new Error('Không tìm thấy đánh giá.');
+  if (!review) throw new AppError('Không tìm thấy đánh giá.', 404);
 
   // Kiểm tra quyền: Phải là Admin hoặc là người tạo ra đánh giá này
   if (!isAdmin && review.userId.toString() !== userId.toString()) {
-    throw new Error('Bạn không có quyền xóa đánh giá này.');
+    throw new AppError('Bạn không có quyền xóa đánh giá này.', 403);
   }
 
   const productId = review.productId; // Lưu tạm id sản phẩm trước khi xóa
@@ -141,7 +142,7 @@ exports.deleteReview = async (reviewId, userId, isAdmin = false) => {
  */
 exports.likeReview = async (reviewId, userId) => {
   const review = await Review.findById(reviewId);
-  if (!review) throw new Error('Không tìm thấy đánh giá.');
+  if (!review) throw new AppError('Không tìm thấy đánh giá.', 404);
 
   // Kiểm tra xem userId đã có trong mảng likedBy chưa
   const hasLiked = review.likedBy.includes(userId);

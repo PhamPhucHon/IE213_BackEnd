@@ -24,6 +24,7 @@ const reviewSchema = new mongoose.Schema({
 // 1. INDEXES
 reviewSchema.index({ productId: 1, userId: 1 }, { unique: true }); 
 reviewSchema.index({ productId: 1, rating: -1, createdAt: -1 }); 
+reviewSchema.index({ productId: 1 });
 
 // 2. MIDDLEWARES
 // Tự động đánh dấu là verified purchase nếu user đã mua sản phẩm này
