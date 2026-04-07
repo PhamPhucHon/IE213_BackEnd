@@ -1,0 +1,514 @@
+[
+  {
+    "productSlug": "the-paper-knife-01",
+    "userEmail": "tuan.nguyen@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-ruler-07",
+    "userEmail": "lan.le@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-paper-knife-02",
+    "userEmail": "hung.pham@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-ruler-06",
+    "userEmail": "linh.hoang@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-soap-11",
+    "userEmail": "nam.vu@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-set-square-02",
+    "userEmail": "ngoc.dang@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-soap-10",
+    "userEmail": "thanh.bui@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-ruler-03",
+    "userEmail": "huong.ngo@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-ruler-04",
+    "userEmail": "phong.duong@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-set-square-02-sunglasses---grey",
+    "userEmail": "thao.phan@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-ruler-01",
+    "userEmail": "khoa.ho@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-soap-07-sunglasses---grey",
+    "userEmail": "mai.ly@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-obsidian-02",
+    "userEmail": "tuan.nguyen@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-soap-02-sunglasses---grey",
+    "userEmail": "lan.le@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-snorkel-02",
+    "userEmail": "hung.pham@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-snorkel-01",
+    "userEmail": "linh.hoang@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-soap-08-sunglasses---grey",
+    "userEmail": "nam.vu@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-soap-08",
+    "userEmail": "ngoc.dang@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-soap-09",
+    "userEmail": "thanh.bui@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-assembled-02",
+    "userEmail": "huong.ngo@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-03",
+    "userEmail": "phong.duong@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-02---beige",
+    "userEmail": "thao.phan@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-02",
+    "userEmail": "khoa.ho@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-soap-07",
+    "userEmail": "mai.ly@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-11---dark-grey",
+    "userEmail": "tuan.nguyen@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-10",
+    "userEmail": "lan.le@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-14",
+    "userEmail": "hung.pham@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-14---black",
+    "userEmail": "linh.hoang@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-11---green",
+    "userEmail": "nam.vu@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-10---brown",
+    "userEmail": "ngoc.dang@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-10---blue",
+    "userEmail": "thanh.bui@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-13---olive",
+    "userEmail": "huong.ngo@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-05",
+    "userEmail": "phong.duong@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-14---grey",
+    "userEmail": "thao.phan@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-13",
+    "userEmail": "khoa.ho@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-12---green",
+    "userEmail": "mai.ly@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-08",
+    "userEmail": "tuan.nguyen@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-12",
+    "userEmail": "lan.le@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-06",
+    "userEmail": "hung.pham@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-07",
+    "userEmail": "linh.hoang@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-11---black",
+    "userEmail": "nam.vu@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-10---grey",
+    "userEmail": "ngoc.dang@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-12---grey",
+    "userEmail": "thanh.bui@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-13---grey",
+    "userEmail": "huong.ngo@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-15---black",
+    "userEmail": "phong.duong@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-15---brown",
+    "userEmail": "thao.phan@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-15",
+    "userEmail": "khoa.ho@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-athletes-15---grey",
+    "userEmail": "mai.ly@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-layered-09",
+    "userEmail": "tuan.nguyen@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-edge-04",
+    "userEmail": "lan.le@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-edge-01",
+    "userEmail": "hung.pham@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-flow-02",
+    "userEmail": "linh.hoang@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-edge-05",
+    "userEmail": "nam.vu@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-cut-15---black",
+    "userEmail": "ngoc.dang@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-cut-16---black",
+    "userEmail": "thanh.bui@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-cut-16---denim",
+    "userEmail": "huong.ngo@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-cut-15",
+    "userEmail": "phong.duong@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-cut-09",
+    "userEmail": "thao.phan@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-cut-15---matte-black",
+    "userEmail": "khoa.ho@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-cut-15---faded-ash",
+    "userEmail": "mai.ly@gmail.com",
+    "rating": 5,
+    "title": "Đáng tiền",
+    "comment": "Kiểu dáng hiện đại, dễ phối đồ hằng ngày.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-cut-18---black",
+    "userEmail": "tuan.nguyen@gmail.com",
+    "rating": 5,
+    "title": "Rất hài lòng",
+    "comment": "Gọng chắc, đeo nhẹ và lên form rất ổn.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-flow-01",
+    "userEmail": "lan.le@gmail.com",
+    "rating": 4,
+    "title": "Đeo đẹp và chắc chắn",
+    "comment": "Màu sắc thực tế đẹp, hoàn thiện tốt.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-cut-16---matte-black",
+    "userEmail": "hung.pham@gmail.com",
+    "rating": 5,
+    "title": "Chất lượng tốt",
+    "comment": "Đóng gói cẩn thận, sản phẩm đúng mô tả.",
+    "isApproved": true
+  },
+  {
+    "productSlug": "the-cut-18---matte-black",
+    "userEmail": "linh.hoang@gmail.com",
+    "rating": 4,
+    "title": "Thiết kế tinh tế",
+    "comment": "Đeo cả ngày vẫn thoải mái, không bị cấn.",
+    "isApproved": true
+  }
+]

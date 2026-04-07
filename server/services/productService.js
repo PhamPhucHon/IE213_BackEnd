@@ -3,6 +3,7 @@ const Product = require('../models/Product');
 const Inventory = require('../models/Inventory');
 const Review = require('../models/Review');
 const { productDTO } = require('../utils/dto');
+const { AppError } = require('../utils/asyncHandler');
 
 /**
  * Lọc, phân trang, tìm kiếm, sắp xếp sản phẩm
@@ -66,7 +67,7 @@ exports.getProducts = async (filters = {}, page = 1, limit = 12, sort = 'newest'
 exports.getProductById = async (id) => {
   const product = await Product.findById(id).populate('categoryId', 'name slug');
   if (!product) {
-    throw new Error('Không tìm thấy sản phẩm.');
+    throw new AppError('Không tìm thấy sản phẩm.', 404);
   }
   return productDTO(product);
 };
@@ -74,9 +75,10 @@ exports.getProductById = async (id) => {
 // Lấy chi tiết sản phẩm theo Slug (Dùng cho trang chi tiết sản phẩm SEO)
 exports.getProductBySlug = async (slug) => {
   const product = await Product.findOne({ slug, isActive: true })
-                               .populate('categoryId', 'name slug');
+                               .populate('categoryId', 'name slug')
+                               .lean();
   if (!product) {
-    throw new Error('Không tìm thấy sản phẩm.');
+    throw new AppError('Không tìm thấy sản phẩm.', 404);
   }
   return productDTO(product);
 };
@@ -92,13 +94,13 @@ exports.createProduct = async (productData) => {
     const skus = productData.variants.map(v => v.sku);
     const hasDuplicateSku = skus.some((sku, index) => skus.indexOf(sku) !== index);
     if (hasDuplicateSku) {
-      throw new Error('Có SKU bị trùng lặp trong danh sách biến thể.');
+      throw new AppError('Có SKU bị trùng lặp trong danh sách biến thể.', 400);
     }
 
     // 2. Kiểm tra SKU đã tồn tại trong DB hệ thống chưa
     const existingInventory = await Inventory.findOne({ sku: { $in: skus } }).session(session);
     if (existingInventory) {
-      throw new Error(`SKU ${existingInventory.sku} đã tồn tại trên hệ thống.`);
+      throw new AppError(`SKU ${existingInventory.sku} đã tồn tại trên hệ thống.`, 409);
     }
 
     // 3. Tạo Product (Phải truyền trong mảng [productData] khi dùng transaction)
@@ -136,7 +138,7 @@ const ALLOWED_PRODUCT_UPDATE_FIELDS = [
 exports.updateProduct = async (id, updateData) => {
   const product = await Product.findById(id);
   if (!product) {
-    throw new Error('Không tìm thấy sản phẩm.');
+    throw new AppError('Không tìm thấy sản phẩm.', 404);
   }
 
   ALLOWED_PRODUCT_UPDATE_FIELDS.forEach((field) => {
@@ -152,7 +154,7 @@ exports.updateProduct = async (id, updateData) => {
 exports.deleteProduct = async (id) => {
   const product = await Product.findById(id);
   if (!product) {
-    throw new Error('Không tìm thấy sản phẩm.');
+    throw new AppError('Không tìm thấy sản phẩm.', 404);
   }
 
   await Product.findByIdAndDelete(id);

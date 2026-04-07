@@ -1,0 +1,660 @@
+[
+  {
+    "productSlug": "the-paper-knife-01",
+    "sku": "the-paper-knife-01-brown",
+    "stock": 1,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-paper-knife-01",
+    "sku": "the-paper-knife-01-dark-grey",
+    "stock": 2,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-paper-knife-01",
+    "sku": "the-paper-knife-01-black",
+    "stock": 3,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-07",
+    "sku": "the-ruler-07-green",
+    "stock": 4,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-07",
+    "sku": "the-ruler-07-grey",
+    "stock": 5,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-07",
+    "sku": "the-ruler-07-beige",
+    "stock": 6,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-paper-knife-02",
+    "sku": "the-paper-knife-02-havana",
+    "stock": 7,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-paper-knife-02",
+    "sku": "the-paper-knife-02-black",
+    "stock": 8,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-paper-knife-02",
+    "sku": "the-paper-knife-02-grey",
+    "stock": 9,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-06",
+    "sku": "the-ruler-06-brown",
+    "stock": 10,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-06",
+    "sku": "the-ruler-06-grey",
+    "stock": 1,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-06",
+    "sku": "the-ruler-06-black",
+    "stock": 2,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-06",
+    "sku": "the-ruler-06-dark-grey",
+    "stock": 3,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-11",
+    "sku": "the-soap-11-light-grey",
+    "stock": 4,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-11",
+    "sku": "the-soap-11-green",
+    "stock": 5,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-set-square-02",
+    "sku": "the-set-square-02-black",
+    "stock": 6,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-10",
+    "sku": "the-soap-10-dark-grey",
+    "stock": 7,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-10",
+    "sku": "the-soap-10-black",
+    "stock": 8,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-03",
+    "sku": "the-ruler-03-gunmetal",
+    "stock": 9,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-03",
+    "sku": "the-ruler-03-silver",
+    "stock": 10,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-04",
+    "sku": "the-ruler-04-silver",
+    "stock": 1,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-04",
+    "sku": "the-ruler-04-gunmetal",
+    "stock": 2,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-set-square-02-sunglasses---grey",
+    "sku": "the-set-square-02-sunglasses-grey-rhino",
+    "stock": 3,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-ruler-01",
+    "sku": "the-ruler-01-marble-black",
+    "stock": 4,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-07-sunglasses---grey",
+    "sku": "the-soap-07-sunglasses-grey-rhino",
+    "stock": 5,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-obsidian-02",
+    "sku": "the-obsidian-02-black",
+    "stock": 6,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-obsidian-02",
+    "sku": "the-obsidian-02-matte-black",
+    "stock": 7,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-02-sunglasses---grey",
+    "sku": "the-soap-02-sunglasses-grey-rhino",
+    "stock": 8,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-snorkel-02",
+    "sku": "the-snorkel-02-matte-black",
+    "stock": 9,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-snorkel-02",
+    "sku": "the-snorkel-02-black",
+    "stock": 10,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-snorkel-02",
+    "sku": "the-snorkel-02-crystal",
+    "stock": 1,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-snorkel-01",
+    "sku": "the-snorkel-01-crystal",
+    "stock": 2,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-snorkel-01",
+    "sku": "the-snorkel-01-black",
+    "stock": 3,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-08-sunglasses---grey",
+    "sku": "the-soap-08-sunglasses-grey-rhino",
+    "stock": 4,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-08",
+    "sku": "the-soap-08-green",
+    "stock": 5,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-08",
+    "sku": "the-soap-08-grey",
+    "stock": 6,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-09",
+    "sku": "the-soap-09-grey",
+    "stock": 7,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-09",
+    "sku": "the-soap-09-brown",
+    "stock": 8,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-09",
+    "sku": "the-soap-09-faded-ash",
+    "stock": 9,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-assembled-02",
+    "sku": "the-assembled-02-transparent-beige",
+    "stock": 10,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-03",
+    "sku": "the-athletes-03-silver",
+    "stock": 1,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-02---beige",
+    "sku": "the-athletes-02-beige-rhino",
+    "stock": 2,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-02",
+    "sku": "the-athletes-02-milky-grey",
+    "stock": 3,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-soap-07",
+    "sku": "the-soap-07-grey",
+    "stock": 4,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-11---dark-grey",
+    "sku": "the-athletes-11-dark-grey-rhino",
+    "stock": 5,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-10",
+    "sku": "the-athletes-10-milky-grey",
+    "stock": 6,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-14",
+    "sku": "the-athletes-14-faded-ash",
+    "stock": 7,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-14---black",
+    "sku": "the-athletes-14-black-rhino",
+    "stock": 8,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-11---green",
+    "sku": "the-athletes-11-green-rhino",
+    "stock": 9,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-10---brown",
+    "sku": "the-athletes-10-brown-rhino",
+    "stock": 10,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-10---blue",
+    "sku": "the-athletes-10-blue-rhino",
+    "stock": 1,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-13---olive",
+    "sku": "the-athletes-13-olive-rhino",
+    "stock": 2,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-05",
+    "sku": "the-athletes-05-silver",
+    "stock": 3,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-14---grey",
+    "sku": "the-athletes-14-grey-rhino",
+    "stock": 4,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-13",
+    "sku": "the-athletes-13-black",
+    "stock": 5,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-13",
+    "sku": "the-athletes-13-brown",
+    "stock": 6,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-12---green",
+    "sku": "the-athletes-12-green-rhino",
+    "stock": 7,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-08",
+    "sku": "the-athletes-08-black",
+    "stock": 8,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-08",
+    "sku": "the-athletes-08-milky-grey",
+    "stock": 9,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-08",
+    "sku": "the-athletes-08-dark-grey",
+    "stock": 10,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-12",
+    "sku": "the-athletes-12-faded-ash",
+    "stock": 1,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-12",
+    "sku": "the-athletes-12-brown",
+    "stock": 2,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-06",
+    "sku": "the-athletes-06-silver",
+    "stock": 3,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-07",
+    "sku": "the-athletes-07-silver",
+    "stock": 4,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-11---black",
+    "sku": "the-athletes-11-black-rhino",
+    "stock": 5,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-10---grey",
+    "sku": "the-athletes-10-grey-rhino",
+    "stock": 6,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-12---grey",
+    "sku": "the-athletes-12-grey-rhino",
+    "stock": 7,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-13---grey",
+    "sku": "the-athletes-13-grey-rhino",
+    "stock": 8,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-15---black",
+    "sku": "the-athletes-15-black-rhino",
+    "stock": 9,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-15---brown",
+    "sku": "the-athletes-15-brown-rhino",
+    "stock": 10,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-15",
+    "sku": "the-athletes-15-grey",
+    "stock": 1,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-athletes-15---grey",
+    "sku": "the-athletes-15-grey-rhino",
+    "stock": 2,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-layered-09",
+    "sku": "the-layered-09-layered-grey",
+    "stock": 3,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-layered-09",
+    "sku": "the-layered-09-crystal-green",
+    "stock": 4,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-layered-09",
+    "sku": "the-layered-09-denim",
+    "stock": 5,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-edge-04",
+    "sku": "the-edge-04-black",
+    "stock": 6,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-edge-04",
+    "sku": "the-edge-04-beige",
+    "stock": 7,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-edge-04",
+    "sku": "the-edge-04-purple",
+    "stock": 8,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-edge-01",
+    "sku": "the-edge-01-purple",
+    "stock": 9,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-flow-02",
+    "sku": "the-flow-02-matte-gunmetal",
+    "stock": 10,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-flow-02",
+    "sku": "the-flow-02-matte-silver",
+    "stock": 1,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-flow-02",
+    "sku": "the-flow-02-matte-black",
+    "stock": 2,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-edge-05",
+    "sku": "the-edge-05-transparent-green",
+    "stock": 3,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-cut-15---black",
+    "sku": "the-cut-15-black-black",
+    "stock": 4,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-cut-16---black",
+    "sku": "the-cut-16-black-black",
+    "stock": 5,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-cut-16---denim",
+    "sku": "the-cut-16-denim-black",
+    "stock": 6,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-cut-15",
+    "sku": "the-cut-15-green",
+    "stock": 7,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-cut-09",
+    "sku": "the-cut-09-crystal-beige",
+    "stock": 8,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-cut-15---matte-black",
+    "sku": "the-cut-15-matte-black-black",
+    "stock": 9,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-cut-15---faded-ash",
+    "sku": "the-cut-15-faded-ash-black",
+    "stock": 10,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-cut-18---black",
+    "sku": "the-cut-18-black-black",
+    "stock": 1,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-flow-01",
+    "sku": "the-flow-01-matte-silver",
+    "stock": 2,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-cut-16---matte-black",
+    "sku": "the-cut-16-matte-black-black",
+    "stock": 3,
+    "reserved": 0,
+    "warehouse": "main"
+  },
+  {
+    "productSlug": "the-cut-18---matte-black",
+    "sku": "the-cut-18-matte-black-black",
+    "stock": 4,
+    "reserved": 0,
+    "warehouse": "main"
+  }
+]

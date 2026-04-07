@@ -1,5 +1,6 @@
 const Category = require('../models/Category');
 const { categoryDTO } = require('../utils/dto');
+const { AppError } = require('../utils/asyncHandler');
 
 /**
  * Lấy danh sách toàn bộ danh mục (Dùng cho Admin và trang chủ)
@@ -19,7 +20,7 @@ exports.getAllCategories = async () => {
 exports.getCategoryById = async (id) => {
   const category = await Category.findById(id);
   if (!category) {
-    throw new Error('Không tìm thấy danh mục với ID này.');
+    throw new AppError('Không tìm thấy danh mục với ID này.', 404);
   }
   return categoryDTO(category);
 };
@@ -32,7 +33,7 @@ exports.getCategoryById = async (id) => {
 exports.getCategoryBySlug = async (slug) => {
   const category = await Category.findOne({ slug, isActive: true });
   if (!category) {
-    throw new Error('Không tìm thấy danh mục.');
+    throw new AppError('Không tìm thấy danh mục.', 404);
   }
   return categoryDTO(category);
 };
@@ -45,7 +46,7 @@ exports.getCategoryBySlug = async (slug) => {
 exports.createCategory = async (data) => {
   const existingCategory = await Category.findOne({ name: data.name });
   if (existingCategory) {
-    throw new Error('Tên danh mục này đã tồn tại. Vui lòng chọn tên khác.');
+    throw new AppError('Tên danh mục này đã tồn tại. Vui lòng chọn tên khác.', 409);
   }
 
   // Tạo mới (Trường Slug sẽ được Model tự động sinh ra nhờ Hook pre-validate)
@@ -62,14 +63,14 @@ exports.createCategory = async (data) => {
 exports.updateCategory = async (id, data) => {
   const category = await Category.findById(id);
   if (!category) {
-    throw new Error('Không tìm thấy danh mục.');
+    throw new AppError('Không tìm thấy danh mục.', 404);
   }
 
   // Kiểm tra trùng lặp tên nếu admin có gửi lên yêu cầu đổi tên
   if (data.name && data.name !== category.name) {
     const existingName = await Category.findOne({ name: data.name });
     if (existingName) {
-      throw new Error('Tên danh mục này đã được sử dụng.');
+      throw new AppError('Tên danh mục này đã được sử dụng.', 409);
     }
     category.name = data.name; 
     // Ghi chú: Nếu đổi tên, Slug cũ vẫn giữ nguyên để không làm hỏng URL SEO (Best Practice).
@@ -92,7 +93,7 @@ exports.updateCategory = async (id, data) => {
 exports.deleteCategory = async (id) => {
   const category = await Category.findById(id);
   if (!category) {
-    throw new Error('Không tìm thấy danh mục.');
+    throw new AppError('Không tìm thấy danh mục.', 404);
   }
 
   // Thực hiện lệnh xóa

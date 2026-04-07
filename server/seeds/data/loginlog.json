@@ -1,0 +1,149 @@
+[
+  {
+    "email": "admin@glassstore.vn",
+    "status": "failed",
+    "ipAddress": "203.113.24.10",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36",
+    "createdAt": "2026-04-07T08:01:13.174Z",
+    "failureReason": "Sai mật khẩu"
+  },
+  {
+    "email": "phuc.admin@glassstore.vn",
+    "status": "success",
+    "ipAddress": "14.161.8.22",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/605.1.15 Version/17.4 Safari/605.1.15",
+    "createdAt": "2026-04-07T07:24:13.174Z"
+  },
+  {
+    "email": "hoa.admin@glassstore.vn",
+    "status": "success",
+    "ipAddress": "171.244.55.90",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 Version/17.4 Mobile/15E148 Safari/604.1",
+    "createdAt": "2026-04-07T06:47:13.174Z"
+  },
+  {
+    "email": "tuan.nguyen@gmail.com",
+    "status": "success",
+    "ipAddress": "27.72.101.45",
+    "userAgent": "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/124.0.0.0 Mobile Safari/537.36",
+    "createdAt": "2026-04-07T06:10:13.174Z"
+  },
+  {
+    "email": "lan.le@gmail.com",
+    "status": "failed",
+    "ipAddress": "113.190.222.11",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36",
+    "createdAt": "2026-04-07T05:33:13.174Z",
+    "failureReason": "Email không tồn tại"
+  },
+  {
+    "email": "hung.pham@gmail.com",
+    "status": "success",
+    "ipAddress": "203.113.24.10",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/605.1.15 Version/17.4 Safari/605.1.15",
+    "createdAt": "2026-04-07T04:56:13.174Z"
+  },
+  {
+    "email": "linh.hoang@gmail.com",
+    "status": "success",
+    "ipAddress": "14.161.8.22",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 Version/17.4 Mobile/15E148 Safari/604.1",
+    "createdAt": "2026-04-07T04:19:13.174Z"
+  },
+  {
+    "email": "nam.vu@gmail.com",
+    "status": "failed",
+    "ipAddress": "171.244.55.90",
+    "userAgent": "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/124.0.0.0 Mobile Safari/537.36",
+    "createdAt": "2026-04-07T03:42:13.174Z",
+    "failureReason": "Email không tồn tại"
+  },
+  {
+    "email": "ngoc.dang@gmail.com",
+    "status": "failed",
+    "ipAddress": "27.72.101.45",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36",
+    "createdAt": "2026-04-07T03:05:13.174Z",
+    "failureReason": "Tài khoản bị khóa"
+  },
+  {
+    "email": "thanh.bui@gmail.com",
+    "status": "success",
+    "ipAddress": "113.190.222.11",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/605.1.15 Version/17.4 Safari/605.1.15",
+    "createdAt": "2026-04-07T02:28:13.174Z"
+  },
+  {
+    "email": "huong.ngo@gmail.com",
+    "status": "success",
+    "ipAddress": "203.113.24.10",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 Version/17.4 Mobile/15E148 Safari/604.1",
+    "createdAt": "2026-04-07T01:51:13.174Z"
+  },
+  {
+    "email": "phong.duong@gmail.com",
+    "status": "success",
+    "ipAddress": "14.161.8.22",
+    "userAgent": "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/124.0.0.0 Mobile Safari/537.36",
+    "createdAt": "2026-04-07T01:14:13.174Z"
+  },
+  {
+    "email": "thao.phan@gmail.com",
+    "status": "failed",
+    "ipAddress": "171.244.55.90",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36",
+    "createdAt": "2026-04-07T00:37:13.174Z",
+    "failureReason": "Sai mật khẩu"
+  },
+  {
+    "email": "khoa.ho@gmail.com",
+    "status": "success",
+    "ipAddress": "27.72.101.45",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/605.1.15 Version/17.4 Safari/605.1.15",
+    "createdAt": "2026-04-07T00:00:13.174Z"
+  },
+  {
+    "email": "mai.ly@gmail.com",
+    "status": "failed",
+    "ipAddress": "113.190.222.11",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 Version/17.4 Mobile/15E148 Safari/604.1",
+    "createdAt": "2026-04-06T23:23:13.174Z",
+    "failureReason": "Tài khoản bị khóa"
+  },
+  {
+    "email": "binh.truong@gmail.com",
+    "status": "success",
+    "ipAddress": "203.113.24.10",
+    "userAgent": "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/124.0.0.0 Mobile Safari/537.36",
+    "createdAt": "2026-04-06T22:46:13.174Z"
+  },
+  {
+    "email": "trang.dinh@gmail.com",
+    "status": "failed",
+    "ipAddress": "14.161.8.22",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36",
+    "createdAt": "2026-04-06T22:09:13.174Z",
+    "failureReason": "Email không tồn tại"
+  },
+  {
+    "email": "long.vo@gmail.com",
+    "status": "success",
+    "ipAddress": "171.244.55.90",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/605.1.15 Version/17.4 Safari/605.1.15",
+    "createdAt": "2026-04-06T21:32:13.174Z"
+  },
+  {
+    "email": "vy.nguyen@gmail.com",
+    "status": "success",
+    "ipAddress": "27.72.101.45",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 Version/17.4 Mobile/15E148 Safari/604.1",
+    "createdAt": "2026-04-06T20:55:13.174Z"
+  },
+  {
+    "email": "duc.tran@gmail.com",
+    "status": "success",
+    "ipAddress": "113.190.222.11",
+    "userAgent": "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 Chrome/124.0.0.0 Mobile Safari/537.36",
+    "createdAt": "2026-04-06T20:18:13.174Z"
+  }
+]
