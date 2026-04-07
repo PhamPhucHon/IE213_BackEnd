@@ -2,6 +2,7 @@ const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const inventoryService = require('./inventoryService');
 const { cartDTO } = require('../utils/dto');
+const { AppError } = require('../utils/asyncHandler');
 
 
 // Hàm phụ trợ để tính tổng tiền của giỏ hàng
@@ -33,12 +34,12 @@ exports.getCart = async (userId) => {
  * @returns {Object} - Giỏ hàng sau khi cập nhật
  */
 exports.addToCart = async (userId, { sku, quantity }) => {
-  if (quantity <= 0) throw new Error('Số lượng sản phẩm phải lớn hơn 0');
+  if (quantity <= 0) throw new AppError('Số lượng sản phẩm phải lớn hơn 0', 400);
 
   // 1. Lấy thông tin Product dựa vào SKU (Ghi chú: Quét trong mảng variants)
   const product = await Product.findOne({ 'variants.sku': sku, isActive: true });
   if (!product) {
-    throw new Error('Sản phẩm không tồn tại hoặc đã ngừng kinh doanh.');
+    throw new AppError('Sản phẩm không tồn tại hoặc đã ngừng kinh doanh.', 404);
   }
 
   // Lấy ra đúng biến thể (variant) mà khách chọn
@@ -63,7 +64,7 @@ exports.addToCart = async (userId, { sku, quantity }) => {
   const availableStock = inventory.stock - inventory.reserved; // Hàng thực tế có thể bán
   
   if (availableStock < desiredQuantity) {
-    throw new Error(`Sản phẩm này hiện chỉ còn ${availableStock} chiếc trong kho. Vui lòng giảm số lượng.`);
+    throw new AppError(`Sản phẩm này hiện chỉ còn ${availableStock} chiếc trong kho. Vui lòng giảm số lượng.`, 409);
   }
 
   // 5. Cập nhật dữ liệu vào giỏ hàng
@@ -104,17 +105,17 @@ exports.updateCartItem = async (userId, sku, quantity) => {
   }
 
   const cart = await Cart.findOne({ userId });
-  if (!cart) throw new Error('Không tìm thấy giỏ hàng.');
+  if (!cart) throw new AppError('Không tìm thấy giỏ hàng.', 404);
 
   const itemIndex = cart.items.findIndex(item => item.sku === sku);
-  if (itemIndex === -1) throw new Error('Sản phẩm không tồn tại trong giỏ hàng.');
+  if (itemIndex === -1) throw new AppError('Sản phẩm không tồn tại trong giỏ hàng.', 404);
 
   // Kiểm tra tồn kho cho mức số lượng mới
   const inventory = await inventoryService.getStock(sku);
   const availableStock = inventory.stock - inventory.reserved;
   
   if (availableStock < quantity) {
-    throw new Error(`Kho không đủ hàng. Sản phẩm này chỉ còn tối đa ${availableStock} chiếc.`);
+    throw new AppError(`Kho không đủ hàng. Sản phẩm này chỉ còn tối đa ${availableStock} chiếc.`, 409);
   }
 
   // Cập nhật số lượng
@@ -133,7 +134,7 @@ exports.updateCartItem = async (userId, sku, quantity) => {
  */
 exports.removeCartItem = async (userId, sku) => {
   const cart = await Cart.findOne({ userId });
-  if (!cart) throw new Error('Không tìm thấy giỏ hàng.');
+  if (!cart) throw new AppError('Không tìm thấy giỏ hàng.', 404);
 
   // Lọc bỏ item có SKU trùng khớp
   cart.items = cart.items.filter(item => item.sku !== sku);
@@ -149,7 +150,7 @@ exports.removeCartItem = async (userId, sku) => {
  */
 exports.clearCart = async (userId) => {
   const cart = await Cart.findOne({ userId });
-  if (!cart) throw new Error('Không tìm thấy giỏ hàng.');
+  if (!cart) throw new AppError('Không tìm thấy giỏ hàng.', 404);
 
   cart.items = [];
   cart.totalPrice = 0;

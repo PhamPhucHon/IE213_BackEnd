@@ -1,0 +1,122 @@
+[
+  {
+    "name": "The Assembled",
+    "slug": "the-assembled",
+    "image": "",
+    "description": "Collection The Assembled",
+    "order": 1,
+    "isActive": true
+  },
+  {
+    "name": "The Athletes",
+    "slug": "the-athletes",
+    "image": "",
+    "description": "Collection The Athletes",
+    "order": 2,
+    "isActive": true
+  },
+  {
+    "name": "The Cut",
+    "slug": "the-cut",
+    "image": "",
+    "description": "Collection The Cut",
+    "order": 3,
+    "isActive": true
+  },
+  {
+    "name": "The Cut Edge",
+    "slug": "the-cut-edge",
+    "image": "",
+    "description": "Collection The Cut Edge",
+    "order": 4,
+    "isActive": true
+  },
+  {
+    "name": "The Edge",
+    "slug": "the-edge",
+    "image": "",
+    "description": "Collection The Edge",
+    "order": 5,
+    "isActive": true
+  },
+  {
+    "name": "The Flow",
+    "slug": "the-flow",
+    "image": "",
+    "description": "Collection The Flow",
+    "order": 6,
+    "isActive": true
+  },
+  {
+    "name": "The Layered",
+    "slug": "the-layered",
+    "image": "",
+    "description": "Collection The Layered",
+    "order": 7,
+    "isActive": true
+  },
+  {
+    "name": "The Obsidian",
+    "slug": "the-obsidian",
+    "image": "",
+    "description": "Collection The Obsidian",
+    "order": 8,
+    "isActive": true
+  },
+  {
+    "name": "The Office",
+    "slug": "the-office",
+    "image": "",
+    "description": "Collection The Office",
+    "order": 9,
+    "isActive": true
+  },
+  {
+    "name": "The Paper Knife",
+    "slug": "the-paper-knife",
+    "image": "",
+    "description": "Collection The Paper Knife",
+    "order": 10,
+    "isActive": true
+  },
+  {
+    "name": "The Ruler",
+    "slug": "the-ruler",
+    "image": "",
+    "description": "Collection The Ruler",
+    "order": 11,
+    "isActive": true
+  },
+  {
+    "name": "The Set Square",
+    "slug": "the-set-square",
+    "image": "",
+    "description": "Collection The Set Square",
+    "order": 12,
+    "isActive": true
+  },
+  {
+    "name": "The Snorkel",
+    "slug": "the-snorkel",
+    "image": "",
+    "description": "Collection The Snorkel",
+    "order": 13,
+    "isActive": true
+  },
+  {
+    "name": "The Soap",
+    "slug": "the-soap",
+    "image": "",
+    "description": "Collection The Soap",
+    "order": 14,
+    "isActive": true
+  },
+  {
+    "name": "The Vertebra",
+    "slug": "the-vertebra",
+    "image": "",
+    "description": "Collection The Vertebra",
+    "order": 15,
+    "isActive": true
+  }
+]

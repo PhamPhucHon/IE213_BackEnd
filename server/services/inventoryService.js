@@ -1,5 +1,6 @@
 const Inventory = require('../models/Inventory');
 const { inventoryDTO } = require('../utils/dto');
+const { AppError } = require('../utils/asyncHandler');
 
 /**
  * Lấy thông tin tồn kho của một SKU
@@ -9,7 +10,7 @@ const { inventoryDTO } = require('../utils/dto');
 exports.getStock = async (sku) => {
   const inventory = await Inventory.findOne({ sku }).populate('productId', 'name slug');
   if (!inventory) {
-    throw new Error(`Không tìm thấy thông tin tồn kho cho SKU: ${sku}`);
+    throw new AppError(`Không tìm thấy thông tin tồn kho cho SKU: ${sku}`, 404);
   }
   return inventoryDTO(inventory);
 };
@@ -22,7 +23,7 @@ exports.getStock = async (sku) => {
  * @param {Object} session - (Tùy chọn) Mongoose Session dùng cho Transaction
  */
 exports.reserveStock = async (sku, quantity, session = null) => {
-  if (quantity <= 0) throw new Error('Số lượng giữ hàng phải lớn hơn 0');
+  if (quantity <= 0) throw new AppError('Số lượng giữ hàng phải lớn hơn 0', 400);
 
   // Atomic Update: Chỉ tìm thấy và update nếu stock hiện tại >= số lượng khách muốn mua
   const inventory = await Inventory.findOneAndUpdate(
@@ -42,8 +43,8 @@ exports.reserveStock = async (sku, quantity, session = null) => {
   if (!inventory) {
     // Để báo lỗi chi tiết hơn, ta tìm thử xem SKU có tồn tại không
     const checkSku = await Inventory.findOne({ sku }).session(session);
-    if (!checkSku) throw new Error(`SKU ${sku} không tồn tại trong kho.`);
-    throw new Error(`Sản phẩm (SKU: ${sku}) không đủ số lượng tồn kho. (Chỉ còn ${checkSku.stock})`);
+    if (!checkSku) throw new AppError(`SKU ${sku} không tồn tại trong kho.`, 404);
+    throw new AppError(`Sản phẩm (SKU: ${sku}) không đủ số lượng tồn kho. (Chỉ còn ${checkSku.stock})`, 409);
   }
 
   return inventory;
@@ -57,7 +58,7 @@ exports.reserveStock = async (sku, quantity, session = null) => {
  * @param {Object} session - (Tùy chọn) Transaction Session
  */
 exports.releaseStock = async (sku, quantity, session = null) => {
-  if (quantity <= 0) throw new Error('Số lượng giải phóng phải lớn hơn 0');
+  if (quantity <= 0) throw new AppError('Số lượng giải phóng phải lớn hơn 0', 400);
 
   // Atomic Update: Chỉ nhả kho nếu số lượng reserved >= số lượng cần nhả
   const inventory = await Inventory.findOneAndUpdate(
@@ -75,7 +76,7 @@ exports.releaseStock = async (sku, quantity, session = null) => {
   );
 
   if (!inventory) {
-    throw new Error(`Lỗi hệ thống kho: Không thể giải phóng ${quantity} sản phẩm cho SKU ${sku}. Số lượng giữ chỗ hiện tại không đủ.`);
+    throw new AppError(`Lỗi hệ thống kho: Không thể giải phóng ${quantity} sản phẩm cho SKU ${sku}. Số lượng giữ chỗ hiện tại không đủ.`, 409);
   }
 
   return inventory;
@@ -90,7 +91,7 @@ exports.releaseStock = async (sku, quantity, session = null) => {
  * @param {Object} session - (Tùy chọn) Transaction Session
  */
 exports.confirmStock = async (sku, quantity, session = null) => {
-  if (quantity <= 0) throw new Error('Số lượng xác nhận bán phải lớn hơn 0');
+  if (quantity <= 0) throw new AppError('Số lượng xác nhận bán phải lớn hơn 0', 400);
 
   const inventory = await Inventory.findOneAndUpdate(
     { 
@@ -107,7 +108,7 @@ exports.confirmStock = async (sku, quantity, session = null) => {
   );
 
   if (!inventory) {
-    throw new Error(`Lỗi xuất kho: Không tìm thấy dữ liệu giữ chỗ hợp lệ cho SKU ${sku} với số lượng ${quantity}.`);
+    throw new AppError(`Lỗi xuất kho: Không tìm thấy dữ liệu giữ chỗ hợp lệ cho SKU ${sku} với số lượng ${quantity}.`, 409);
   }
 
   return inventory;
@@ -119,7 +120,7 @@ exports.confirmStock = async (sku, quantity, session = null) => {
  * @param {Number} newStock - Tổng số lượng tồn kho mới thực tế trong kho
  */
 exports.updateStock = async (sku, newStock) => {
-  if (newStock < 0) throw new Error('Số lượng tồn kho không được âm');
+  if (newStock < 0) throw new AppError('Số lượng tồn kho không được âm', 400);
 
   const inventory = await Inventory.findOneAndUpdate(
     { sku: sku },
@@ -133,7 +134,7 @@ exports.updateStock = async (sku, newStock) => {
   );
 
   if (!inventory) {
-    throw new Error(`Không tìm thấy SKU ${sku} để cập nhật.`);
+    throw new AppError(`Không tìm thấy SKU ${sku} để cập nhật.`, 404);
   }
 
   return inventoryDTO(inventory);
