@@ -27,7 +27,6 @@
       {
         "sku": "the-paper-knife-01-brown",
         "color": "Brown",
-        "size": "",
         "price": 2500000,
         "originalPrice": 2500000,
         "images": [
@@ -42,7 +41,6 @@
       {
         "sku": "the-paper-knife-01-dark-grey",
         "color": "Dark Grey",
-        "size": "",
         "price": 2500000,
         "originalPrice": 2500000,
         "images": [
@@ -59,7 +57,6 @@
       {
         "sku": "the-paper-knife-01-black",
         "color": "Black",
-        "size": "",
         "price": 2500000,
         "originalPrice": 2500000,
         "images": [
@@ -108,7 +105,6 @@
       {
         "sku": "the-ruler-07-green",
         "color": "Green",
-        "size": "",
         "price": 2550000,
         "originalPrice": 2550000,
         "images": [
@@ -123,7 +119,6 @@
       {
         "sku": "the-ruler-07-grey",
         "color": "Grey",
-        "size": "",
         "price": 2550000,
         "originalPrice": 2550000,
         "images": [
@@ -138,7 +133,6 @@
       {
         "sku": "the-ruler-07-beige",
         "color": "Beige",
-        "size": "",
         "price": 2550000,
         "originalPrice": 2550000,
         "images": [
@@ -185,7 +179,6 @@
       {
         "sku": "the-paper-knife-02-havana",
         "color": "Havana",
-        "size": "",
         "price": 2500000,
         "originalPrice": 2500000,
         "images": [
@@ -202,7 +195,6 @@
       {
         "sku": "the-paper-knife-02-black",
         "color": "Black",
-        "size": "",
         "price": 2500000,
         "originalPrice": 2500000,
         "images": [
@@ -219,7 +211,6 @@
       {
         "sku": "the-paper-knife-02-grey",
         "color": "Grey",
-        "size": "",
         "price": 2500000,
         "originalPrice": 2500000,
         "images": [
@@ -268,7 +259,6 @@
       {
         "sku": "the-ruler-06-brown",
         "color": "Brown",
-        "size": "",
         "price": 2550000,
         "originalPrice": 2550000,
         "images": [
@@ -283,7 +273,6 @@
       {
         "sku": "the-ruler-06-grey",
         "color": "Grey",
-        "size": "",
         "price": 2550000,
         "originalPrice": 2550000,
         "images": [
@@ -300,7 +289,6 @@
       {
         "sku": "the-ruler-06-black",
         "color": "Black",
-        "size": "",
         "price": 2550000,
         "originalPrice": 2550000,
         "images": [
@@ -317,7 +305,6 @@
       {
         "sku": "the-ruler-06-dark-grey",
         "color": "Dark Grey",
-        "size": "",
         "price": 2550000,
         "originalPrice": 2550000,
         "images": [
@@ -364,7 +351,6 @@
       {
         "sku": "the-soap-11-light-grey",
         "color": "Light Grey",
-        "size": "",
         "price": 2450000,
         "originalPrice": 2450000,
         "images": [
@@ -379,7 +365,6 @@
       {
         "sku": "the-soap-11-green",
         "color": "Green",
-        "size": "",
         "price": 2450000,
         "originalPrice": 2450000,
         "images": [
@@ -426,7 +411,6 @@
       {
         "sku": "the-set-square-02-black",
         "color": "Black",
-        "size": "",
         "price": 2600000,
         "originalPrice": 2600000,
         "images": [
@@ -475,7 +459,6 @@
       {
         "sku": "the-soap-10-dark-grey",
         "color": "Dark Grey",
-        "size": "",
         "price": 2750000,
         "originalPrice": 2750000,
         "images": [
@@ -490,7 +473,6 @@
       {
         "sku": "the-soap-10-black",
         "color": "Black",
-        "size": "",
         "price": 2750000,
         "originalPrice": 2750000,
         "images": [
@@ -537,7 +519,6 @@
       {
         "sku": "the-ruler-03-gunmetal",
         "color": "Gunmetal",
-        "size": "",
         "price": 2750000,
         "originalPrice": 2750000,
         "images": [
@@ -553,7 +534,6 @@
       {
         "sku": "the-ruler-03-silver",
         "color": "Silver",
-        "size": "",
         "price": 2750000,
         "originalPrice": 2750000,
         "images": [
@@ -602,7 +582,6 @@
       {
         "sku": "the-ruler-04-silver",
         "color": "Silver",
-        "size": "",
         "price": 2750000,
         "originalPrice": 2750000,
         "images": [
@@ -619,7 +598,6 @@
       {
         "sku": "the-ruler-04-gunmetal",
         "color": "Gunmetal",
-        "size": "",
         "price": 2750000,
         "originalPrice": 2750000,
         "images": [
@@ -667,7 +645,6 @@
       {
         "sku": "the-set-square-02-sunglasses-grey-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2600000,
         "originalPrice": 2600000,
         "images": [
@@ -716,7 +693,6 @@
       {
         "sku": "the-ruler-01-marble-black",
         "color": "Marble Black",
-        "size": "",
         "price": 2850000,
         "originalPrice": 2850000,
         "images": [
@@ -765,7 +741,6 @@
       {
         "sku": "the-soap-07-sunglasses-grey-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2450000,
         "originalPrice": 2450000,
         "images": [
@@ -812,7 +787,6 @@
       {
         "sku": "the-obsidian-02-black",
         "color": "Black",
-        "size": "",
         "price": 2350000,
         "originalPrice": 2350000,
         "images": [
@@ -829,7 +803,6 @@
       {
         "sku": "the-obsidian-02-matte-black",
         "color": "Matte Black",
-        "size": "",
         "price": 2350000,
         "originalPrice": 2350000,
         "images": [
@@ -877,7 +850,6 @@
       {
         "sku": "the-soap-02-sunglasses-grey-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2350000,
         "originalPrice": 2350000,
         "images": [
@@ -925,7 +897,6 @@
       {
         "sku": "the-snorkel-02-matte-black",
         "color": "Matte Black",
-        "size": "",
         "price": 2400000,
         "originalPrice": 2400000,
         "images": [
@@ -942,7 +913,6 @@
       {
         "sku": "the-snorkel-02-black",
         "color": "Black",
-        "size": "",
         "price": 2400000,
         "originalPrice": 2400000,
         "images": [
@@ -959,7 +929,6 @@
       {
         "sku": "the-snorkel-02-crystal",
         "color": "Crystal",
-        "size": "",
         "price": 2400000,
         "originalPrice": 2400000,
         "images": [
@@ -1008,7 +977,6 @@
       {
         "sku": "the-snorkel-01-crystal",
         "color": "Crystal",
-        "size": "",
         "price": 2400000,
         "originalPrice": 2400000,
         "images": [
@@ -1025,7 +993,6 @@
       {
         "sku": "the-snorkel-01-black",
         "color": "Black",
-        "size": "",
         "price": 2400000,
         "originalPrice": 2400000,
         "images": [
@@ -1073,7 +1040,6 @@
       {
         "sku": "the-soap-08-sunglasses-grey-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2450000,
         "originalPrice": 2450000,
         "images": [
@@ -1120,7 +1086,6 @@
       {
         "sku": "the-soap-08-green",
         "color": "Green",
-        "size": "",
         "price": 2450000,
         "originalPrice": 2450000,
         "images": [
@@ -1135,7 +1100,6 @@
       {
         "sku": "the-soap-08-grey",
         "color": "Grey",
-        "size": "",
         "price": 2450000,
         "originalPrice": 2450000,
         "images": [
@@ -1182,7 +1146,6 @@
       {
         "sku": "the-soap-09-grey",
         "color": "Grey",
-        "size": "",
         "price": 2750000,
         "originalPrice": 2750000,
         "images": [
@@ -1197,7 +1160,6 @@
       {
         "sku": "the-soap-09-brown",
         "color": "Brown",
-        "size": "",
         "price": 2750000,
         "originalPrice": 2750000,
         "images": [
@@ -1212,7 +1174,6 @@
       {
         "sku": "the-soap-09-faded-ash",
         "color": "Faded Ash",
-        "size": "",
         "price": 2750000,
         "originalPrice": 2750000,
         "images": [
@@ -1259,7 +1220,6 @@
       {
         "sku": "the-assembled-02-transparent-beige",
         "color": "Transparent Beige",
-        "size": "",
         "price": 2100000,
         "originalPrice": 2100000,
         "images": [
@@ -1311,7 +1271,6 @@
       {
         "sku": "the-athletes-03-silver",
         "color": "Silver",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -1359,7 +1318,6 @@
       {
         "sku": "the-athletes-02-beige-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -1406,7 +1364,6 @@
       {
         "sku": "the-athletes-02-milky-grey",
         "color": "Milky Grey",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -1454,7 +1411,6 @@
       {
         "sku": "the-soap-07-grey",
         "color": "Grey",
-        "size": "",
         "price": 2450000,
         "originalPrice": 2450000,
         "images": [
@@ -1501,7 +1457,6 @@
       {
         "sku": "the-athletes-11-dark-grey-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -1549,7 +1504,6 @@
       {
         "sku": "the-athletes-10-milky-grey",
         "color": "Milky Grey",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -1597,7 +1551,6 @@
       {
         "sku": "the-athletes-14-faded-ash",
         "color": "Faded Ash",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -1644,7 +1597,6 @@
       {
         "sku": "the-athletes-14-black-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -1691,7 +1643,6 @@
       {
         "sku": "the-athletes-11-green-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -1739,7 +1690,6 @@
       {
         "sku": "the-athletes-10-brown-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -1786,7 +1736,6 @@
       {
         "sku": "the-athletes-10-blue-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -1833,7 +1782,6 @@
       {
         "sku": "the-athletes-13-olive-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -1880,7 +1828,6 @@
       {
         "sku": "the-athletes-05-silver",
         "color": "Silver",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -1927,7 +1874,6 @@
       {
         "sku": "the-athletes-14-grey-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -1974,7 +1920,6 @@
       {
         "sku": "the-athletes-13-black",
         "color": "Black",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -1989,7 +1934,6 @@
       {
         "sku": "the-athletes-13-brown",
         "color": "Brown",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -2036,7 +1980,6 @@
       {
         "sku": "the-athletes-12-green-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2083,7 +2026,6 @@
       {
         "sku": "the-athletes-08-black",
         "color": "Black",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2099,7 +2041,6 @@
       {
         "sku": "the-athletes-08-milky-grey",
         "color": "Milky Grey",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2115,7 +2056,6 @@
       {
         "sku": "the-athletes-08-dark-grey",
         "color": "Dark Grey",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2163,7 +2103,6 @@
       {
         "sku": "the-athletes-12-faded-ash",
         "color": "Faded Ash",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2178,7 +2117,6 @@
       {
         "sku": "the-athletes-12-brown",
         "color": "Brown",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2225,7 +2163,6 @@
       {
         "sku": "the-athletes-06-silver",
         "color": "Silver",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -2273,7 +2210,6 @@
       {
         "sku": "the-athletes-07-silver",
         "color": "Silver",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -2320,7 +2256,6 @@
       {
         "sku": "the-athletes-11-black-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -2368,7 +2303,6 @@
       {
         "sku": "the-athletes-10-grey-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2415,7 +2349,6 @@
       {
         "sku": "the-athletes-12-grey-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2462,7 +2395,6 @@
       {
         "sku": "the-athletes-13-grey-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2800000,
         "originalPrice": 2800000,
         "images": [
@@ -2510,7 +2442,6 @@
       {
         "sku": "the-athletes-15-black-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2557,7 +2488,6 @@
       {
         "sku": "the-athletes-15-brown-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2604,7 +2534,6 @@
       {
         "sku": "the-athletes-15-grey",
         "color": "Grey",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2651,7 +2580,6 @@
       {
         "sku": "the-athletes-15-grey-rhino",
         "color": "Rhino",
-        "size": "",
         "price": 2700000,
         "originalPrice": 2700000,
         "images": [
@@ -2698,7 +2626,6 @@
       {
         "sku": "the-layered-09-layered-grey",
         "color": "Layered Grey",
-        "size": "",
         "price": 2240000,
         "originalPrice": 2240000,
         "images": [
@@ -2716,7 +2643,6 @@
       {
         "sku": "the-layered-09-crystal-green",
         "color": "Crystal Green",
-        "size": "",
         "price": 2240000,
         "originalPrice": 2240000,
         "images": [
@@ -2734,7 +2660,6 @@
       {
         "sku": "the-layered-09-denim",
         "color": "Denim",
-        "size": "",
         "price": 2240000,
         "originalPrice": 2240000,
         "images": [
@@ -2784,7 +2709,6 @@
       {
         "sku": "the-edge-04-black",
         "color": "Black",
-        "size": "",
         "price": 1920000,
         "originalPrice": 1920000,
         "images": [
@@ -2800,7 +2724,6 @@
       {
         "sku": "the-edge-04-beige",
         "color": "Beige",
-        "size": "",
         "price": 2400000,
         "originalPrice": 2400000,
         "images": [
@@ -2816,7 +2739,6 @@
       {
         "sku": "the-edge-04-purple",
         "color": "Purple",
-        "size": "",
         "price": 1920000,
         "originalPrice": 1920000,
         "images": [
@@ -2864,7 +2786,6 @@
       {
         "sku": "the-edge-01-purple",
         "color": "Purple",
-        "size": "",
         "price": 2400000,
         "originalPrice": 2400000,
         "images": [
@@ -2912,7 +2833,6 @@
       {
         "sku": "the-flow-02-matte-gunmetal",
         "color": "Matte Gunmetal",
-        "size": "",
         "price": 2640000,
         "originalPrice": 2640000,
         "images": [
@@ -2929,7 +2849,6 @@
       {
         "sku": "the-flow-02-matte-silver",
         "color": "Matte Silver",
-        "size": "",
         "price": 2640000,
         "originalPrice": 2640000,
         "images": [
@@ -2945,7 +2864,6 @@
       {
         "sku": "the-flow-02-matte-black",
         "color": "Matte Black",
-        "size": "",
         "price": 2640000,
         "originalPrice": 2640000,
         "images": [
@@ -2993,7 +2911,6 @@
       {
         "sku": "the-edge-05-transparent-green",
         "color": "Transparent Green",
-        "size": "",
         "price": 1920000,
         "originalPrice": 1920000,
         "images": [
@@ -3041,7 +2958,6 @@
       {
         "sku": "the-cut-15-black-black",
         "color": "Black",
-        "size": "",
         "price": 2360000,
         "originalPrice": 2360000,
         "images": [
@@ -3088,7 +3004,6 @@
       {
         "sku": "the-cut-16-black-black",
         "color": "Black",
-        "size": "",
         "price": 2360000,
         "originalPrice": 2360000,
         "images": [
@@ -3135,7 +3050,6 @@
       {
         "sku": "the-cut-16-denim-black",
         "color": "Black",
-        "size": "",
         "price": 2360000,
         "originalPrice": 2360000,
         "images": [
@@ -3182,7 +3096,6 @@
       {
         "sku": "the-cut-15-green",
         "color": "Green",
-        "size": "",
         "price": 2200000,
         "originalPrice": 2200000,
         "images": [
@@ -3229,7 +3142,6 @@
       {
         "sku": "the-cut-09-crystal-beige",
         "color": "Crystal Beige",
-        "size": "",
         "price": 2160000,
         "originalPrice": 2160000,
         "images": [
@@ -3278,7 +3190,6 @@
       {
         "sku": "the-cut-15-matte-black-black",
         "color": "Black",
-        "size": "",
         "price": 2360000,
         "originalPrice": 2360000,
         "images": [
@@ -3325,7 +3236,6 @@
       {
         "sku": "the-cut-15-faded-ash-black",
         "color": "Black",
-        "size": "",
         "price": 2360000,
         "originalPrice": 2360000,
         "images": [
@@ -3373,7 +3283,6 @@
       {
         "sku": "the-cut-18-black-black",
         "color": "Black",
-        "size": "",
         "price": 2360000,
         "originalPrice": 2360000,
         "images": [
@@ -3420,7 +3329,6 @@
       {
         "sku": "the-flow-01-matte-silver",
         "color": "Matte Silver",
-        "size": "",
         "price": 2640000,
         "originalPrice": 2640000,
         "images": [
@@ -3469,7 +3377,6 @@
       {
         "sku": "the-cut-16-matte-black-black",
         "color": "Black",
-        "size": "",
         "price": 2360000,
         "originalPrice": 2360000,
         "images": [
@@ -3516,7 +3423,6 @@
       {
         "sku": "the-cut-18-matte-black-black",
         "color": "Black",
-        "size": "",
         "price": 2360000,
         "originalPrice": 2360000,
         "images": [
