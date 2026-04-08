@@ -59,7 +59,7 @@ const categoryDTO = (category) => {
 
 // ─────────────────────────────────────────
 // PRODUCT DTO
-// Bao gồm đầy đủ: variants (giá, màu, size, ảnh biến thể),
+// Bao gồm đầy đủ: variants (giá, màu, ảnh biến thể),
 // specifications, sale, availability, type
 // ─────────────────────────────────────────
 const variantDTO = (variant) => {
@@ -68,7 +68,6 @@ const variantDTO = (variant) => {
     _id: variant._id,
     sku: variant.sku,
     color: variant.color,
-    size: variant.size,
     price: variant.price,
     originalPrice: variant.originalPrice,
     images: variant.images ?? [],
