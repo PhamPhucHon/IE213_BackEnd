@@ -38,3 +38,8 @@ tmp/
 # IDE/editor
 .idea/
 .vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?   
