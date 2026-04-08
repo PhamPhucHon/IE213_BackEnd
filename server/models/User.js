@@ -21,40 +21,29 @@ const userSchema = new mongoose.Schema({
 
 // 1. Middleware: 
 // Pre-save hook để tự động băm mật khẩu trước khi lưu vào database
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function() {
   // Chỉ băm lại nếu mật khẩu bị thay đổi (tạo mới hoặc update)
   if (!this.isModified('password')) {
-    return next();
+    return;
   }
-  
-  try {
-    this.password = await hashPassword(this.password);
-    next();
-  } catch (error) {
-    next(error);
-  }
+
+  this.password = await hashPassword(this.password);
 });
 
 // Hook tùy chọn: Nếu User bị đổi trạng thái thành isActive = false 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function() {
   // Kiểm tra nếu trường isActive vừa bị thay đổi thành false
   if (this.isModified('isActive') && this.isActive === false) {
-    try {
-      const Cart = mongoose.model('Cart');
-      // Dọn dẹp giỏ hàng của user này
-      await Cart.deleteOne({ userId: this._id });
-    } catch (error) {
-      return next(error);
-    }
+    const Cart = mongoose.model('Cart');
+    // Dọn dẹp giỏ hàng của user này
+    await Cart.deleteOne({ userId: this._id });
   }
-  next();
 });
 
 //  Tự động ẩn các User bị khóa (isActive: false) khi tìm kiếm
-userSchema.pre(/^find/, function(next) {
+userSchema.pre(/^find/, function() {
   // Chỉ lấy những user đang active (hoặc không có trường isActive)
   this.find({ isActive: { $ne: false } });
-  next();
 });
 
 
