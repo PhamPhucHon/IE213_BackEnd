@@ -28,7 +28,7 @@ reviewSchema.index({ productId: 1 });
 
 // 2. MIDDLEWARES
 // Tự động đánh dấu là verified purchase nếu user đã mua sản phẩm này
-reviewSchema.pre('save', async function(next) {
+reviewSchema.pre('save', async function() {
   if (this.isNew) {
     const Order = mongoose.model('Order');
     const hasPurchased = await Order.exists({ 
@@ -38,7 +38,6 @@ reviewSchema.pre('save', async function(next) {
     });
     this.isVerifiedPurchase = !!hasPurchased;
   }
-  next();
 });
 
 // Tính toán lại điểm rating trung bình và số lượng review mỗi khi có review mới hoặc review bị xóa

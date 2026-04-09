@@ -49,11 +49,10 @@ productSchema.index({ name: 'text' });
 
 // 2. MIDDLEWARES 
 // Tự động tạo slug chuẩn SEO trước khi validate dữ liệu
-productSchema.pre('validate', function(next) {
+productSchema.pre('validate', function() {
   if (this.name && !this.slug) {
     this.slug = slugify(this.name);
   }
-  next();
 });
 
 
