@@ -15,29 +15,23 @@ categorySchema.index({ isActive: 1, order: 1 });
 
 // 2. MIDDLEWARES
 // Tự động tạo Slug trước khi validate
-categorySchema.pre('validate', function(next) {
+categorySchema.pre('validate', function() {
   if (this.name && !this.slug) {
     // Gọi hàm slugify từ utils
-    this.slug = slugify(this.name); 
+    this.slug = slugify(this.name);
   }
-  next();
 });
 
 // Ràng buộc: Không cho phép xóa danh mục nếu còn sản phẩm thuộc danh mục đó
-categorySchema.pre('findOneAndDelete', async function(next) {
-  try {
-    const categoryId = this.getQuery()['_id'];
-    const Product = mongoose.model('Product');
-    
-    // Đếm xem có bao nhiêu sản phẩm đang dùng danh mục này
-    const productCount = await Product.countDocuments({ categoryId: categoryId });
-    
-    if (productCount > 0) {
-      throw new Error(`Không thể xóa! Đang có ${productCount} sản phẩm thuộc danh mục này.`);
-    }
-    next();
-  } catch (error) {
-    next(error);
+categorySchema.pre('findOneAndDelete', async function() {
+  const categoryId = this.getQuery()['_id'];
+  const Product = mongoose.model('Product');
+
+  // Đếm xem có bao nhiêu sản phẩm đang dùng danh mục này
+  const productCount = await Product.countDocuments({ categoryId });
+
+  if (productCount > 0) {
+    throw new Error(`Không thể xóa! Đang có ${productCount} sản phẩm thuộc danh mục này.`);
   }
 });
 

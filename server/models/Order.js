@@ -42,7 +42,7 @@ orderSchema.index({ createdAt: -1 });
 
 // 2. MIDDLEWARES 
 // Tự động tạo orderNumber trước khi validate nếu chưa có
-orderSchema.pre('save', function(next) {
+orderSchema.pre('save', function() {
   if (this.isNew && !this.orderNumber) {
     // Sinh mã theo định dạng: ORD-YYYYMMDD-RandomString
     const date = new Date();
@@ -50,7 +50,6 @@ orderSchema.pre('save', function(next) {
     const randomCode = Math.random().toString(36).substring(2, 6).toUpperCase();
     this.orderNumber = `ORD-${dateString}-${randomCode}`;
   }
-  next();
 });
 
 // 3. INSTANCE METHODS
