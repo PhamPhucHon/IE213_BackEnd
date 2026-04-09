@@ -20,7 +20,7 @@ cartSchema.index({ userId: 1 });
 
 // 2. MIDDLEWARES (HOOKS)
 // Tự động tính tổng tiền mỗi khi có sự thay đổi trong giỏ hàng (thêm, sửa, xóa item)
-cartSchema.pre('save', function(next) {
+cartSchema.pre('save', function() {
   // Reset tổng tiền
   let total = 0;
   
@@ -32,7 +32,6 @@ cartSchema.pre('save', function(next) {
   }
   
   this.totalPrice = total;
-  next();
 });
 
 
