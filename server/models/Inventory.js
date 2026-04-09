@@ -14,11 +14,10 @@ inventorySchema.index({ productId: 1 });
 
 // 2. MIDDLEWARES (Hooks)
 // Trước khi lưu, đảm bảo rằng reserved không vượt quá stock
-inventorySchema.pre('save', function(next) {
+inventorySchema.pre('save', function() {
   if (this.reserved > this.stock) {
-    return next(new Error(`Lỗi kho: SKU ${this.sku} có lượng giữ chỗ (reserved) vượt quá tồn kho (stock) hiện tại.`));
+    throw new Error(`Lỗi kho: SKU ${this.sku} có lượng giữ chỗ (reserved) vượt quá tồn kho (stock) hiện tại.`);
   }
-  next();
 });
 
 // 3. INSTANCE METHODS
