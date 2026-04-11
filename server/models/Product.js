@@ -3,7 +3,7 @@ const slugify = require('../utils/slugify');
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  slug: { type: String, required: true, unique: true,  lowercase: true },
+  slug: { type: String, required: true, unique: true, lowercase: true },
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   brand: { type: String, required: true },
   sale: { type: Boolean, default: false },
