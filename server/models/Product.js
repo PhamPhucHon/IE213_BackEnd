@@ -3,12 +3,12 @@ const slugify = require('../utils/slugify');
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  slug: { type: String, required: true, unique: true, lowercase: true },
+  slug: { type: String, required: true, unique: true,  lowercase: true },
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   brand: { type: String, required: true },
   sale: { type: Boolean, default: false },
   availability: { type: String, enum: ['in_stock', 'out_of_stock', 'pre_order'], default: 'in_stock' },
-  type: { type: String, enum: ['Sunglasses', 'Eyeglasses'], default: "Sunglasses" },
+  type: { type: String, enum: ['Sunglasses', 'Eyeglasses', 'All'], default: "Sunglasses" },
   description: { type: String, required: true },
   images: [{ type: String }], // Mảng URL
   specifications: {
