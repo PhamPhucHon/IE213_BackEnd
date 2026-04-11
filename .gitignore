@@ -1,45 +1,55 @@
-# Dependencies
+# ─── Dependencies ─────────────────────────────────────
 node_modules/
-server/node_modules/
 
-# Environment files
+# ─── Environment ──────────────────────────────────────
 .env
-.env.*
+.env.local
+.env.development
+.env.production
+.env.test
 !.env.example
-server/.env
-server/.env.*
 
-# Logs
+# ─── Logs ─────────────────────────────────────────────
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Runtime
-pids
+# ─── Runtime / Process ────────────────────────────────
+pids/
 *.pid
 *.pid.lock
 
-# Build / coverage artifacts
-dist/
-build/
+# ─── Test & Coverage ──────────────────────────────────
 coverage/
 .nyc_output/
 
-# Cache / temp
+# ─── Build artifacts ──────────────────────────────────
+dist/
+build/
+
+# ─── Swagger generated file ───────────────────────────
+server/swagger-output.json
+
+# ─── Cache / Temp ─────────────────────────────────────
 .cache/
 .tmp/
 tmp/
+*.tmp
 
-# OS files
+# ─── macOS ────────────────────────────────────────────
 .DS_Store
+.AppleDouble
+.LSOverride
 
-# IDE/editor
+# ─── IDE / Editor ─────────────────────────────────────
 .idea/
 .vscode/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?   
+*.sw?
+
