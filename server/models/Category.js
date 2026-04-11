@@ -6,6 +6,7 @@ const categorySchema = new mongoose.Schema({
   slug: { type: String, required: true, unique: true },
   image: String,
   description: String,
+  total_products: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
   order: { type: Number, default: 0 }, // thứ tự hiển thị
 }, { timestamps: true });
