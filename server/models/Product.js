@@ -8,7 +8,7 @@ const productSchema = new mongoose.Schema({
   brand: { type: String, required: true },
   sale: { type: Boolean, default: false },
   availability: { type: String, enum: ['in_stock', 'out_of_stock', 'pre_order'], default: 'in_stock' },
-  type: { type: String, enum: ['Sunglasses', 'Eyeglasses'], default: "Sunglasses" },
+  type: { type: String, enum: ['Sunglasses', 'Eyeglasses', 'All'], default: "Sunglasses" },
   description: { type: String, required: true },
   images: [{ type: String }], // Mảng URL
   specifications: {
