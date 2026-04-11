@@ -1,122 +1,65 @@
 [
   {
-    "name": "The Assembled",
-    "slug": "the-assembled",
-    "image": "",
-    "description": "Collection The Assembled",
+    "name": "New collection",
+    "slug": "new-collection",
+    "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1775905072/MyProject/teamp/t8md9woge3t7qh8sm1hb.jpg",
+    "total_products": 6,
+    "description": "Bộ sưu tập New Collection bao gồm các mẫu kính mới nhất, cập nhật theo xu hướng thời trang hiện đại, đa dạng về kiểu dáng và màu sắc, phù hợp với nhiều phong cách khác nhau.",
     "order": 1,
     "isActive": true
   },
   {
-    "name": "The Athletes",
-    "slug": "the-athletes",
-    "image": "",
-    "description": "Collection The Athletes",
+    "name": "Best Seller",
+    "slug": "best-seller",
+    "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1775905068/MyProject/teamp/vodllqq8cvt5uyaz75wf.jpg",
+    "total_products": 8,
+    "description": "Danh sách sản phẩm best seller được thu thập từ seeson.vn",
     "order": 2,
     "isActive": true
   },
   {
-    "name": "The Cut",
-    "slug": "the-cut",
-    "image": "",
-    "description": "Collection The Cut",
+    "name": "Big Size",
+    "slug": "big-size",
+    "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1775905070/MyProject/teamp/z3sxco5fhhyzpccpasxj.png",
+    "total_products": 11,
+    "description": "Bộ sưu tập Big Size gồm các mẫu kính có kích thước lớn, phù hợp với người có khuôn mặt to hoặc thích phong cách oversized, đa dạng màu sắc và thiết kế hiện đại.",
     "order": 3,
     "isActive": true
   },
   {
-    "name": "The Cut Edge",
-    "slug": "the-cut-edge",
-    "image": "",
-    "description": "Collection The Cut Edge",
+    "name": "Clearance Sale",
+    "slug": "clearance-sale",
+    "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1775905065/MyProject/teamp/qb4wg9etleudqf7fnf31.png",
+    "total_products": 12,
+    "description": "Bộ sưu tập Clearance Sale bao gồm các mẫu kính đang được giảm giá, đa dạng thiết kế từ cổ điển đến hiện đại, bao gồm cả kính mát và kính cận với nhiều màu sắc và chất liệu khác nhau.",
     "order": 4,
     "isActive": true
   },
   {
-    "name": "The Edge",
-    "slug": "the-edge",
-    "image": "",
-    "description": "Collection The Edge",
+    "name": "Medium Size",
+    "slug": "medium-size",
+    "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1775905061/MyProject/teamp/teseczits8i5fhmhnmyw.png",
+    "total_products": 7,
+    "description": "Bộ sưu tập Medium Size gồm các mẫu kính có kích thước trung bình, phù hợp với đa số khuôn mặt, thiết kế cân đối giữa thời trang và tính ứng dụng, đa dạng màu sắc và chất liệu.",
     "order": 5,
     "isActive": true
   },
   {
-    "name": "The Flow",
-    "slug": "the-flow",
-    "image": "",
-    "description": "Collection The Flow",
+    "name": "Metal",
+    "slug": "metal",
+    "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1775905071/MyProject/teamp/rirs5e37zxlffdwhswcy.jpg",
+    "total_products": 7,
+    "description": "Bộ sưu tập Metal gồm các mẫu kính với khung kim loại chắc chắn, thiết kế tinh tế và hiện đại, mang lại cảm giác sang trọng và bền bỉ, phù hợp cho nhiều phong cách khác nhau.",
     "order": 6,
     "isActive": true
   },
   {
-    "name": "The Layered",
-    "slug": "the-layered",
-    "image": "",
-    "description": "Collection The Layered",
+    "name": "Small Size",
+    "slug": "small-size",
+    "image": "https://res.cloudinary.com/dolrkudlw/image/upload/v1775905062/MyProject/teamp/jt8qcbncmkeunliy0gck.png",
+    "total_products": 8,
+    "description": "Bộ sưu tập Small Size gồm các mẫu kính có kích thước nhỏ gọn, phù hợp với khuôn mặt nhỏ hoặc người thích phong cách thanh thoát, nhẹ nhàng với nhiều lựa chọn màu sắc.",
     "order": 7,
-    "isActive": true
-  },
-  {
-    "name": "The Obsidian",
-    "slug": "the-obsidian",
-    "image": "",
-    "description": "Collection The Obsidian",
-    "order": 8,
-    "isActive": true
-  },
-  {
-    "name": "The Office",
-    "slug": "the-office",
-    "image": "",
-    "description": "Collection The Office",
-    "order": 9,
-    "isActive": true
-  },
-  {
-    "name": "The Paper Knife",
-    "slug": "the-paper-knife",
-    "image": "",
-    "description": "Collection The Paper Knife",
-    "order": 10,
-    "isActive": true
-  },
-  {
-    "name": "The Ruler",
-    "slug": "the-ruler",
-    "image": "",
-    "description": "Collection The Ruler",
-    "order": 11,
-    "isActive": true
-  },
-  {
-    "name": "The Set Square",
-    "slug": "the-set-square",
-    "image": "",
-    "description": "Collection The Set Square",
-    "order": 12,
-    "isActive": true
-  },
-  {
-    "name": "The Snorkel",
-    "slug": "the-snorkel",
-    "image": "",
-    "description": "Collection The Snorkel",
-    "order": 13,
-    "isActive": true
-  },
-  {
-    "name": "The Soap",
-    "slug": "the-soap",
-    "image": "",
-    "description": "Collection The Soap",
-    "order": 14,
-    "isActive": true
-  },
-  {
-    "name": "The Vertebra",
-    "slug": "the-vertebra",
-    "image": "",
-    "description": "Collection The Vertebra",
-    "order": 15,
     "isActive": true
   }
 ]

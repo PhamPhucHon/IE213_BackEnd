@@ -24,6 +24,43 @@ const readSeed = (fileName) => {
 	return raw ? JSON.parse(raw) : [];
 };
 
+const readCollections = () => {
+	const filePath = path.join(dataDir, 'colections.text');
+	if (!fs.existsSync(filePath)) return [];
+
+	const raw = fs.readFileSync(filePath, 'utf8');
+	if (!raw) return [];
+
+	// File collections không phải JSON hợp lệ tuyệt đối, nên parse theo từng block object.
+	const blocks = raw.match(/\{[\s\S]*?\}/g) || [];
+
+	return blocks
+		.map((block) => {
+			const categorySlugMatch = block.match(/"slug"\s*:\s*"([^"]+)"/);
+			if (!categorySlugMatch) return null;
+
+			const categorySlug = categorySlugMatch[1];
+			const listMatch =
+				block.match(/"?product_slug"?\s*:\s*\[([\s\S]*?)\]/) ||
+				block.match(/"?product_sku"?\s*:\s*\[([\s\S]*?)\]/);
+
+			const values = [];
+			if (listMatch?.[1]) {
+				const inner = listMatch[1];
+				const strMatches = inner.match(/"([^"]+)"/g) || [];
+				for (const item of strMatches) {
+					values.push(item.replace(/"/g, '').trim());
+				}
+			}
+
+			return {
+				categorySlug,
+				productSlugs: values.filter(Boolean),
+			};
+		})
+		.filter(Boolean);
+};
+
 const connectMongo = async () => {
 	const uri = process.env.MONGODB_URI;
 	if (!uri) {
@@ -36,11 +73,22 @@ const connectMongo = async () => {
 	});
 };
 
-const pickCategoryIdByProductSlug = (productSlug, categorySlugMap, fallbackCategoryId) => {
-	const categorySlugs = Array.from(categorySlugMap.keys()).sort((a, b) => b.length - a.length);
-	const found = categorySlugs.find((slug) => productSlug.startsWith(slug));
-	if (!found) return fallbackCategoryId;
-	return categorySlugMap.get(found);
+const buildProductCategoryIdMap = (categorySlugMap) => {
+	const collectionRows = readCollections();
+	const productCategoryIdMap = new Map();
+
+	for (const row of collectionRows) {
+		const categoryId = categorySlugMap.get(row.categorySlug);
+		if (!categoryId) continue;
+
+		for (const productSlug of row.productSlugs) {
+			if (!productCategoryIdMap.has(productSlug)) {
+				productCategoryIdMap.set(productSlug, categoryId);
+			}
+		}
+	}
+
+	return productCategoryIdMap;
 };
 
 const clearCollections = async () => {
@@ -85,10 +133,12 @@ const seedProducts = async (categorySlugMap, fallbackCategoryId) => {
 	const products = readSeed('products.json');
 	if (!products.length) return { productDocs: [], productSlugMap: new Map(), skuProductIdMap: new Map() };
 
+	const productCategoryIdMap = buildProductCategoryIdMap(categorySlugMap);
+
 	const productDocs = await Product.insertMany(
 		products.map((p) => ({
 			...p,
-			categoryId: pickCategoryIdByProductSlug(p.slug, categorySlugMap, fallbackCategoryId),
+			categoryId: productCategoryIdMap.get(p.slug) || fallbackCategoryId,
 		}))
 	);
 
@@ -103,6 +153,26 @@ const seedProducts = async (categorySlugMap, fallbackCategoryId) => {
 	}
 
 	return { productDocs, productSlugMap, skuProductIdMap };
+};
+
+const syncCategoryTotals = async () => {
+	const counts = await Product.aggregate([
+		{ $group: { _id: '$categoryId', total: { $sum: 1 } } },
+	]);
+
+	await Category.updateMany({}, { $set: { total_products: 0 } });
+
+	if (!counts.length) return { updatedCategories: 0 };
+
+	const ops = counts.map((row) => ({
+		updateOne: {
+			filter: { _id: row._id },
+			update: { $set: { total_products: row.total } },
+		},
+	}));
+
+	const result = await Category.bulkWrite(ops);
+	return { updatedCategories: result.modifiedCount ?? 0 };
 };
 
 const seedInventory = async (productSlugMap) => {
@@ -284,6 +354,9 @@ const run = async () => {
 
 		const { productDocs, productSlugMap } = await seedProducts(categorySlugMap, fallbackCategoryId);
 		console.log(`✅ Seeded products: ${productDocs.length}`);
+
+		const { updatedCategories } = await syncCategoryTotals();
+		console.log(`🔄 Synced category total_products: ${updatedCategories}`);
 
 		const inventoryDocs = await seedInventory(productSlugMap);
 		console.log(`✅ Seeded inventory: ${inventoryDocs.length}`);
