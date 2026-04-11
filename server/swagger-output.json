@@ -311,7 +311,71 @@
     },
     "/api/products/": {
       "get": {
-        "description": "",
+        "tags": [
+          "Products"
+        ],
+        "summary": "Lấy danh sách sản phẩm với nhiều bộ lọc",
+        "description": "Có thể lọc đồng thời theo type và categoryId, ví dụ: /api/products?type=Sunglasses&categoryId=<id>",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Trang hiện tại",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Số sản phẩm mỗi trang",
+            "type": "integer"
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "Từ khóa tìm theo tên sản phẩm",
+            "type": "string"
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "description": "ID danh mục. Có thể dùng cùng type để lọc kết hợp",
+            "type": "string"
+          },
+          {
+            "name": "brand",
+            "in": "query",
+            "description": "Thương hiệu sản phẩm",
+            "type": "string"
+          },
+          {
+            "name": "minPrice",
+            "in": "query",
+            "description": "Giá thấp nhất",
+            "type": "number"
+          },
+          {
+            "name": "maxPrice",
+            "in": "query",
+            "description": "Giá cao nhất",
+            "type": "number"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Loại sản phẩm. Có thể dùng cùng categoryId để lọc kết hợp",
+            "type": "string",
+            "enum": [
+              "Sunglasses",
+              "Eyeglasses"
+            ]
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Kiểu sắp xếp: newest, priceAsc, priceDesc, topRated",
+            "type": "string"
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -326,6 +390,92 @@
           },
           "403": {
             "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/products/type/{type}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Lấy danh sách sản phẩm theo type",
+        "description": "Trả về danh sách sản phẩm đang hoạt động theo loại sản phẩm.",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Loại sản phẩm",
+            "enum": [
+              "Sunglasses",
+              "Eyeglasses"
+            ]
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Trang hiện tại",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Số sản phẩm mỗi trang",
+            "type": "integer"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Kiểu sắp xếp: newest, priceAsc, priceDesc, topRated",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/products/category/{categoryId}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Lấy danh sách sản phẩm theo category",
+        "description": "Trả về danh sách sản phẩm đang hoạt động thuộc một danh mục cụ thể.",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID danh mục sản phẩm"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Trang hiện tại",
+            "type": "integer"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Số sản phẩm mỗi trang",
+            "type": "integer"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Kiểu sắp xếp: newest, priceAsc, priceDesc, topRated",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }
