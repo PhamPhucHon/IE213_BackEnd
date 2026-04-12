@@ -20,6 +20,19 @@ exports.login = asyncHandler(async (req, res) => {
   return successResponse(res, HTTP_STATUS.OK, 'Đăng nhập thành công', { user, token });
 });
 
+// POST /api/auth/forgot-password
+exports.forgotPassword = asyncHandler(async (req, res) => {
+  await authService.requestPasswordReset(req.body.email);
+  return successResponse(res, HTTP_STATUS.OK, 'Email đặt lại mật khẩu đã được gửi', null);
+});
+
+// POST /api/auth/reset-password
+exports.resetPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword } = req.body;
+  await authService.resetPassword(token, newPassword);
+  return successResponse(res, HTTP_STATUS.OK, 'Đặt lại mật khẩu thành công', null);
+});
+
 // GET /api/auth/me  (Yêu cầu middleware xác thực)
 exports.getMe = asyncHandler(async (req, res) => {
   const user = await authService.getUserProfile(req.user._id);

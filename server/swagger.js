@@ -14,14 +14,17 @@ const doc = {
   securityDefinitions: {
     bearerAuth: {
       type: 'apiKey',
-      name: 'Authorization',
       in: 'header',
-      description: 'JWT token với prefix "Bearer ", ví dụ: Bearer abc123'
+      name: 'Authorization',
+      description: 'Nhập: Bearer &lt;token&gt;'
     }
   },
-  definitions: {
-    // Nếu có model dùng chung, thêm vào đây
-  }
+  security: [
+    {
+      bearerAuth: []
+    }
+  ],
+  definitions: {}
 };
 
 const outputFile = './swagger-output.json';
