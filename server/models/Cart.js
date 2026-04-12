@@ -15,10 +15,7 @@ const cartSchema = new mongoose.Schema({
   totalPrice: { type: Number, default: 0 }
 }, { timestamps: true });
 
-// 1. INDEXES
-cartSchema.index({ userId: 1 }); 
-
-// 2. MIDDLEWARES (HOOKS)
+// 1. MIDDLEWARES (HOOKS)
 // Tự động tính tổng tiền mỗi khi có sự thay đổi trong giỏ hàng (thêm, sửa, xóa item)
 cartSchema.pre('save', function() {
   // Reset tổng tiền

@@ -35,7 +35,6 @@ const orderSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // 1. INDEXES
-orderSchema.index({ orderNumber: 1 });
 orderSchema.index({ userId: 1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ createdAt: -1 });

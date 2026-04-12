@@ -57,6 +57,43 @@ Base: /api/auth
 - Endpoint: /api/auth/logout
 - Auth: User
 
+1.5) Quen mat khau - gui email
+- Method: POST
+- Endpoint: /api/auth/forgot-password
+- Auth: Public
+- Body:
+  {
+    "email": "user@example.com"
+  }
+- Response:
+  {
+    "success": true,
+    "message": "Email dat lai mat khau da duoc gui"
+  }
+- Ghi chu:
+  - Chi ap dung cho user thuong, khong ap dung cho admin
+  - Neu email thuoc admin, API tra ve 403 va khong tao token
+  - Khong tra ve thong tin email user thuong co ton tai hay khong (email khong ton tai van tra thong bao thanh cong)
+  - Moi email chi giu 1 reset token dang hoat dong (tao moi se xoa token cu)
+  - Co rate limit de tranh bi spam (gioi han tren API forgot-password)
+
+1.6) Dat lai mat khau
+- Method: POST
+- Endpoint: /api/auth/reset-password
+- Auth: Public
+- Body:
+  {
+    "token": "reset_token_from_email",
+    "newPassword": "12345678"
+  }
+- Validation:
+  - newPassword toi thieu 6 ky tu
+- Ghi chu:
+  - Chi ap dung cho user thuong, khong ap dung cho admin
+  - Token duoc luu trong collection rieng va tu dong het han bang TTL index
+  - Sau khi dat lai mat khau thanh cong, token se bi xoa
+  - API reset-password khong can email, nen khong tra ve thong tin ton tai email
+
 =====================================================
 2) USER APIs
 Base: /api/users
