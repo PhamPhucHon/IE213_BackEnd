@@ -9,7 +9,12 @@ router.post(
 	'/register',
 	validateBody([
 		body('name').trim().notEmpty().withMessage('Tên người dùng là bắt buộc'),
-		body('email').isEmail().withMessage('Email không hợp lệ').normalizeEmail(),
+		body('email')
+			.trim()
+			.isEmail()
+			.withMessage('Email không hợp lệ')
+			.bail()
+			.customSanitizer((value) => String(value).toLowerCase()),
 		body('password').isLength({ min: 6 }).withMessage('Mật khẩu phải có ít nhất 6 ký tự'),
 	]),
 	authController.register
@@ -18,7 +23,12 @@ router.post(
 router.post(
 	'/login',
 	validateBody([
-		body('email').isEmail().withMessage('Email không hợp lệ').normalizeEmail(),
+		body('email')
+			.trim()
+			.isEmail()
+			.withMessage('Email không hợp lệ')
+			.bail()
+			.customSanitizer((value) => String(value).toLowerCase()),
 		body('password').notEmpty().withMessage('Mật khẩu là bắt buộc'),
 	]),
 	authController.login
