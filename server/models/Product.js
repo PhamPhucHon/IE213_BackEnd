@@ -41,11 +41,8 @@ const productSchema = new mongoose.Schema({
 productSchema.index({ name: 'text', brand: 'text' });
 productSchema.index({ categoryId: 1, 'variants.price': 1 });
 productSchema.index({ isActive: 1, 'rating.avg': -1 });
-//
-productSchema.index({ slug: 1 }); 
 productSchema.index({ categoryId: 1, brand: 1 });
 productSchema.index({ 'variants.price': 1 });
-productSchema.index({ name: 'text' });
 
 // 2. MIDDLEWARES 
 // Tự động tạo slug chuẩn SEO trước khi validate dữ liệu

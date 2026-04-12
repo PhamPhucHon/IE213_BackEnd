@@ -13,9 +13,9 @@
   "securityDefinitions": {
     "bearerAuth": {
       "type": "apiKey",
-      "name": "Authorization",
       "in": "header",
-      "description": "JWT token với prefix \"Bearer \", ví dụ: Bearer abc123"
+      "name": "Authorization",
+      "description": "Nhập: Bearer &lt;token&gt;"
     }
   },
   "consumes": [
@@ -87,6 +87,189 @@
         }
       }
     },
+    "/api/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Quên mật khẩu - gửi email đặt lại mật khẩu",
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "user@example.com"
+                }
+              },
+              "required": [
+                "email"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Yeu cau thanh cong",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Email đặt lại mật khẩu đã được gửi"
+                },
+                "data": {},
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {
+                      "type": "string",
+                      "example": "2026-04-12T15:00:00.000Z"
+                    },
+                    "requestId": {}
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "403": {
+            "description": "Tai khoan admin khong duoc phep quen mat khau",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Tai khoan admin khong duoc phep su dung tinh nang quen mat khau."
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "429": {
+            "description": "Vuot qua gioi han gui yeu cau",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Bạn đã gửi yêu cầu quá nhiều lần. Vui lòng thử lại sau."
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Đặt lại mật khẩu bằng token",
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "example": "reset_token_from_email"
+                },
+                "newPassword": {
+                  "type": "string",
+                  "example": "12345678"
+                }
+              },
+              "required": [
+                "token",
+                "newPassword"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dat lai mat khau thanh cong",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Đặt lại mật khẩu thành công"
+                },
+                "data": {},
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {
+                      "type": "string",
+                      "example": "2026-04-12T15:05:00.000Z"
+                    },
+                    "requestId": {}
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Token khong hop le hoac da het han",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn."
+                },
+                "details": {}
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/me": {
       "get": {
         "description": "",
@@ -154,7 +337,39 @@
     },
     "/api/users/addresses": {
       "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Thêm địa chỉ cho user hiện tại",
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Thông tin địa chỉ cần thêm",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "example": "Nha"
+                },
+                "address": {
+                  "type": "string",
+                  "example": "123 Nguyen Trai, Q1"
+                },
+                "isDefault": {
+                  "type": "boolean",
+                  "example": true
+                }
+              },
+              "required": [
+                "address"
+              ]
+            }
+          }
+        ],
         "responses": {
           "401": {
             "description": "Unauthorized"
@@ -182,13 +397,40 @@
     },
     "/api/users/addresses/{addressId}": {
       "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Cập nhật địa chỉ của user hiện tại",
         "description": "",
         "parameters": [
           {
             "name": "addressId",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "ID địa chỉ"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Thông tin địa chỉ cần cập nhật",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "example": "Cong ty"
+                },
+                "address": {
+                  "type": "string",
+                  "example": "Toa nha X"
+                },
+                "isDefault": {
+                  "type": "boolean",
+                  "example": false
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -1072,5 +1314,10 @@
         }
       }
     }
-  }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
 }

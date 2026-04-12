@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema({
-  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true, index: true },
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   userName: { type: String, required: true }, // snapshot
   userAvatar: String,
@@ -24,7 +24,6 @@ const reviewSchema = new mongoose.Schema({
 // 1. INDEXES
 reviewSchema.index({ productId: 1, userId: 1 }, { unique: true }); 
 reviewSchema.index({ productId: 1, rating: -1, createdAt: -1 }); 
-reviewSchema.index({ productId: 1 });
 
 // 2. MIDDLEWARES
 // Tự động đánh dấu là verified purchase nếu user đã mua sản phẩm này
