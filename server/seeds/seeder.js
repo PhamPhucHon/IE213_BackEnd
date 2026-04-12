@@ -13,6 +13,7 @@ const Cart = require('../models/Cart');
 const Order = require('../models/Order');
 const Review = require('../models/Review');
 const LoginLog = require('../models/LoginLog');
+const PasswordResetToken = require('../models/PasswordResetToken');
 
 const dataDir = path.join(__dirname, 'data');
 
@@ -93,6 +94,7 @@ const buildProductCategoryIdMap = (categorySlugMap) => {
 
 const clearCollections = async () => {
 	await Promise.all([
+		PasswordResetToken.deleteMany({}),
 		LoginLog.deleteMany({}),
 		Review.deleteMany({}),
 		Order.deleteMany({}),
@@ -101,6 +103,14 @@ const clearCollections = async () => {
 		Product.deleteMany({}),
 		User.deleteMany({}),
 		Category.deleteMany({}),
+	]);
+	await Promise.all([
+		PasswordResetToken.syncIndexes(),
+		Product.syncIndexes(),
+		Review.syncIndexes(),
+		Order.syncIndexes(),
+		Cart.syncIndexes(),
+		LoginLog.syncIndexes(),
 	]);
 };
 
