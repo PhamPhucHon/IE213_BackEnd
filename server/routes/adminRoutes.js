@@ -21,13 +21,6 @@ router.put(
 	adminController.updateOrderStatus
 );
 
-router.get('/inventory/:sku', adminController.getInventoryBySku);
-router.put(
-	'/inventory/:sku',
-	validateBody([body('stock').isInt({ min: 0 }).withMessage('stock phải là số nguyên không âm')]),
-	adminController.updateInventory
-);
-
 router.delete('/reviews/:id', validateObjectId('id'), adminController.deleteReview);
 
 module.exports = router;

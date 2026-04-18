@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
+const Product = require('../models/Product');
 const inventoryService = require('./inventoryService');
 const { orderDTO } = require('../utils/dto');
 const { AppError } = require('../utils/asyncHandler');
@@ -18,33 +19,71 @@ exports.createOrder = async (userId, shippingAddress, paymentMethod) => {
 
   try {
     // 1. Lấy giỏ hàng và kiểm tra
-    // Ưu tiên tìm theo userId để đảm bảo bảo mật (chắc chắn đây là giỏ của user này)
     const cart = await Cart.findOne({ userId }).session(session);
     if (!cart || cart.items.length === 0) {
       throw new AppError('Giỏ hàng trống. Không thể tạo đơn hàng.', 400);
     }
 
-    // 2. Giữ hàng trong kho (Reserve Stock) cho từng sản phẩm
-    // Lặp qua từng item trong giỏ và gọi inventoryService (đã có cơ chế chống Overselling)
+    // 2. Re-validate từng item: kiểm tra sản phẩm còn active, cập nhật giá mới nhất
+    const validatedItems = [];
     for (const item of cart.items) {
-      await inventoryService.reserveStock(item.sku, item.quantity, session);
+      const product = await Product.findOne({
+        _id: item.productId,
+        isActive: true,
+        'variants.sku': item.sku,
+      }).session(session);
+
+      if (!product) {
+        throw new AppError(
+          `Sản phẩm "${item.name}" (SKU: ${item.sku}) không còn tồn tại hoặc đã ngừng kinh doanh. Vui lòng xóa khỏi giỏ hàng.`,
+          409
+        );
+      }
+
+      const variant = product.variants.find(v => v.sku === item.sku);
+      if (!variant) {
+        throw new AppError(`Biến thể SKU ${item.sku} không còn tồn tại. Vui lòng cập nhật giỏ hàng.`, 409);
+      }
+
+      // Cập nhật giá mới nhất từ database (chống giá cũ snapshot)
+      validatedItems.push({
+        productId: product._id,
+        sku: item.sku,
+        name: `${product.name} - ${variant.color}`,
+        image: variant.images?.[0] || product.images?.[0] || '',
+        price: variant.price, // Giá hiện tại, không phải giá lúc thêm vào giỏ
+        quantity: item.quantity,
+      });
     }
 
-    // 3. Tính toán chi phí
-    const itemsPrice = cart.totalPrice;
-    const shippingPrice = itemsPrice > 1000000 ? 0 : 30000; // Freeship cho đơn > 1 triệu (Logic ví dụ)
+    // 3. Giữ hàng trong kho (Reserve Stock) — báo rõ item nào hết hàng
+    for (const item of validatedItems) {
+      try {
+        await inventoryService.reserveStock(item.sku, item.quantity, session);
+      } catch (err) {
+        // Ném lại lỗi với thông tin item cụ thể
+        throw new AppError(
+          `Không thể đặt hàng: Sản phẩm "${item.name}" (SKU: ${item.sku}) ${err.message}`,
+          409
+        );
+      }
+    }
+
+    // 4. Tính toán chi phí (dùng giá đã re-validate)
+    const itemsPrice = validatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const shippingPrice = itemsPrice > 1000000 ? 0 : 30000;
     const totalPrice = itemsPrice + shippingPrice;
 
-    // 4. Tạo mã đơn hàng thân thiện (VD: ORD-20260404-XYZ1)
+    // 5. Tạo mã đơn hàng
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
     const orderNumber = `ORD-${dateStr}-${randomStr}`;
 
-    // 5. Tạo Document Order
+    // 6. Tạo Document Order (dùng validatedItems thay vì cart.items)
     const [newOrder] = await Order.create([{
       orderNumber,
       userId,
-      items: cart.items, // Snapshot lại toàn bộ thông tin sản phẩm lúc mua
+      items: validatedItems,
       shippingAddress,
       paymentMethod,
       itemsPrice,
@@ -54,18 +93,17 @@ exports.createOrder = async (userId, shippingAddress, paymentMethod) => {
       isPaid: false
     }], { session });
 
-    // 6. Xóa giỏ hàng sau khi tạo đơn thành công
+    // 7. Xóa giỏ hàng sau khi tạo đơn thành công
     cart.items = [];
     cart.totalPrice = 0;
     await cart.save({ session });
 
-    // 7. Hoàn tất Transaction
+    // 8. Hoàn tất Transaction
     await session.commitTransaction();
     session.endSession();
 
     return orderDTO(newOrder);
   } catch (error) {
-    // Nếu có bất kỳ lỗi nào (Hết hàng, lỗi DB...), Rollback toàn bộ!
     await session.abortTransaction();
     session.endSession();
     throw error;
@@ -160,45 +198,121 @@ exports.cancelOrder = async (orderId, userId) => {
 
 /**
  * Cập nhật trạng thái đơn hàng (Dành riêng cho Admin)
- * @param {String} orderId 
- * @param {String} status - Trạng thái mới
- * @param {Boolean} adminOnly - Cờ đánh dấu quyền admin
+ * Có state machine validation + transaction cho inventory
  */
+
+// Bản đồ chuyển trạng thái hợp lệ
+const VALID_STATUS_TRANSITIONS = {
+  Pending: ['Processing', 'Cancelled'],
+  Processing: ['Shipped', 'Cancelled'],
+  Shipped: ['Delivered', 'Cancelled'],
+  Delivered: [],      // Không chuyển được nữa
+  Cancelled: [],      // Không chuyển được nữa
+};
+
 exports.updateOrderStatus = async (orderId, status, adminOnly = true) => {
   if (!adminOnly) throw new AppError('Không có quyền thực hiện thao tác này.', 403);
 
-  const order = await Order.findById(orderId);
-  if (!order) throw new AppError('Không tìm thấy đơn hàng.', 404);
-
-  // Ngăn chặn việc chuyển trạng thái nếu đơn đã bị hủy
-  if (order.status === 'Cancelled') {
-    throw new AppError('Không thể cập nhật trạng thái cho đơn hàng đã bị hủy.', 409);
+  // Validate trạng thái mới có hợp lệ không
+  const validStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+  if (!validStatuses.includes(status)) {
+    throw new AppError(`Trạng thái "${status}" không hợp lệ. Chấp nhận: ${validStatuses.join(', ')}`, 400);
   }
 
-  // Nếu chuyển sang Đã giao (Delivered)
-  if (status === 'Delivered') {
-    order.deliveredAt = Date.now();
-    order.isPaid = true; // Thường giao xong là đã thu tiền (COD)
-    order.paidAt = order.paidAt || Date.now();
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-    // Xuất kho vĩnh viễn (Trừ thẳng vào trường reserved)
-    for (const item of order.items) {
-      await inventoryService.confirmStock(item.sku, item.quantity);
+  try {
+    const order = await Order.findById(orderId).session(session);
+    if (!order) throw new AppError('Không tìm thấy đơn hàng.', 404);
+
+    // Kiểm tra chuyển trạng thái hợp lệ (state machine)
+    const allowedTransitions = VALID_STATUS_TRANSITIONS[order.status] || [];
+    if (!allowedTransitions.includes(status)) {
+      throw new AppError(
+        `Không thể chuyển từ "${order.status}" sang "${status}". Chuyển đổi hợp lệ: ${allowedTransitions.join(', ') || 'không có'}.`,
+        409
+      );
     }
-  }
 
-  // Nếu Admin chủ động hủy đơn (Ví dụ: Khách boom hàng)
-  if (status === 'Cancelled') {
-    for (const item of order.items) {
-      // Phải bọc try-catch vì lỡ hàng đã confirm rồi thì không release được nữa
-      try {
-        await inventoryService.releaseStock(item.sku, item.quantity);
-      } catch (err) {
-        console.error(`Lỗi nhả kho khi admin hủy đơn ${orderId}:`, err.message);
+    // Nếu chuyển sang Đã giao (Delivered) → confirmStock trong transaction
+    if (status === 'Delivered') {
+      order.deliveredAt = Date.now();
+      order.isPaid = true;
+      order.paidAt = order.paidAt || Date.now();
+
+      for (const item of order.items) {
+        await inventoryService.confirmStock(item.sku, item.quantity, session);
       }
     }
+
+    // Nếu Admin hủy đơn → releaseStock trong transaction
+    if (status === 'Cancelled') {
+      for (const item of order.items) {
+        await inventoryService.releaseStock(item.sku, item.quantity, session);
+      }
+    }
+
+    order.status = status;
+    await order.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return orderDTO(order);
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
+};
+
+/**
+ * Tự động hủy các đơn hàng Pending quá hạn & giải phóng tồn kho
+ * @param {Number} expireMinutes - Số phút trước khi đơn Pending bị coi là quá hạn (mặc định 30)
+ * @returns {Object} - Số đơn đã hủy
+ */
+exports.cancelExpiredOrders = async (expireMinutes = 30) => {
+  const expireDate = new Date(Date.now() - expireMinutes * 60 * 1000);
+
+  const expiredOrders = await Order.find({
+    status: 'Pending',
+    createdAt: { $lt: expireDate },
+  });
+
+  let cancelledCount = 0;
+
+  for (const order of expiredOrders) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const freshOrder = await Order.findById(order._id).session(session);
+      if (!freshOrder || freshOrder.status !== 'Pending') {
+        await session.abortTransaction();
+        session.endSession();
+        continue;
+      }
+
+      for (const item of freshOrder.items) {
+        await inventoryService.releaseStock(item.sku, item.quantity, session);
+      }
+
+      freshOrder.status = 'Cancelled';
+      freshOrder.note = freshOrder.note
+        ? `${freshOrder.note} | Tự động hủy do quá hạn ${expireMinutes} phút`
+        : `Tự động hủy do quá hạn ${expireMinutes} phút`;
+      await freshOrder.save({ session });
+
+      await session.commitTransaction();
+      session.endSession();
+      cancelledCount++;
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      console.error(`Lỗi hủy đơn quá hạn ${order._id}:`, err.message);
+    }
   }
 
-  order.status = status;
-  return orderDTO(await order.save());
+  return { cancelledCount, checkedCount: expiredOrders.length };
 };
