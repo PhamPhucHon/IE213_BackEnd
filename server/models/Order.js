@@ -52,7 +52,7 @@ orderSchema.pre('save', function() {
 });
 
 // 3. INSTANCE METHODS
-// Đánh dấu thanh toán thành công
+// Đánh dấu thanh toán thành công (chỉ đổi flag, không xử lý inventory)
 orderSchema.methods.markAsPaid = async function() {
   if (this.isPaid) {
     throw new Error('Đơn hàng này đã được thanh toán rồi.');
@@ -69,61 +69,9 @@ orderSchema.methods.markAsPaid = async function() {
   return await this.save();
 };
 
-// Đánh dấu giao hàng thành công & XUẤT KHO THẬT
-orderSchema.methods.markAsDelivered = async function() {
-  if (this.status === 'Delivered') {
-    throw new Error('Đơn hàng đã ở trạng thái Đã Giao.');
-  }
-
-  if (this.status === 'Cancelled') {
-    throw new Error('Không thể giao một đơn hàng đã bị hủy.');
-  }
-
-  const Inventory = mongoose.model('Inventory');
-
-  for (const item of this.items) {
-    const inventory = await Inventory.findOne({ sku: item.sku });
-    if (inventory) {
-      await inventory.issueStock(item.quantity);
-    }
-  }
-
-  this.status = 'Delivered';
-  this.deliveredAt = Date.now();
-
-  if (this.paymentMethod === 'COD' && !this.isPaid) {
-    this.isPaid = true;
-    this.paidAt = Date.now();
-  }
-
-  return await this.save();
-};
-
-// Hủy đơn hàng & NHẢ KHO
-orderSchema.methods.cancelOrder = async function(reason) {
-  if (this.status === 'Delivered') {
-    throw new Error('Không thể hủy đơn hàng đã giao thành công.');
-  }
-
-  if (this.status === 'Cancelled') {
-    throw new Error('Đơn hàng này đã bị hủy trước đó.');
-  }
-
-  const Inventory = mongoose.model('Inventory');
-
-  for (const item of this.items) {
-    const inventory = await Inventory.findOne({ sku: item.sku });
-    if (inventory) {
-      await inventory.releaseStock(item.quantity);
-    }
-  }
-
-  this.status = 'Cancelled';
-
-  this.note = reason || 'Hủy theo yêu cầu';
-
-  return await this.save();
-};
+// LƯU Ý: Các method markAsDelivered() và cancelOrder() đã được chuyển sang
+// orderService.updateOrderStatus() và orderService.cancelOrder()
+// để sử dụng atomic operations + transaction, tránh race condition.
 
 // 4. STATIC METHODS
 // Lấy đơn hàng theo userId với phân trang
