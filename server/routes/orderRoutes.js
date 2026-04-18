@@ -11,6 +11,10 @@ router.post(
 	'/',
 	validateBody([
 		body('shippingAddress').isObject().withMessage('shippingAddress là bắt buộc'),
+		body('shippingAddress.fullName').notEmpty().withMessage('Họ tên người nhận là bắt buộc'),
+		body('shippingAddress.phone').notEmpty().withMessage('Số điện thoại là bắt buộc')
+			.matches(/^(0[1-9][0-9]{8})$/).withMessage('Số điện thoại không hợp lệ (VD: 0901234567)'),
+		body('shippingAddress.address').notEmpty().withMessage('Địa chỉ giao hàng là bắt buộc'),
 		body('paymentMethod').notEmpty().withMessage('paymentMethod là bắt buộc'),
 	]),
 	orderController.createOrder
