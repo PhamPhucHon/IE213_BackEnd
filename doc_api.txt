@@ -410,17 +410,82 @@ Base: /api/orders
 
 =====================================================
 8) INVENTORY APIs
-Base: /api/inventory
+Base user: /api/inventory
+Base admin: /api/admin/inventory
 =====================================================
 
-8.1) Chi tiet ton kho theo sku
+8.1) Danh sach ton kho (co loc, phan trang) [DE XUAT - CHUA CODE]
 - Method: GET
-- Endpoint: /api/inventory/:sku
+- Endpoint: /api/admin/inventory
+- Auth: Admin
+- Query optional:
+  - productId (Mongo ObjectId)
+  - lowStock (true/false, quy uoc lowStock = available < 10)
+  - page (default 1)
+  - limit (default 20)
+- Response (format chuan he thong):
+  {
+    "success": true,
+    "message": "Thành công",
+    "data": [
+      {
+        "_id": "...",
+        "sku": "SKU-001",
+        "productId": {
+          "_id": "...",
+          "name": "Kinh A",
+          "slug": "kinh-a"
+        },
+        "stock": 50,
+        "reserved": 8,
+        "available": 42,
+        "warehouse": "main",
+        "lastRestocked": "2026-04-19T10:00:00.000Z"
+      }
+    ],
+    "meta": {
+      "timestamp": "2026-04-19T10:30:00.000Z",
+      "requestId": null,
+      "totalInventories": 120,
+      "currentPage": 1,
+      "totalPages": 6,
+      "limit": 20
+    }
+  }
+
+8.2) Kiem tra ton kho truoc khi them vao gio [DE XUAT - CHUA CODE]
+- Method: GET
+- Endpoint: /api/inventory/check
+- Auth: User
+- Query required:
+  - sku
+  - quantity (so nguyen duong)
+- Response (format chuan he thong):
+  {
+    "success": true,
+    "message": "Thành công",
+    "data": {
+      "available": true,
+      "currentStock": 50,
+      "reserved": 8,
+      "availableStock": 42,
+      "requestedQuantity": 2,
+      "sku": "SKU-001"
+    },
+    "meta": {
+      "timestamp": "2026-04-19T10:30:00.000Z",
+      "requestId": null
+    }
+  }
+
+8.3) Chi tiet ton kho theo sku
+- Method: GET
+- Endpoint: /api/admin/inventory/:sku
 - Auth: Admin
 
-8.2) Cap nhat ton kho theo sku
+8.4) Cap nhat ton kho theo sku
 - Method: PUT
-- Endpoint: /api/inventory/:sku
+- Endpoint: /api/admin/inventory/:sku
 - Auth: Admin
 - Body:
   {
@@ -478,21 +543,7 @@ Base: /api/admin
     "status": "Processing"
   }
 
-9.7) Xem ton kho theo sku
-- Method: GET
-- Endpoint: /api/admin/inventory/:sku
-- Auth: Admin
-
-9.8) Cap nhat ton kho theo sku
-- Method: PUT
-- Endpoint: /api/admin/inventory/:sku
-- Auth: Admin
-- Body:
-  {
-    "stock": 50
-  }
-
-9.9) Xoa review bat ky
+9.7) Xoa review bat ky
 - Method: DELETE
 - Endpoint: /api/admin/reviews/:id
 - Auth: Admin

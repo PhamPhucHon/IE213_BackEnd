@@ -92,6 +92,17 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
 
 // ==================== QUẢN LÝ KHO ====================
 
+// GET /api/admin/inventory
+exports.getInventoryList = asyncHandler(async (req, res) => {
+  const page = Number(req.query.page) || PAGINATION.DEFAULT_PAGE;
+  const limit = Math.min(Number(req.query.limit) || 20, PAGINATION.MAX_LIMIT);
+  const { productId, lowStock } = req.query;
+
+  const result = await inventoryService.listInventory({ productId, lowStock, page, limit });
+
+  return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, result.inventories, {}, result.pagination);
+});
+
 // GET /api/admin/inventory/:sku
 exports.getInventoryBySku = asyncHandler(async (req, res) => {
   const inventory = await inventoryService.getStock(req.params.sku);

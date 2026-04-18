@@ -25,16 +25,21 @@ exports.getStock = async (sku) => {
 exports.reserveStock = async (sku, quantity, session = null) => {
   if (quantity <= 0) throw new AppError('Số lượng giữ hàng phải lớn hơn 0', 400);
 
-  // Atomic Update: Chỉ tìm thấy và update nếu stock hiện tại >= số lượng khách muốn mua
+  // Atomic Update: Chỉ giữ hàng nếu tồn khả dụng (stock - reserved) còn đủ.
   const inventory = await Inventory.findOneAndUpdate(
-    { 
-      sku: sku, 
-      stock: { $gte: quantity } // Cực kỳ quan trọng: Đảm bảo tồn kho đủ bán
+    {
+      sku: sku,
+      $expr: {
+        $gte: [
+          { $subtract: ['$stock', '$reserved'] },
+          quantity,
+        ],
+      },
     },
-    { 
-      $inc: {       
-        reserved: +quantity     // Cộng vào kho ảo (hàng chờ thanh toán/xử lý)
-      } 
+    {
+      $inc: {
+        reserved: +quantity,
+      },
     },
     { new: true, session }
   );
@@ -44,7 +49,8 @@ exports.reserveStock = async (sku, quantity, session = null) => {
     // Để báo lỗi chi tiết hơn, ta tìm thử xem SKU có tồn tại không
     const checkSku = await Inventory.findOne({ sku }).session(session);
     if (!checkSku) throw new AppError(`SKU ${sku} không tồn tại trong kho.`, 404);
-    throw new AppError(`Sản phẩm (SKU: ${sku}) không đủ số lượng tồn kho. (Chỉ còn ${checkSku.stock})`, 409);
+    const available = Math.max((checkSku.stock || 0) - (checkSku.reserved || 0), 0);
+    throw new AppError(`Sản phẩm (SKU: ${sku}) không đủ số lượng tồn kho khả dụng. (Chỉ còn ${available})`, 409);
   }
 
   return inventory;
@@ -52,7 +58,7 @@ exports.reserveStock = async (sku, quantity, session = null) => {
 
 /**
  * Giải phóng hàng (Dùng khi đơn hàng bị Hủy hoặc Quá hạn thanh toán)
- * Trả lại số lượng từ hàng giữ chỗ (reserved) về lại kho thực tế (stock)
+ * Trả lại số lượng từ hàng giữ chỗ (reserved) về lại tồn khả dụng
  * @param {String} sku - Mã SKU
  * @param {Number} quantity - Số lượng cần nhả
  * @param {Object} session - (Tùy chọn) Transaction Session
@@ -66,11 +72,10 @@ exports.releaseStock = async (sku, quantity, session = null) => {
       sku: sku,
       reserved: { $gte: quantity } // Đảm bảo không bị trừ âm trường reserved
     },
-    { 
-      $inc: { 
-        stock: quantity,       // Cộng trả lại kho thực tế
-        reserved: -quantity    // Trừ đi ở kho ảo
-      } 
+    {
+      $inc: {
+        reserved: -quantity,
+      }
     },
     { new: true, session }
   );
@@ -84,8 +89,9 @@ exports.releaseStock = async (sku, quantity, session = null) => {
 
 /**
  * Xác nhận đã bán (Dùng khi đơn hàng giao thành công hoặc Đã thanh toán)
- * Lúc này hàng thực sự biến mất khỏi hệ thống, ta chỉ cần trừ đi ở trường reserved
- * (Vì trường stock đã được trừ ở bước reserveStock rồi)
+ * Lúc này hàng thực sự biến mất khỏi hệ thống:
+ * - Trừ stock: kho thực giảm thật
+ * - Trừ reserved: bỏ giữ chỗ đã tạo trước đó
  * @param {String} sku - Mã SKU
  * @param {Number} quantity - Số lượng đã bán
  * @param {Object} session - (Tùy chọn) Transaction Session
@@ -123,19 +129,88 @@ exports.updateStock = async (sku, newStock) => {
   if (newStock < 0) throw new AppError('Số lượng tồn kho không được âm', 400);
 
   const inventory = await Inventory.findOneAndUpdate(
-    { sku: sku },
-    { 
-      $set: { 
+    {
+      sku: sku,
+      reserved: { $lte: newStock },
+    },
+    {
+      $set: {
         stock: newStock,
-        lastRestocked: Date.now() // Cập nhật thời gian nhập/sửa hàng mới nhất
-      } 
+        lastRestocked: Date.now(), // Cập nhật thời gian nhập/sửa hàng mới nhất
+      },
     },
     { new: true }
   );
 
   if (!inventory) {
-    throw new AppError(`Không tìm thấy SKU ${sku} để cập nhật.`, 404);
+    const existingInventory = await Inventory.findOne({ sku });
+    if (!existingInventory) {
+      throw new AppError(`Không tìm thấy SKU ${sku} để cập nhật.`, 404);
+    }
+
+    throw new AppError(
+      `Không thể cập nhật stock=${newStock} vì đang có ${existingInventory.reserved} sản phẩm giữ chỗ.`,
+      409
+    );
   }
 
   return inventoryDTO(inventory);
+};
+
+exports.listInventory = async ({ productId, lowStock, page = 1, limit = 20 }) => {
+  const query = {};
+
+  if (productId) {
+    query.productId = productId;
+  }
+
+  if (lowStock === 'true' || lowStock === true) {
+    query.$expr = {
+      $lt: [{ $subtract: ['$stock', '$reserved'] }, 10],
+    };
+  } else if (lowStock === 'false' || lowStock === false) {
+    query.$expr = {
+      $gte: [{ $subtract: ['$stock', '$reserved'] }, 10],
+    };
+  }
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const [inventories, total] = await Promise.all([
+    Inventory.find(query)
+      .populate('productId', 'name slug')
+      .sort({ stock: 1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .lean(),
+    Inventory.countDocuments(query),
+  ]);
+
+  return {
+    inventories: inventories.map(inventoryDTO),
+    pagination: {
+      totalInventories: total,
+      currentPage: Number(page),
+      totalPages: Math.ceil(total / Number(limit)),
+      limit: Number(limit),
+    },
+  };
+};
+
+exports.checkStock = async (sku, quantity) => {
+  const inventory = await Inventory.findOne({ sku }).lean();
+  if (!inventory) {
+    throw new AppError(`Không tìm thấy thông tin tồn kho cho SKU: ${sku}`, 404);
+  }
+
+  const availableStock = (inventory.stock || 0) - (inventory.reserved || 0);
+
+  return {
+    sku,
+    available: availableStock >= quantity,
+    currentStock: inventory.stock,
+    reserved: inventory.reserved,
+    availableStock,
+    requestedQuantity: quantity,
+  };
 };
