@@ -7,7 +7,7 @@ const inventorySchema = new mongoose.Schema({
   reserved: { type: Number, default: 0 }, // tồn kho đã đặt nhưng chưa thanh toán
   warehouse: { type: String, default: 'main' },
   lastRestocked: Date,
-});
+}, {timestamps: true});
 
 // 1. INDEXES
 inventorySchema.index({ productId: 1 });

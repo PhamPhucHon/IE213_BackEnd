@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const TokenBlacklist = require('../models/TokenBlacklist');
 const config = require('../config/env');
 
 /**
@@ -33,6 +34,15 @@ exports.protect = async (req, res, next) => {
 		}
 
 		const decoded = jwt.verify(token, config.jwtSecret);
+
+		const isBlacklisted = await TokenBlacklist.exists({ token });
+		if (isBlacklisted) {
+			return res.status(401).json({
+				success: false,
+				message: 'Token đã bị vô hiệu hóa. Vui lòng đăng nhập lại.',
+			});
+		}
+
 		const user = await User.findById(decoded.id).select('-password');
 
 		if (!user) {

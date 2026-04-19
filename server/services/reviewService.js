@@ -98,15 +98,15 @@ exports.updateReview = async (reviewId, userId, updateData) => {
   }
 
   // Cập nhật các trường cho phép
-  if (updateData.rating) review.rating = updateData.rating;
-  if (updateData.title) review.title = updateData.title;
-  if (updateData.comment) review.comment = updateData.comment;
-  if (updateData.images) review.images = updateData.images;
+  if (updateData.rating !== undefined) review.rating = updateData.rating;
+  if (updateData.title !== undefined) review.title = updateData.title;
+  if (updateData.comment !== undefined) review.comment = updateData.comment;
+  if (updateData.images !== undefined) review.images = updateData.images;
 
   await review.save();
 
   // Nếu người dùng đổi số sao, phải tính lại điểm trung bình của Product
-  if (updateData.rating) {
+  if (updateData.rating !== undefined) {
     await productService.updateRatingStats(review.productId);
   }
 
@@ -141,26 +141,47 @@ exports.deleteReview = async (reviewId, userId, isAdmin = false) => {
  * Thích hoặc bỏ thích một đánh giá (Like / Unlike)
  */
 exports.likeReview = async (reviewId, userId) => {
-  const review = await Review.findById(reviewId);
-  if (!review) throw new AppError('Không tìm thấy đánh giá.', 404);
+  // Bước 1: thử unlike atomically nếu user đã like trước đó
+  const unliked = await Review.findOneAndUpdate(
+    { _id: reviewId, likedBy: userId },
+    {
+      $pull: { likedBy: userId },
+      $inc: { likes: -1 },
+    },
+    { new: true }
+  );
 
-  // Kiểm tra xem userId đã có trong mảng likedBy chưa
-  const hasLiked = review.likedBy.includes(userId);
-
-  if (hasLiked) {
-    // Nếu đã like -> Bỏ like (Xóa userId khỏi mảng và giảm likes)
-    review.likedBy.pull(userId);
-    review.likes -= 1;
-  } else {
-    // Nếu chưa like -> Thêm like (Thêm userId vào mảng và tăng likes)
-    review.likedBy.push(userId);
-    review.likes += 1;
+  if (unliked) {
+    return {
+      message: 'Đã bỏ thích đánh giá',
+      likes: Math.max(unliked.likes, 0),
+    };
   }
 
-  await review.save();
+  // Bước 2: nếu chưa like thì like atomically
+  const liked = await Review.findOneAndUpdate(
+    { _id: reviewId, likedBy: { $ne: userId } },
+    {
+      $addToSet: { likedBy: userId },
+      $inc: { likes: 1 },
+    },
+    { new: true }
+  );
 
-  return { 
-    message: hasLiked ? 'Đã bỏ thích đánh giá' : 'Đã thích đánh giá',
-    likes: review.likes 
+  if (liked) {
+    return {
+      message: 'Đã thích đánh giá',
+      likes: liked.likes,
+    };
+  }
+
+  // Fallback cho race condition hiếm: kiểm tra trạng thái cuối cùng của review
+  const latest = await Review.findById(reviewId).select('likes likedBy');
+  if (!latest) throw new AppError('Không tìm thấy đánh giá.', 404);
+
+  const hasLikedNow = latest.likedBy.some(id => id.toString() === userId.toString());
+  return {
+    message: hasLikedNow ? 'Đã thích đánh giá' : 'Đã bỏ thích đánh giá',
+    likes: Math.max(latest.likes, 0),
   };
 };

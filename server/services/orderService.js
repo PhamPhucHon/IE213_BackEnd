@@ -7,6 +7,38 @@ const { orderDTO } = require('../utils/dto');
 const { AppError } = require('../utils/asyncHandler');
 
 /**
+ * Lấy danh sách đơn hàng cho Admin (Có phân trang + lọc trạng thái)
+ */
+exports.getAllOrders = async (page = 1, limit = 10, status) => {
+  const skip = (page - 1) * limit;
+  const query = {};
+
+  if (status) {
+    query.status = status;
+  }
+
+  const [orders, totalOrders] = await Promise.all([
+    Order.find(query)
+      .populate('userId', 'name email phone')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .lean(),
+    Order.countDocuments(query),
+  ]);
+
+  return {
+    orders,
+    pagination: {
+      totalOrders,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalOrders / limit),
+      limit: Number(limit),
+    },
+  };
+};
+
+/**
  * Tạo đơn hàng mới từ giỏ hàng hiện tại (Transaction)
  * @param {String} userId - ID người dùng
  * @param {Object} shippingAddress - Địa chỉ giao hàng

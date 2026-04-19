@@ -26,28 +26,13 @@ reviewSchema.index({ productId: 1, userId: 1 }, { unique: true });
 reviewSchema.index({ productId: 1, rating: -1, createdAt: -1 }); 
 
 // 2. MIDDLEWARES
-// Tự động đánh dấu là verified purchase nếu user đã mua sản phẩm này
-reviewSchema.pre('save', async function() {
-  if (this.isNew) {
-    const Order = mongoose.model('Order');
-    const hasPurchased = await Order.exists({ 
-      userId: this.userId, 
-      'items.productId': this.productId,
-      status: { $in: ['Shipped', 'Delivered'] }
-    });
-    this.isVerifiedPurchase = !!hasPurchased;
-  }
-});
-
 // Tính toán lại điểm rating trung bình và số lượng review mỗi khi có review mới hoặc review bị xóa
 // Dùng 'post' thay vì 'pre' vì ta cần review đã nằm trong DB thì Aggregation mới tính đúng được
 reviewSchema.post('save', async function() {
-  // 'this' ở đây là document review vừa được lưu
   await this.constructor.calculateAverageRating(this.productId);
 });
 
 reviewSchema.post('findOneAndDelete', async function(doc) {
-  // 'doc' chính là review vừa bị xóa
   if (doc) {
     await doc.constructor.calculateAverageRating(doc.productId);
   }

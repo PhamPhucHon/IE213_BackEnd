@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
 const orderItemSchema = new mongoose.Schema({
-  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-  sku: String,
-  name: String,
+  productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+  sku: { type: String, required: true },
+  name: { type: String, required: true },
+  price: { type: Number, required: true, min: 0 },
+  quantity: { type: Number, required: true, min: 1 },
   image: String,
-  price: Number,
-  quantity: Number
 });
 
 const orderSchema = new mongoose.Schema({
@@ -14,9 +14,9 @@ const orderSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   items: [orderItemSchema],
   shippingAddress: {
-    fullName: String,
-    phone: String,
-    address: String
+    fullName: { type: String, required: true },
+    phone: { type: String, required: true },
+    address: { type: String, required: true }
   },
   paymentMethod: { type: String, required: true, enum: ['COD', 'Momo', 'BankTransfer'] },
   paymentResult: {
@@ -38,6 +38,7 @@ const orderSchema = new mongoose.Schema({
 orderSchema.index({ userId: 1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ userId: 1, createdAt: -1 });
 
 // 2. MIDDLEWARES 
 // Tự động tạo orderNumber trước khi validate nếu chưa có
