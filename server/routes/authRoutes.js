@@ -2,7 +2,7 @@ const express = require('express');
 const authController = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const { validateBody, body } = require('../middleware/validateMiddleware');
-const { forgotPasswordLimiter } = require('../middleware/authRateLimit');
+const { loginLimiter, forgotPasswordLimiter } = require('../middleware/authRateLimit');
 
 const router = express.Router();
 
@@ -23,6 +23,7 @@ router.post(
 
 router.post(
 	'/login',
+	loginLimiter,
 	validateBody([
 		body('email')
 			.trim()

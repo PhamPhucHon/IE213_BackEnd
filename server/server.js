@@ -1,4 +1,6 @@
 const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const config = require('./config/env');
 // Swagger setup
@@ -18,7 +20,25 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const inventoryUserRoutes = require('./routes/inventoryUserRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
+const orderService = require('./services/orderService');
+
 const app = express();
+
+const allowedOrigins = (config.clientUrl || 'http://localhost:3000')
+	.split(',')
+	.map(origin => origin.trim())
+	.filter(Boolean);
+
+app.use(helmet());
+app.use(cors({
+	origin(origin, callback) {
+		// Cho phép request không có Origin (curl/postman/server-to-server)
+		if (!origin) return callback(null, true);
+		if (allowedOrigins.includes(origin)) return callback(null, true);
+		return callback(new Error('Not allowed by CORS'));
+	},
+	credentials: true,
+}));
 
 app.use(express.json({ limit: '2mb' }));
 // Cấu hình Swagger UI tại đường dẫn /api-docs
@@ -61,8 +81,7 @@ const startServer = async () => {
 		// Cảnh báo: Đảm bảo đã chạy `node swagger.js` để tạo file swagger-output.json trước khi khởi động server
 		console.log(`📄 Swagger UI đang chạy tại http://localhost:${config.port}/api-docs`);
 
-		// Tự động hủy đơn Pending quá hạn mỗi 5 phút
-		const orderService = require('./services/orderService');
+		// setInterval(() => orderService.cancelExpiredOrders(30), 5 * 60 * 1000);
 		setInterval(async () => {
 			try {
 				const result = await orderService.cancelExpiredOrders(30);

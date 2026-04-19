@@ -157,6 +157,15 @@ router.get(
 );
 
 router.post(
+	'/upload-image',
+	protect,
+	isAdmin,
+	upload.uploadSingle('image'),
+	upload.handleUploadError,
+	productController.uploadImage
+);
+
+router.post(
 	'/:productId/reviews',
 	protect,
 	validateObjectId('productId'),
@@ -170,15 +179,6 @@ router.post(
 );
 
 router.get('/:id', validateObjectId('id'), productController.getProductById);
-
-router.post(
-	'/upload-image',
-	protect,
-	isAdmin,
-	upload.uploadSingle('image'),
-	upload.handleUploadError,
-	productController.uploadImage
-);
 
 router.post(
 	'/',
