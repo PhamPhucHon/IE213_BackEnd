@@ -38,6 +38,7 @@ exports.reserveStock = async (sku, quantity, session = null) => {
     },
     {
       $inc: {
+        
         reserved: +quantity,
       },
     },
