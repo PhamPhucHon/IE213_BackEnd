@@ -8,7 +8,8 @@ const { AppError } = require('../utils/asyncHandler');
  */
 exports.getAllCategories = async () => {
   const categories = await Category.find({ isActive: true })
-                                   .sort({ order: 1 });
+                                   .sort({ order: 1 })
+                                   .lean();
   return categories.map(categoryDTO);
 };
 
