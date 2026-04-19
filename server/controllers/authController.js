@@ -1,7 +1,10 @@
+const jwt = require('jsonwebtoken');
 const authService = require('../services/authService');
+const TokenBlacklist = require('../models/TokenBlacklist');
 const { successResponse } = require('../utils/apiResponse');
 const { HTTP_STATUS, MESSAGES } = require('../config/constants');
 const { asyncHandler } = require('../utils/asyncHandler');
+const config = require('../config/env');
 
 // POST /api/auth/register
 exports.register = asyncHandler(async (req, res) => {
@@ -40,6 +43,17 @@ exports.getMe = asyncHandler(async (req, res) => {
 });
 
 // POST /api/auth/logout
-exports.logout = (req, res) => {
+exports.logout = asyncHandler(async (req, res) => {
+  const authHeader = req.headers?.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = jwt.verify(token, config.jwtSecret);
+      const expiresAt = new Date(decoded.exp * 1000);
+      await TokenBlacklist.create({ token, expiresAt });
+    } catch {
+      // Token đã hết hạn hoặc không hợp lệ — không cần blacklist
+    }
+  }
   return successResponse(res, HTTP_STATUS.OK, 'Đăng xuất thành công', null);
-};
+});

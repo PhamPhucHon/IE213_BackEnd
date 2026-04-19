@@ -1,5 +1,18 @@
 const rateLimit = require('express-rate-limit');
 
+const loginLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000,
+	max: 20,
+	standardHeaders: true,
+	legacyHeaders: false,
+	keyGenerator: (req) =>
+		`${rateLimit.ipKeyGenerator(req.ip)}:${String(req.body?.email || '').trim().toLowerCase()}`,
+	message: {
+		success: false,
+		message: 'Quá nhiều lần thử đăng nhập, vui lòng thử lại sau 15 phút.',
+	},
+});
+
 const forgotPasswordLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000,
 	max: 3,
@@ -14,5 +27,6 @@ const forgotPasswordLimiter = rateLimit({
 });
 
 module.exports = {
+	loginLimiter,
 	forgotPasswordLimiter,
 };

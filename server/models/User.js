@@ -16,7 +16,6 @@ const userSchema = new mongoose.Schema({
     }
   ],
   isActive: { type: Boolean, default: true },
-  createdAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
 // 1. Middleware: 
@@ -40,9 +39,14 @@ userSchema.pre('save', async function() {
   }
 });
 
-//  Tự động ẩn các User bị khóa (isActive: false) khi tìm kiếm
+// Tự động ẩn các User bị khóa (isActive: false) khi tìm kiếm,
+// ngoại trừ các query chủ động bật option includeInactive (dùng cho Admin).
 userSchema.pre(/^find/, function() {
-  // Chỉ lấy những user đang active (hoặc không có trường isActive)
+  const opts = this.getOptions ? this.getOptions() : {};
+  if (opts.includeInactive) {
+    return;
+  }
+
   this.find({ isActive: { $ne: false } });
 });
 

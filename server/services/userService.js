@@ -2,6 +2,26 @@ const User = require('../models/User');
 const { userDTO } = require('../utils/dto');
 const { AppError } = require('../utils/asyncHandler');
 
+// Lấy danh sách người dùng (phân trang) cho Admin
+exports.getAllUsers = async (page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+
+  const [users, totalUsers] = await Promise.all([
+    User.find().select('-password').sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+    User.countDocuments(),
+  ]);
+
+  return {
+    users,
+    pagination: {
+      totalUsers,
+      currentPage: Number(page),
+      totalPages: Math.ceil(totalUsers / limit),
+      limit: Number(limit),
+    },
+  };
+};
+
 // ==========================================
 // QUẢN LÝ THÔNG TIN CÁ NHÂN 
 // ==========================================

@@ -41,6 +41,7 @@ const productSchema = new mongoose.Schema({
 productSchema.index({ name: 'text', brand: 'text' });
 productSchema.index({ categoryId: 1, 'variants.price': 1 });
 productSchema.index({ isActive: 1, 'rating.avg': -1 });
+productSchema.index({ isActive: 1, createdAt: -1 });
 productSchema.index({ categoryId: 1, brand: 1 });
 productSchema.index({ 'variants.price': 1 });
 
@@ -57,14 +58,6 @@ productSchema.pre('validate', function() {
 // Ẩn sản phẩm thay vì xóa hẳn khỏi database
 productSchema.methods.softDelete = async function() {
   this.isActive = false;
-  return await this.save();
-};
-
-// Hàm cập nhật đánh giá trung bình sau khi có đánh giá mới
-productSchema.methods.updateRating = async function(newRating) {
-  const totalRating = this.rating.avg * this.rating.count + newRating;
-  this.rating.count += 1;
-  this.rating.avg = totalRating / this.rating.count;
   return await this.save();
 };
 
