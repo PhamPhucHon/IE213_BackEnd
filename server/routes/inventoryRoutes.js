@@ -1,33 +1,22 @@
 const express = require('express');
-const adminController = require('../controllers/adminController');
+const inventoryController = require('../controllers/inventoryController');
 const { protect } = require('../middleware/authMiddleware');
-const { isAdmin } = require('../middleware/adminMiddleware');
-const { validateBody, validateQuery, body, param, query } = require('../middleware/validateMiddleware');
+const { validateQuery, query } = require('../middleware/validateMiddleware');
 
 const router = express.Router();
 
-router.use(protect, isAdmin);
+router.use(protect);
 
-// GET /api/admin/inventory — Danh sách tồn kho có filter + phân trang
+// GET /api/inventory/check?sku=...&quantity=...
 router.get(
-  '/',
+  '/check',
   validateQuery([
-    query('productId').optional().isMongoId().withMessage('productId không hợp lệ'),
-    query('lowStock').optional().isIn(['true', 'false']).withMessage('lowStock phải là true hoặc false'),
-    query('page').optional().isInt({ min: 1 }).withMessage('page phải là số nguyên dương'),
-    query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('limit phải từ 1 đến 100'),
+    query('sku').notEmpty().withMessage('sku là bắt buộc'),
+    query('quantity')
+      .notEmpty().withMessage('quantity là bắt buộc')
+      .isInt({ min: 1 }).withMessage('quantity phải là số nguyên >= 1'),
   ]),
-  adminController.getInventoryList
-);
-
-router.get('/:sku', validateBody([param('sku').notEmpty().withMessage('sku không hợp lệ')]), adminController.getInventoryBySku);
-router.put(
-	'/:sku',
-	validateBody([
-		param('sku').notEmpty().withMessage('sku không hợp lệ'),
-		body('stock').isInt({ min: 0 }).withMessage('stock phải là số nguyên không âm'),
-	]),
-	adminController.updateInventory
+  inventoryController.checkInventory
 );
 
 module.exports = router;

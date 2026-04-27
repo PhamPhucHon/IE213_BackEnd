@@ -1,6 +1,7 @@
 // config/db.js
 const mongoose = require('mongoose');
 const config = require('./env');
+const logger = require('./logger').child({ component: 'database' });
 
 const connectDB = async () => {
   try {
@@ -10,20 +11,20 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    logger.info('MongoDB connected', { host: conn.connection.host });
   } catch (error) {
-    console.error(`❌ MongoDB connection error: ${error.message}`);
+    logger.error('MongoDB connection error', { error: error.message });
     process.exit(1);
   }
 };
 
 // Xử lý sự kiện kết nối
 mongoose.connection.on('disconnected', () => {
-  console.log('⚠️ MongoDB disconnected');
+  logger.warn('MongoDB disconnected');
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error(`⚠️ MongoDB error: ${err}`);
+  logger.error('MongoDB emitted an error event', { error: err.message });
 });
 
 module.exports = connectDB;

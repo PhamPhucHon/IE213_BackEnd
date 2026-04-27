@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Review = require('../models/Review');
 const Order = require('../models/Order');
 const User = require('../models/User');
@@ -12,41 +13,47 @@ const { AppError } = require('../utils/asyncHandler');
  * @param {Object} reviewData - Dữ liệu đánh giá (rating, comment, title, images...)
  */
 exports.createReview = async (userId, productId, reviewData) => {
-  // 1. Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
-  const existingReview = await Review.findOne({ productId, userId });
-  if (existingReview) {
-    throw new AppError('Bạn đã đánh giá sản phẩm này rồi.', 409);
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const existingReview = await Review.findOne({ productId, userId }).session(session);
+    if (existingReview) {
+      throw new AppError('Bạn đã đánh giá sản phẩm này rồi.', 409);
+    }
+
+    const hasBought = await Order.findOne({
+      userId: userId,
+      status: 'Delivered',
+      'items.productId': productId
+    }).session(session);
+
+    const user = await User.findById(userId).session(session);
+
+    const [review] = await Review.create([{
+      productId,
+      userId,
+      userName: user.name,
+      userAvatar: user.avatar || '',
+      rating: reviewData.rating,
+      title: reviewData.title || '',
+      comment: reviewData.comment,
+      images: reviewData.images || [],
+      isVerifiedPurchase: !!hasBought,
+      isApproved: true
+    }], { session });
+
+    await productService.updateRatingStats(productId, session);
+    await session.commitTransaction();
+
+    return reviewDTO(review);
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  // 2. Kiểm tra Verified Purchase (Khách đã mua và nhận hàng chưa?)
-  // Tìm trong bảng Order xem có đơn hàng nào của user này chứa productId và đã Delivered không
-  const hasBought = await Order.findOne({
-    userId: userId,
-    status: 'Delivered',
-    'items.productId': productId
-  });
-
-  // Lấy thông tin user để lưu snapshot tên/avatar vào Review
-  const user = await User.findById(userId);
-
-  // 3. Tạo Review mới
-  const review = await Review.create({
-    productId,
-    userId,
-    userName: user.name,
-    userAvatar: user.avatar || '',
-    rating: reviewData.rating,
-    title: reviewData.title || '',
-    comment: reviewData.comment,
-    images: reviewData.images || [],
-    isVerifiedPurchase: !!hasBought, // Nếu tìm thấy đơn hàng -> true
-    isApproved: true // Mặc định hiển thị, nếu hệ thống cần duyệt thì set false
-  });
-
-  // 4. Cập nhật lại Rating Stats bên bảng Product
-  await productService.updateRatingStats(productId);
-
-  return reviewDTO(review);
 };
 
 /**
@@ -90,51 +97,69 @@ exports.getReviewsByProduct = async (productId, page = 1, limit = 5, ratingFilte
  * Cập nhật đánh giá (Chỉ dành cho chủ sở hữu)
  */
 exports.updateReview = async (reviewId, userId, updateData) => {
-  const review = await Review.findById(reviewId);
-  
-  if (!review) throw new AppError('Không tìm thấy đánh giá.', 404);
-  if (review.userId.toString() !== userId.toString()) {
-    throw new AppError('Bạn không có quyền chỉnh sửa đánh giá này.', 403);
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const review = await Review.findById(reviewId).session(session);
+    if (!review) throw new AppError('Không tìm thấy đánh giá.', 404);
+    if (review.userId.toString() !== userId.toString()) {
+      throw new AppError('Bạn không có quyền chỉnh sửa đánh giá này.', 403);
+    }
+
+    if (updateData.rating !== undefined) review.rating = updateData.rating;
+    if (updateData.title !== undefined) review.title = updateData.title;
+    if (updateData.comment !== undefined) review.comment = updateData.comment;
+    if (updateData.images !== undefined) review.images = updateData.images;
+
+    await review.save({ session });
+
+    if (updateData.rating !== undefined) {
+      await productService.updateRatingStats(review.productId, session);
+    }
+
+    await session.commitTransaction();
+
+    return reviewDTO(review);
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  // Cập nhật các trường cho phép
-  if (updateData.rating !== undefined) review.rating = updateData.rating;
-  if (updateData.title !== undefined) review.title = updateData.title;
-  if (updateData.comment !== undefined) review.comment = updateData.comment;
-  if (updateData.images !== undefined) review.images = updateData.images;
-
-  await review.save();
-
-  // Nếu người dùng đổi số sao, phải tính lại điểm trung bình của Product
-  if (updateData.rating !== undefined) {
-    await productService.updateRatingStats(review.productId);
-  }
-
-  return reviewDTO(review);
 };
 
 /**
  * Xóa đánh giá (Dành cho chủ sở hữu hoặc Admin)
  */
 exports.deleteReview = async (reviewId, userId, isAdmin = false) => {
-  const review = await Review.findById(reviewId);
-  
-  if (!review) throw new AppError('Không tìm thấy đánh giá.', 404);
+  const session = await mongoose.startSession();
 
-  // Kiểm tra quyền: Phải là Admin hoặc là người tạo ra đánh giá này
-  if (!isAdmin && review.userId.toString() !== userId.toString()) {
-    throw new AppError('Bạn không có quyền xóa đánh giá này.', 403);
+  try {
+    session.startTransaction();
+
+    const review = await Review.findById(reviewId).session(session);
+    if (!review) throw new AppError('Không tìm thấy đánh giá.', 404);
+
+    if (!isAdmin && review.userId.toString() !== userId.toString()) {
+      throw new AppError('Bạn không có quyền xóa đánh giá này.', 403);
+    }
+
+    const productId = review.productId;
+
+    await Review.findByIdAndDelete(reviewId).session(session);
+    await productService.updateRatingStats(productId, session);
+
+    await session.commitTransaction();
+
+    return { message: 'Đã xóa đánh giá thành công.' };
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  const productId = review.productId; // Lưu tạm id sản phẩm trước khi xóa
-
-  // Thực hiện xóa
-  await Review.findByIdAndDelete(reviewId);
-
-  // Cập nhật lại Rating Stats sau khi xóa
-  await productService.updateRatingStats(productId);
-
-  return { message: 'Đã xóa đánh giá thành công.' };
 };
 
 /**
@@ -148,7 +173,7 @@ exports.likeReview = async (reviewId, userId) => {
       $pull: { likedBy: userId },
       $inc: { likes: -1 },
     },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   if (unliked) {
@@ -165,7 +190,7 @@ exports.likeReview = async (reviewId, userId) => {
       $addToSet: { likedBy: userId },
       $inc: { likes: 1 },
     },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   if (liked) {

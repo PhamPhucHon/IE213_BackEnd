@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logger = require('../config/logger').child({ component: 'login-log' });
 
 const loginLogSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -21,7 +22,12 @@ loginLogSchema.statics.recordLog = async function(logData) {
   try {
     await this.create(logData);
   } catch (error) {
-    console.error('Lỗi khi ghi LoginLog:', error);
+    logger.error('Failed to persist login log', {
+      error: error.message,
+      email: logData?.email,
+      userId: logData?.userId,
+      status: logData?.status,
+    });
     // Bỏ qua lỗi để không làm sập luồng đăng nhập chính của người dùng
   }
 };

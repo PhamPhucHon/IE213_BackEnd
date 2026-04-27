@@ -1,12 +1,12 @@
 // tests/auth.test.js
-jest.mock('../utils/sendEmail', () => jest.fn().mockResolvedValue({ messageId: 'mocked-message-id' }));
+jest.mock('../../../utils/sendEmail', () => jest.fn().mockResolvedValue({ messageId: 'mocked-message-id' }));
 
 const crypto = require('crypto');
 const request = require('supertest');
-const app = require('../server');
-const User = require('../models/User');
-const PasswordResetToken = require('../models/PasswordResetToken');
-const sendEmail = require('../utils/sendEmail');
+const app = require('../../../app');
+const User = require('../../../models/User');
+const PasswordResetToken = require('../../../models/PasswordResetToken');
+const sendEmail = require('../../../utils/sendEmail');
 
 describe('POST /api/auth/register', () => {
   const validUser = {

@@ -45,3 +45,15 @@ exports.setDefaultAddress = asyncHandler(async (req, res) => {
   const addresses = await userService.setDefaultAddress(req.user._id, req.params.addressId);
   return successResponse(res, HTTP_STATUS.OK, 'Đã đặt làm địa chỉ mặc định', addresses);
 });
+
+// GET /api/users/addresses
+exports.getAddresses = asyncHandler(async (req, res) => {
+  const addresses = await userService.getAddresses(req.user._id);
+  return successResponse(res, HTTP_STATUS.OK, 'Lấy danh sách địa chỉ thành công', addresses);
+});
+
+// DELETE /api/users/me
+exports.deleteOwnAccount = asyncHandler(async (req, res) => {
+  await userService.deleteOwnAccount(req.user._id);
+  return successResponse(res, HTTP_STATUS.OK, 'Tài khoản đã được xóa (vô hiệu hóa)');
+});

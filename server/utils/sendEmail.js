@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const config = require('../config/env');
+const logger = require('../config/logger').child({ component: 'email' });
 
 // Tạo transporter một lần và tái sử dụng (connection pool)
 let transporter = null;
@@ -68,10 +69,18 @@ const sendEmail = async (options) => {
   try {
     const transporter = getTransporter();
     const info = await transporter.sendMail(mailOptions);
-    console.log(`[EMAIL] Đã gửi thành công đến ${options.email} - MessageId: ${info.messageId}`);
+    logger.info('Email sent successfully', {
+      recipient: options.email,
+      messageId: info.messageId,
+      subject: options.subject,
+    });
     return info;
   } catch (error) {
-    console.error(`[EMAIL] Lỗi gửi đến ${options.email}: ${error.message}`);
+    logger.error('Email delivery failed', {
+      recipient: options.email,
+      subject: options.subject,
+      error: error.message,
+    });
     // Throw lỗi rõ ràng để nơi gọi xử lý
     throw new Error(`Không thể gửi email: ${error.message}`);
   }

@@ -1,6 +1,4 @@
 const { HTTP_STATUS, MESSAGES } = require('../config/constants');
-const config = require('../config/env');
-const logger = require('../config/logger');
 
 /**
  * Kiểm tra response object hợp lệ
@@ -12,11 +10,25 @@ const isValidRes = (res) => res && typeof res.status === 'function';
  * @param {Object} req - Express request object
  * @param {Object} extra - Các trường bổ sung
  */
-const buildMeta = (req, extra = {}) => ({
-  timestamp: new Date().toISOString(),
-  requestId: req?.id || req?.headers?.['x-request-id'] || null,
-  ...extra,
-});
+const buildMeta = (req, extra = {}) => {
+  const requestId = req?.headers?.['x-request-id'];
+  return {
+    timestamp: new Date().toISOString(),
+    ...(requestId ? { requestId } : {}),
+    ...extra,
+  };
+};
+
+/**
+ * Chuẩn hóa payload errors
+ */
+const normalizeErrors = (errors) => {
+  if (errors == null) return null;
+  if (Array.isArray(errors)) return errors;
+  if (errors instanceof Error) return [{ message: errors.message }];
+  if (typeof errors === 'string') return [{ message: errors }];
+  return errors;
+};
 
 /**
  * Chuẩn hóa status code HTTP
@@ -67,65 +79,22 @@ exports.successResponse = (
  * @param {Object} res - Express response object
  * @param {number} statusCode - Mã HTTP lỗi
  * @param {string} message - Thông báo lỗi
- * @param {Error|any} error - Đối tượng lỗi chi tiết
- * @param {boolean} logError - Có ghi log không
+ * @param {Array|Object|string|null} errors - Chi tiết lỗi
  */
 exports.errorResponse = (
   res,
   statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR,
   message = MESSAGES.ERROR,
-  error = null,
-  logError = true
+  errors = null
 ) => {
   if (!isValidRes(res)) throw new Error('Invalid Express response object');
 
-  let finalStatusCode = normalizeStatusCode(statusCode, 500);
-  let finalMessage = message || 'Error';
-  let errorPayload = null;
-
-  // Xử lý các loại lỗi phổ biến
-  if (error) {
-    if (error.name === 'ValidationError') {
-      finalStatusCode = HTTP_STATUS.BAD_REQUEST;
-      finalMessage = 'Dữ liệu không hợp lệ';
-      errorPayload = Object.values(error.errors).map(e => e.message);
-    } else if (error.code === 11000) {
-      finalStatusCode = HTTP_STATUS.BAD_REQUEST;
-      finalMessage = 'Dữ liệu bị trùng';
-      errorPayload = error.keyValue; // Có thể chứa email, username – OK
-    } else if (error.name === 'JsonWebTokenError') {
-      finalStatusCode = HTTP_STATUS.UNAUTHORIZED;
-      finalMessage = 'Token không hợp lệ';
-    } else if (error.name === 'TokenExpiredError') {
-      finalStatusCode = HTTP_STATUS.UNAUTHORIZED;
-      finalMessage = 'Token đã hết hạn';
-    } else {
-      errorPayload = error.message || error;
-    }
-  }
-
-  // Ghi log lỗi (ẩn stack khi production)
-  if (logError && error) {
-    logger.error(`[API Error] ${finalStatusCode} - ${finalMessage}`, {
-      error: error.message || error,
-      stack: config.env === 'development' ? error.stack : undefined,
-      url: res?.req?.originalUrl || 'unknown',
-    });
-  }
-
-  const response = {
+  return res.status(normalizeStatusCode(statusCode, 500)).json({
     success: false,
-    message: finalMessage,
+    message: message || MESSAGES.ERROR,
+    errors: normalizeErrors(errors),
     meta: buildMeta(res.req),
-  };
-
-  // Chỉ trả chi tiết lỗi trong môi trường development
-  if (config.env === 'development' && error) {
-    response.error = errorPayload;
-    if (error.stack) response.stack = error.stack;
-  }
-
-  return res.status(finalStatusCode).json(response);
+  });
 };
 
 /**
@@ -136,8 +105,7 @@ exports.validationErrorResponse = (res, errors, message = 'Validation failed') =
     res,
     HTTP_STATUS.UNPROCESSABLE_ENTITY,
     message,
-    { details: errors },
-    false // không log vì lỗi validation là do client
+    errors
   );
 };
 

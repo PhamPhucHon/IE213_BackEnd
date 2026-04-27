@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { body, query, param, validationResult } = require('express-validator');
-const { HTTP_STATUS } = require('../config/constants');
+const { validationErrorResponse } = require('../utils/apiResponse');
 
 const formatErrors = (errors) => {
   return errors.map((err) => ({
@@ -15,11 +15,11 @@ const handleValidationResult = (req, res, next) => {
   const result = validationResult(req);
   if (result.isEmpty()) return next();
 
-  return res.status(HTTP_STATUS.UNPROCESSABLE_ENTITY).json({
-    success: false,
-    message: 'Dữ liệu không hợp lệ',
-    details: formatErrors(result.array({ onlyFirstError: true })),
-  });
+  return validationErrorResponse(
+    res,
+    formatErrors(result.array({ onlyFirstError: true })),
+    'Dữ liệu không hợp lệ'
+  );
 };
 
 /**

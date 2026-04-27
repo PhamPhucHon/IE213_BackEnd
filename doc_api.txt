@@ -1,6 +1,7 @@
 IE213 BACKEND API DOCUMENTATION
 Cap nhat theo source code hien tai (routes + controllers)
 Base URL: http://localhost:5000/api
+Swagger UI: http://localhost:5000/api-docs
 
 =====================================================
 0) RESPONSE FORMAT
@@ -162,6 +163,41 @@ Base: /api/users
 - Auth: User
 - Params:
   - addressId: Mongo ObjectId
+
+2.8) Lay danh sach dia chi
+- Method: GET
+- Endpoint: /api/users/addresses
+- Auth: User
+- Response (thanh cong):
+  {
+    "success": true,
+    "message": "Lấy danh sách địa chỉ thành công",
+    "data": [
+      {
+        "_id": "67c8a1b2...",
+        "label": "Nha",
+        "address": "123 Nguyen Trai, Q1",
+        "isDefault": true
+      },
+      ...
+    ],
+    "meta": { "timestamp": "2026-04-22T10:00:00.000Z" }
+  }
+
+2.9) Xoa tai khoan cua chinh user (xoa mem)
+- Method: DELETE
+- Endpoint: /api/users/me
+- Auth: User
+- Dieu kien:
+  - Khong co don hang nao o trang thai "Pending" hoac "Processing"
+- Response (thanh cong):
+  {
+    "success": true,
+    "message": "Tai khoan da duoc xoa (vo hieu hoa)",
+    "data": null,
+    "meta": { "timestamp": "2026-04-22T10:00:00.000Z" }
+  }
+- Ghi chu: Tai khoan bi set `isActive = false`, khong the dang nhap lai. Cac don hang cu van duoc giu nguyen.
 
 =====================================================
 3) CATEGORY APIs
@@ -410,13 +446,23 @@ Base: /api/orders
 
 =====================================================
 8) INVENTORY APIs
-Base user: /api/inventory
+Base public/user: /api/inventory
 Base admin: /api/admin/inventory
 =====================================================
 
-8.1) Danh sach ton kho (co loc, phan trang) [DE XUAT - CHUA CODE]
+Route grouping trong source code:
+- Public/user inventory routes: server/routes/inventoryRoutes.js
+- Admin inventory routes: server/routes/inventoryAdminRoutes.js
+
+Ghi chu dong bo voi Swagger:
+- Swagger JSON hien thi endpoint admin root duoi dang /api/admin/inventory/ vi route trong module duoc khai bao la '/'.
+- Runtime endpoint de goi API van la /api/admin/inventory.
+- Naming moi trong codebase: inventoryRoutes = public/user routes, inventoryAdminRoutes = admin routes.
+
+8.1) Admin - Danh sach ton kho (co loc, phan trang)
 - Method: GET
 - Endpoint: /api/admin/inventory
+- Swagger path: /api/admin/inventory/
 - Auth: Admin
 - Query optional:
   - productId (Mongo ObjectId)
@@ -453,7 +499,7 @@ Base admin: /api/admin/inventory
     }
   }
 
-8.2) Kiem tra ton kho truoc khi them vao gio [DE XUAT - CHUA CODE]
+8.2) User - Kiem tra ton kho truoc khi them vao gio
 - Method: GET
 - Endpoint: /api/inventory/check
 - Auth: User
@@ -478,19 +524,25 @@ Base admin: /api/admin/inventory
     }
   }
 
-8.3) Chi tiet ton kho theo sku
+8.3) Admin - Chi tiet ton kho theo sku
 - Method: GET
 - Endpoint: /api/admin/inventory/:sku
 - Auth: Admin
+- Params:
+  - sku: string (khong duoc rong)
 
-8.4) Cap nhat ton kho theo sku
+8.4) Admin - Cap nhat ton kho theo sku
 - Method: PUT
 - Endpoint: /api/admin/inventory/:sku
 - Auth: Admin
+- Params:
+  - sku: string (khong duoc rong)
 - Body:
   {
     "stock": 100
   }
+- Validation:
+  - stock phai la so nguyen khong am
 
 =====================================================
 9) ADMIN APIs

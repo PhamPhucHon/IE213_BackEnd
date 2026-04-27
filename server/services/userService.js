@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Order = require('../models/Order');
 const { userDTO } = require('../utils/dto');
 const { AppError } = require('../utils/asyncHandler');
 
@@ -53,10 +54,10 @@ exports.updateUserProfile = async (userId, updateData) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
     { $set: fieldsToUpdate },
-    { 
-      new: true,           
-      runValidators: true, 
-      context: 'query'     
+    {
+      returnDocument: 'after',
+      runValidators: true,
+      context: 'query'
     }
   ).lean(); 
 
@@ -176,4 +177,37 @@ exports.setDefaultAddress = async (userId, addressId) => {
 
   await user.save();
   return user.addresses;
+};
+
+// Lấy danh sách địa chỉ của user
+exports.getAddresses = async (userId) => {
+  const user = await User.findById(userId).select('addresses');
+  if (!user) throw new AppError('Không tìm thấy người dùng.', 404);
+  return user.addresses;
+};
+
+// Xóa tài khoản của chính user (xóa mềm)
+exports.deleteOwnAccount = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new AppError('Không tìm thấy người dùng.', 404);
+
+  // Kiểm tra có đơn hàng đang xử lý không
+  const hasPendingOrders = await Order.findOne({
+    userId,
+    status: { $in: ['Pending', 'Processing'] }
+  });
+  if (hasPendingOrders) {
+    throw new AppError('Bạn có đơn hàng đang xử lý, không thể xóa tài khoản.', 400);
+  }
+
+  // Xóa mềm: set isActive = false và ghi lại thời gian xóa
+  user.isActive = false;
+  user.deletedAt = new Date();
+  await user.save();
+
+  // (Tuỳ chọn) Xóa token, clear cart, v.v.
+  // await Cart.deleteOne({ userId });
+  // Không xóa reviews, orders vì cần giữ lịch sử
+
+  return { message: 'Tài khoản đã được vô hiệu hóa' };
 };
