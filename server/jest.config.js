@@ -16,6 +16,23 @@ module.exports = {
   // Hiển thị kết quả chi tiết
   verbose: true,
 
+  // Coverage cho các lớp business logic chính
+  collectCoverageFrom: [
+    'services/**/*.js',
+    'utils/apiResponse.js',
+    'models/Cart.js',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov'],
+  coverageThreshold: {
+    global: {
+      branches: 60,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
+
   // Xoá mock giữa các test
   clearMocks: true,
 };

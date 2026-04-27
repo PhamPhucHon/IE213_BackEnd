@@ -9,6 +9,8 @@ module.exports = {
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,
     NOT_FOUND: 404,
+    CONFLICT: 409,
+    TOO_MANY_REQUESTS: 429,
     UNPROCESSABLE_ENTITY: 422,
     INTERNAL_SERVER_ERROR: 500,
   },
@@ -61,8 +63,8 @@ module.exports = {
 
   // Cấu hình JWT mặc định (có thể override bằng env)
   JWT: {
-    SECRET: process.env.JWT_SECRET || 'default_secret_change_me',
-    EXPIRE: process.env.JWT_EXPIRE || '30d',
+    SECRET: process.env.JWT_SECRET, 
+    EXPIRE: process.env.JWT_EXPIRE || '7d',
   },
 
   // Vai trò người dùng

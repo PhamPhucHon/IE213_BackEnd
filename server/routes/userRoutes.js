@@ -90,4 +90,8 @@ router.put(
 
 router.delete('/addresses/:addressId', validateObjectId('addressId'), userController.deleteAddress);
 
+router.get('/addresses', protect, userController.getAddresses);
+
+router.delete('/me', protect, userController.deleteOwnAccount);
+
 module.exports = router;

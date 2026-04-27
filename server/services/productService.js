@@ -162,87 +162,115 @@ const ALLOWED_PRODUCT_UPDATE_FIELDS = [
 ];
 
 exports.updateProduct = async (id, updateData) => {
-  const product = await Product.findById(id);
-  if (!product) {
-    throw new AppError('Không tìm thấy sản phẩm.', 404);
-  }
+  const session = await mongoose.startSession();
 
-  // Nếu có cập nhật variants → sync Inventory
-  if (updateData.variants) {
-    const oldSkus = product.variants.map(v => v.sku);
-    const newSkus = updateData.variants.map(v => v.sku);
+  try {
+    session.startTransaction();
 
-    // SKU bị xóa: kiểm tra reserved rồi xóa Inventory
-    const removedSkus = oldSkus.filter(sku => !newSkus.includes(sku));
-    if (removedSkus.length > 0) {
-      const reservedItem = await Inventory.findOne({ sku: { $in: removedSkus }, reserved: { $gt: 0 } });
-      if (reservedItem) {
-        throw new AppError(
-          `Không thể xóa variant SKU ${reservedItem.sku}: đang có ${reservedItem.reserved} sản phẩm giữ chỗ trong đơn hàng.`,
-          409
-        );
-      }
-      await Inventory.deleteMany({ sku: { $in: removedSkus } });
+    const product = await Product.findById(id).session(session);
+    if (!product) {
+      throw new AppError('Không tìm thấy sản phẩm.', 404);
     }
 
-    // SKU mới thêm: tạo Inventory với stock=0
-    const addedSkus = newSkus.filter(sku => !oldSkus.includes(sku));
-    if (addedSkus.length > 0) {
-      // Kiểm tra trùng SKU trong hệ thống
-      const existingInventory = await Inventory.findOne({ sku: { $in: addedSkus } });
-      if (existingInventory) {
-        throw new AppError(`SKU ${existingInventory.sku} đã tồn tại trên hệ thống.`, 409);
+    // Nếu có cập nhật variants → sync Inventory trong cùng transaction
+    if (updateData.variants) {
+      const oldSkus = product.variants.map(v => v.sku);
+      const newSkus = updateData.variants.map(v => v.sku);
+      const hasDuplicateSku = newSkus.some((sku, index) => newSkus.indexOf(sku) !== index);
+
+      if (hasDuplicateSku) {
+        throw new AppError('Có SKU bị trùng lặp trong danh sách biến thể.', 400);
       }
 
-      const inventoryDocs = addedSkus.map(sku => ({
-        sku,
-        productId: product._id,
-        stock: 0,
-        reserved: 0,
-      }));
-      await Inventory.insertMany(inventoryDocs);
+      // SKU bị xóa: kiểm tra reserved rồi xóa Inventory
+      const removedSkus = oldSkus.filter(sku => !newSkus.includes(sku));
+      if (removedSkus.length > 0) {
+        const reservedItem = await Inventory.findOne({ sku: { $in: removedSkus }, reserved: { $gt: 0 } }).session(session);
+        if (reservedItem) {
+          throw new AppError(
+            `Không thể xóa variant SKU ${reservedItem.sku}: đang có ${reservedItem.reserved} sản phẩm giữ chỗ trong đơn hàng.`,
+            409
+          );
+        }
+        await Inventory.deleteMany({ sku: { $in: removedSkus } }, { session });
+      }
+
+      // SKU mới thêm: tạo Inventory với stock=0
+      const addedSkus = newSkus.filter(sku => !oldSkus.includes(sku));
+      if (addedSkus.length > 0) {
+        const existingInventory = await Inventory.findOne({ sku: { $in: addedSkus } }).session(session);
+        if (existingInventory) {
+          throw new AppError(`SKU ${existingInventory.sku} đã tồn tại trên hệ thống.`, 409);
+        }
+
+        const inventoryDocs = addedSkus.map(sku => ({
+          sku,
+          productId: product._id,
+          stock: 0,
+          reserved: 0,
+        }));
+        await Inventory.insertMany(inventoryDocs, { session });
+      }
     }
+
+    ALLOWED_PRODUCT_UPDATE_FIELDS.forEach((field) => {
+      if (typeof updateData[field] !== 'undefined') {
+        product[field] = updateData[field];
+      }
+    });
+
+    const savedProduct = await product.save({ session });
+    await session.commitTransaction();
+
+    return productDTO(savedProduct);
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  ALLOWED_PRODUCT_UPDATE_FIELDS.forEach((field) => {
-    if (typeof updateData[field] !== 'undefined') {
-      product[field] = updateData[field];
-    }
-  });
-
-  return productDTO(await product.save());
 };
 
 // Xóa sản phẩm (kèm xóa Inventory + kiểm tra đơn hàng đang xử lý)
 exports.deleteProduct = async (id) => {
-  const product = await Product.findById(id);
-  if (!product) {
-    throw new AppError('Không tìm thấy sản phẩm.', 404);
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const product = await Product.findById(id).session(session);
+    if (!product) {
+      throw new AppError('Không tìm thấy sản phẩm.', 404);
+    }
+
+    // Kiểm tra xem có inventory nào đang có hàng giữ chỗ (đơn Pending/Processing) không
+    const skus = product.variants.map(v => v.sku);
+    const reservedInventory = await Inventory.findOne({ sku: { $in: skus }, reserved: { $gt: 0 } }).session(session);
+    if (reservedInventory) {
+      throw new AppError(
+        `Không thể xóa sản phẩm: SKU ${reservedInventory.sku} đang có ${reservedInventory.reserved} sản phẩm giữ chỗ trong đơn hàng chưa hoàn tất.`,
+        409
+      );
+    }
+
+    await Inventory.deleteMany({ sku: { $in: skus } }, { session });
+    await Product.findByIdAndDelete(id, { session });
+
+    await session.commitTransaction();
+
+    return { message: 'Đã xóa sản phẩm và giải phóng tồn kho liên quan thành công.' };
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  // Kiểm tra xem có inventory nào đang có hàng giữ chỗ (đơn Pending/Processing) không
-  const skus = product.variants.map(v => v.sku);
-  const reservedInventory = await Inventory.findOne({ sku: { $in: skus }, reserved: { $gt: 0 } });
-  if (reservedInventory) {
-    throw new AppError(
-      `Không thể xóa sản phẩm: SKU ${reservedInventory.sku} đang có ${reservedInventory.reserved} sản phẩm giữ chỗ trong đơn hàng chưa hoàn tất.`,
-      409
-    );
-  }
-
-  // Xóa tất cả Inventory liên quan
-  await Inventory.deleteMany({ sku: { $in: skus } });
-
-  // Xóa Product
-  await Product.findByIdAndDelete(id);
-
-  return { message: 'Đã xóa sản phẩm và giải phóng tồn kho liên quan thành công.' };
 };
 
 // Cập nhật lại thống kê đánh giá (Dùng sau khi có thay đổi về review)
-exports.updateRatingStats = async (productId) => {
+exports.updateRatingStats = async (productId, session = null) => {
   // Dùng Aggregation để gom tất cả review của sản phẩm này lại
-  const stats = await Review.aggregate([
+  const aggregation = Review.aggregate([
     { $match: { productId: new mongoose.Types.ObjectId(productId) } },
     {
       $group: {
@@ -253,18 +281,36 @@ exports.updateRatingStats = async (productId) => {
     }
   ]);
 
+  if (session) {
+    aggregation.session(session);
+  }
+
+  const stats = await aggregation;
+
   if (stats.length > 0) {
-    await Product.findByIdAndUpdate(productId, {
+    const update = {
       rating: {
         avg: Math.round(stats[0].avgRating * 10) / 10, // Làm tròn 1 chữ số (VD: 4.5)
         count: stats[0].totalReviews
       }
-    });
+    };
+
+    if (session) {
+      await Product.findByIdAndUpdate(productId, update, { session });
+    } else {
+      await Product.findByIdAndUpdate(productId, update);
+    }
   } else {
     // Nếu không còn review nào thì reset về 0
-    await Product.findByIdAndUpdate(productId, {
+    const update = {
       rating: { avg: 0, count: 0 }
-    });
+    };
+
+    if (session) {
+      await Product.findByIdAndUpdate(productId, update, { session });
+    } else {
+      await Product.findByIdAndUpdate(productId, update);
+    }
   }
 
   return { message: 'Đã cập nhật lại thống kê đánh giá.' };

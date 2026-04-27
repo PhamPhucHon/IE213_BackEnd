@@ -5,7 +5,8 @@ const inventoryService = require('../services/inventoryService');
 const reviewService = require('../services/reviewService');
 const { successResponse } = require('../utils/apiResponse');
 const { HTTP_STATUS, MESSAGES, PAGINATION } = require('../config/constants');
-const { asyncHandler, AppError } = require('../utils/asyncHandler');
+const { asyncHandler } = require('../utils/asyncHandler');
+const ApiError = require('../utils/apiError');
 
 // ==================== QUẢN LÝ NGƯỜI DÙNG ====================
 
@@ -21,14 +22,14 @@ exports.getAllUsers = asyncHandler(async (req, res) => {
 // GET /api/admin/users/:id
 exports.getUserById = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).setOptions({ includeInactive: true });
-  if (!user) throw new AppError(MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  if (!user) throw new ApiError(MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
   return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, user);
 });
 
 // PUT /api/admin/users/:id/toggle-status
 exports.toggleUserStatus = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).setOptions({ includeInactive: true });
-  if (!user) throw new AppError(MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  if (!user) throw new ApiError(MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
 
   user.isActive = !user.isActive;
   await user.save();

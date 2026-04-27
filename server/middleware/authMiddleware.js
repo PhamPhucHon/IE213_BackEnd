@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const TokenBlacklist = require('../models/TokenBlacklist');
 const config = require('../config/env');
+const { HTTP_STATUS } = require('../config/constants');
+const { errorResponse } = require('../utils/apiResponse');
 
 /**
  * Lấy token từ header Authorization: Bearer <token>
@@ -27,29 +29,20 @@ exports.protect = async (req, res, next) => {
 	try {
 		const token = extractToken(req);
 		if (!token) {
-			return res.status(401).json({
-				success: false,
-				message: 'Bạn chưa đăng nhập. Vui lòng cung cấp token.',
-			});
+			return errorResponse(res, HTTP_STATUS.UNAUTHORIZED, 'Bạn chưa đăng nhập. Vui lòng cung cấp token.');
 		}
 
 		const decoded = jwt.verify(token, config.jwtSecret);
 
 		const isBlacklisted = await TokenBlacklist.exists({ token });
 		if (isBlacklisted) {
-			return res.status(401).json({
-				success: false,
-				message: 'Token đã bị vô hiệu hóa. Vui lòng đăng nhập lại.',
-			});
+			return errorResponse(res, HTTP_STATUS.UNAUTHORIZED, 'Token đã bị vô hiệu hóa. Vui lòng đăng nhập lại.');
 		}
 
 		const user = await User.findById(decoded.id).select('-password');
 
 		if (!user) {
-			return res.status(401).json({
-				success: false,
-				message: 'Token không hợp lệ hoặc người dùng không tồn tại.',
-			});
+			return errorResponse(res, HTTP_STATUS.UNAUTHORIZED, 'Token không hợp lệ hoặc người dùng không tồn tại.');
 		}
 
 		req.user = user;
@@ -63,10 +56,7 @@ exports.protect = async (req, res, next) => {
 			message = 'Token không hợp lệ.';
 		}
 
-		return res.status(401).json({
-			success: false,
-			message,
-		});
+		return errorResponse(res, HTTP_STATUS.UNAUTHORIZED, message);
 	}
 };
 
