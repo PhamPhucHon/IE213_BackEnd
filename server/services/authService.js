@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const LoginLog = require('../models/LoginLog');
 const PasswordResetToken = require('../models/PasswordResetToken');
@@ -165,23 +166,36 @@ exports.requestPasswordReset = async (email) => {
 };
 
 exports.resetPassword = async (token, newPassword) => {
-  const hashedToken = crypto.createHash('sha256').update(String(token)).digest('hex');
-  const tokenDoc = await PasswordResetToken.findOne({
-    token: hashedToken,
-    expiresAt: { $gt: new Date() },
-  });
+  const session = await mongoose.startSession();
 
-  if (!tokenDoc) {
-    throw new AppError('Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.', 400);
+  try {
+    session.startTransaction();
+
+    const hashedToken = crypto.createHash('sha256').update(String(token)).digest('hex');
+    const tokenDoc = await PasswordResetToken.findOne({
+      token: hashedToken,
+      expiresAt: { $gt: new Date() },
+    }).session(session);
+
+    if (!tokenDoc) {
+      throw new AppError('Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.', 400);
+    }
+
+    const user = await User.findOne({ email: tokenDoc.email, isAdmin: false }).session(session);
+    if (!user) {
+      await PasswordResetToken.deleteMany({ email: tokenDoc.email }, { session });
+      throw new AppError('Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.', 400);
+    }
+
+    user.password = newPassword;
+    await user.save({ session });
+    await PasswordResetToken.deleteMany({ email: tokenDoc.email }, { session });
+
+    await session.commitTransaction();
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  const user = await User.findOne({ email: tokenDoc.email, isAdmin: false });
-  if (!user) {
-    await PasswordResetToken.deleteMany({ email: tokenDoc.email });
-    throw new AppError('Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.', 400);
-  }
-
-  user.password = newPassword;
-  await user.save();
-  await PasswordResetToken.deleteMany({ email: tokenDoc.email });
 };

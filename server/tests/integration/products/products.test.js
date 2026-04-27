@@ -1,9 +1,10 @@
 // tests/products.test.js
 const request = require('supertest');
-const app = require('../server');
+const app = require('../../../app');
 const mongoose = require('mongoose');
-const Category = require('../models/Category');
-const User = require('../models/User');
+const Category = require('../../../models/Category');
+const Product = require('../../../models/Product');
+const User = require('../../../models/User');
 
 // Helper: đăng nhập lấy admin token
 const getAdminToken = async () => {
@@ -97,5 +98,36 @@ describe('POST /api/products (admin only)', () => {
       .send(newProduct());
 
     expect(res.statusCode).toBe(403);
+  });
+
+  it('should update a product when admin', async () => {
+    const createRes = await request(app)
+      .post('/api/products')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(newProduct());
+
+    const res = await request(app)
+      .put(`/api/products/${createRes.body.data._id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'Updated Sunglasses', description: 'Updated description' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.name).toBe('Updated Sunglasses');
+    expect(res.body.data.description).toBe('Updated description');
+  });
+
+  it('should delete a product when admin', async () => {
+    const createRes = await request(app)
+      .post('/api/products')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(newProduct());
+
+    const res = await request(app)
+      .delete(`/api/products/${createRes.body.data._id}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(await Product.findById(createRes.body.data._id)).toBeNull();
   });
 });

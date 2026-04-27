@@ -1,32 +1,73 @@
 const rateLimit = require('express-rate-limit');
+const config = require('../config/env');
+const { HTTP_STATUS } = require('../config/constants');
+const { errorResponse } = require('../utils/apiResponse');
+
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+
+const getClientIp = (req) => {
+	const forwardedFor = req.headers['x-forwarded-for'] || req.headers['x-real-ip'];
+	if (typeof forwardedFor === 'string' && forwardedFor.trim() !== '') {
+		return forwardedFor.split(',')[0].trim();
+	}
+	return req.ip;
+};
+
+const buildRateLimitHandler = (message) => (req, res, next, options) => {
+	void req;
+	void next;
+	return errorResponse(
+		res,
+		options.statusCode || HTTP_STATUS.TOO_MANY_REQUESTS,
+		message
+	);
+};
+
+const shouldSkipGlobalLimiter = (req) => {
+	if (config.env === 'test') {
+		return true;
+	}
+
+	if (req.method === 'OPTIONS') {
+		return true;
+	}
+
+	const requestPath = req.path || req.originalUrl || '';
+	return requestPath === '/' || requestPath === '/api' || requestPath === '/api-docs' || requestPath.startsWith('/api-docs/');
+};
+
+const globalApiLimiter = rateLimit({
+	windowMs: RATE_LIMIT_WINDOW_MS,
+	max: 100,
+	standardHeaders: true,
+	legacyHeaders: false,
+	keyGenerator: (req) => rateLimit.ipKeyGenerator(getClientIp(req)),
+	skip: shouldSkipGlobalLimiter,
+	handler: buildRateLimitHandler('Quá nhiều yêu cầu từ địa chỉ IP này. Vui lòng thử lại sau 15 phút.'),
+});
 
 const loginLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000,
+	windowMs: RATE_LIMIT_WINDOW_MS,
 	max: 20,
 	standardHeaders: true,
 	legacyHeaders: false,
 	keyGenerator: (req) =>
-		`${rateLimit.ipKeyGenerator(req.ip)}:${String(req.body?.email || '').trim().toLowerCase()}`,
-	message: {
-		success: false,
-		message: 'Quá nhiều lần thử đăng nhập, vui lòng thử lại sau 15 phút.',
-	},
+		`${rateLimit.ipKeyGenerator(getClientIp(req))}:${String(req.body?.email || '').trim().toLowerCase()}`,
+	handler: buildRateLimitHandler('Quá nhiều lần thử đăng nhập, vui lòng thử lại sau 15 phút.'),
 });
 
 const forgotPasswordLimiter = rateLimit({
-	windowMs: 15 * 60 * 1000,
+	windowMs: RATE_LIMIT_WINDOW_MS,
 	max: 3,
 	standardHeaders: true,
 	legacyHeaders: false,
 	keyGenerator: (req) =>
-		`${rateLimit.ipKeyGenerator(req.ip)}:${String(req.body?.email || '').trim().toLowerCase()}`,
-	message: {
-		success: false,
-		message: 'Bạn đã gửi yêu cầu quá nhiều lần. Vui lòng thử lại sau.',
-	},
+		`${rateLimit.ipKeyGenerator(getClientIp(req))}:${String(req.body?.email || '').trim().toLowerCase()}`,
+	handler: buildRateLimitHandler('Bạn đã gửi yêu cầu quá nhiều lần. Vui lòng thử lại sau.'),
 });
 
 module.exports = {
+	globalApiLimiter,
 	loginLimiter,
 	forgotPasswordLimiter,
 };

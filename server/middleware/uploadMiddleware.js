@@ -1,7 +1,8 @@
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('../config/cloudinary');
-const { MAX_IMAGE_SIZE, ALLOWED_IMAGE_TYPES } = require('../config/constants');
+const { HTTP_STATUS, MAX_IMAGE_SIZE, ALLOWED_IMAGE_TYPES } = require('../config/constants');
+const { errorResponse } = require('../utils/apiResponse');
 
 const allowedExts = ['jpg', 'jpeg', 'png', 'webp'];
 
@@ -36,21 +37,16 @@ const handleUploadError = (err, req, res, next) => {
 
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({
-        success: false,
-        message: `Kích thước file vượt quá giới hạn ${MAX_IMAGE_SIZE / (1024 * 1024)}MB`,
-      });
+      return errorResponse(
+        res,
+        HTTP_STATUS.BAD_REQUEST,
+        `Kích thước file vượt quá giới hạn ${MAX_IMAGE_SIZE / (1024 * 1024)}MB`
+      );
     }
-    return res.status(400).json({
-      success: false,
-      message: `Lỗi upload: ${err.message}`,
-    });
+    return errorResponse(res, HTTP_STATUS.BAD_REQUEST, `Lỗi upload: ${err.message}`);
   }
 
-  return res.status(400).json({
-    success: false,
-    message: err.message || 'Upload thất bại',
-  });
+  return errorResponse(res, HTTP_STATUS.BAD_REQUEST, err.message || 'Upload thất bại');
 };
 
 module.exports = upload;
