@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config/env');
+const logger = require('../config/logger').child({ component: 'jwt' });
 
 /**
  * Hàm tạo JWT Token với kiểm tra và xử lý lỗi đầy đủ
@@ -34,7 +35,10 @@ const generateToken = (payload, expiresIn) => {
   if (!finalExpiresIn || typeof finalExpiresIn !== 'string') {
     // Fallback an toàn nếu không có trong config hoặc sai kiểu
     finalExpiresIn = '7d';
-    console.warn(`[WARN] jwtExpire không hợp lệ, sử dụng mặc định '7d'`);
+    logger.warn('Invalid jwtExpire configuration, falling back to default', {
+      fallback: '7d',
+      configuredValue: config.jwtExpire,
+    });
   }
 
   // 4. Chuẩn hóa payload
@@ -46,7 +50,7 @@ const generateToken = (payload, expiresIn) => {
     return token;
   } catch (error) {
     // Ghi log chi tiết lỗi (không lộ secret)
-    console.error('[JWT] Lỗi khi tạo token:', error.message);
+    logger.error('JWT signing failed', { error: error.message });
     // Throw lỗi chung để module gọi xử lý tiếp
     throw new Error(`Không thể tạo JWT token: ${error.message}`);
   }

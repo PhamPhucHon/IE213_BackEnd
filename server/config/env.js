@@ -49,4 +49,10 @@ module.exports = {
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
+  logging: {
+    level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'test' ? 'silent' : 'info'),
+    requestLoggingEnabled: process.env.ENABLE_REQUEST_LOGGING !== 'false',
+    sinkUrl: process.env.LOG_SINK_URL || '',
+    sinkAuthToken: process.env.LOG_SINK_AUTH_TOKEN || '',
+  },
 };

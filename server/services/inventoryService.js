@@ -42,7 +42,7 @@ exports.reserveStock = async (sku, quantity, session = null) => {
         reserved: +quantity,
       },
     },
-    { new: true, session }
+    { returnDocument: 'after', session }
   );
 
   // Nếu inventory trả về null -> Hoặc sai SKU, hoặc đã HẾT HÀNG
@@ -78,7 +78,7 @@ exports.releaseStock = async (sku, quantity, session = null) => {
         reserved: -quantity,
       }
     },
-    { new: true, session }
+    { returnDocument: 'after', session }
   );
 
   if (!inventory) {
@@ -111,7 +111,7 @@ exports.confirmStock = async (sku, quantity, session = null) => {
         reserved: -quantity // Trừ đi số lượng đang giữ chỗ (Hàng bay màu hoàn toàn)
       } 
     },
-    { new: true, session }
+    { returnDocument: 'after', session }
   );
 
   if (!inventory) {
@@ -140,7 +140,7 @@ exports.updateStock = async (sku, newStock) => {
         lastRestocked: Date.now(), // Cập nhật thời gian nhập/sửa hàng mới nhất
       },
     },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   if (!inventory) {

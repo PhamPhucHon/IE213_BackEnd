@@ -1,12 +1,12 @@
 // tests/inventory.test.js
 const request = require('supertest');
-const app = require('../server');
+const app = require('../../../app');
 const mongoose = require('mongoose');
-const User = require('../models/User');
-const Category = require('../models/Category');
-const Product = require('../models/Product');
-const Inventory = require('../models/Inventory');
-const inventoryService = require('../services/inventoryService');
+const User = require('../../../models/User');
+const Category = require('../../../models/Category');
+const Product = require('../../../models/Product');
+const Inventory = require('../../../models/Inventory');
+const inventoryService = require('../../../services/inventoryService');
 
 // ==================== HELPERS ====================
 

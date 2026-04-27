@@ -1,121 +1,174 @@
 # IE213 Backend API
 
-Backend REST API cho dự án bán kính mắt (Node.js + Express + MongoDB).
+REST API for the IE213 eyewear store project, built with Node.js, Express, and MongoDB.
 
-## 1) Yêu cầu hệ thống
+## Overview
 
-- Node.js: 18+
-- npm: 9+
-- MongoDB: local hoặc MongoDB Atlas
+- Runtime: Node.js + Express 5
+- Database: MongoDB + Mongoose
+- Authentication: JWT
+- Media upload: Cloudinary
+- Email: Nodemailer SMTP
+- Logging: structured JSON logs + HTTP request logging
+- API docs: Swagger UI at `/api-docs`
 
-## 2) Cài đặt nhanh
+## Requirements
+
+- Node.js 18+
+- npm 9+
+- MongoDB local instance or MongoDB Atlas
+
+## Clone and Install
 
 ```bash
+git clone <your-repository-url>
+cd IE213_BackEnd
 cd server
 npm install
 ```
 
-## 3) Chạy dự án
+## Environment Setup
+
+The application reads environment variables from `server/.env`.
+
+1. Copy the template file:
 
 ```bash
-# chạy production
-npm start
+cd server
+cp .env.example .env
+```
 
-# chạy development (auto reload)
+2. Fill in the real values in `server/.env`.
+
+Important notes:
+
+- `MONGODB_URI` must point to a writable MongoDB database.
+- `JWT_SECRET` should be a long random secret.
+- Cloudinary variables are required because uploads are configured at startup.
+- SMTP variables are required for the forgot-password flow.
+- `CLIENT_URL` is used for CORS and reset-password links.
+- `LOG_LEVEL` controls structured log verbosity.
+- `LOG_SINK_URL` is optional and can be used to forward logs to an external collector.
+
+See [server/.env.example](server/.env.example) for the full list and inline descriptions.
+
+## Run the Application
+
+From the `server` directory:
+
+```bash
+# development with auto-reload
 npm run dev
+
+# production-style start
+npm start
 ```
 
-Mặc định server chạy tại:
+Default local URLs:
 
-- `http://localhost:5000`
-- Base API: `http://localhost:5000/api`
+- API root: `http://localhost:5000/api`
+- Health check: `http://localhost:5000/`
+- Swagger UI: `http://localhost:5000/api-docs`
 
-## 4) Biến môi trường bắt buộc
+If route comments change, regenerate the Swagger JSON:
 
-File `server/.env` cần đầy đủ các biến sau (theo `server/config/env.js`):
-
-```env
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=mongodb://127.0.0.1:27017/ie213_backend
-
-JWT_SECRET=your_jwt_secret_at_least_32_chars
-JWT_EXPIRE=30d
-
-EMAIL_HOST=smtp.gmail.com
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
-
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_key
-CLOUDINARY_API_SECRET=your_cloudinary_secret
-
-CLIENT_URL=http://localhost:3000
+```bash
+cd server
+npm run swagger-gen
 ```
 
-Luu y:
+## Logging
 
-- Neu thieu bat ky bien nao o tren, app se thoat ngay khi khoi dong.
+- Application logs are structured JSON logs generated through the shared logger in `server/config/logger.js`.
+- HTTP requests are logged automatically with method, URL, status code, response time, request id, and authenticated user id when available.
+- Sensitive fields such as passwords, tokens, cookies, and authorization headers are redacted.
+- If `LOG_SINK_URL` is configured, logs are also forwarded asynchronously to that external HTTP sink.
 
-## 5) Scripts
+## Migration and Seed
 
-Trong `server/package.json`:
+This project does not currently use a separate migration framework.
 
-- `npm start`: chay `node server.js`
-- `npm run dev`: chay `nodemon server.js`
-- `npm run seed`: chay `node seeds/seeder.js`
+- Schema and index changes are defined in the Mongoose models.
+- For sample data, use the seed script.
 
-## 6) Thu vien da cai
+Run seed data:
 
-Runtime dependencies:
+```bash
+cd server
+npm run seed
+```
 
-- express
-- mongoose
-- dotenv
-- jsonwebtoken
-- bcryptjs
-- cloudinary
-- multer
-- multer-storage-cloudinary
-- nodemailer
-- express-validator
+Practical note:
 
-Dev dependency:
+- Seed expects a valid `MONGODB_URI` in `server/.env`.
+- If you want a clean dataset, drop the target database first or point `MONGODB_URI` to a fresh database name before running the seed.
 
-- nodemon
+## Run Tests
 
-## 7) Kien truc route hien tai
+From the `server` directory:
 
-Tat ca route duoc mount trong `server/server.js`:
+```bash
+# run the full suite
+npm test
 
-- `/api/auth`
-- `/api/users`
-- `/api/categories`
-- `/api/products`
-- `/api/reviews`
-- `/api/cart`
-- `/api/orders`
-- `/api/inventory`
-- `/api/admin`
+# watch mode
+npm run test:watch
+```
 
-Middleware loi:
+Testing notes:
 
-- `notFound` duoc dat sau toan bo route
-- `errorHandler` duoc dat cuoi cung
+- Jest uses `mongodb-memory-server` in replica-set mode so transaction flows can be tested.
+- Full test bootstrap is configured through `tests/globalSetup.js`, `tests/globalTeardown.js`, and `tests/setup.js`.
 
-## 8) Tai lieu API day du
+## Inventory Route Layout
 
-Xem file:
+Inventory routes are now grouped by audience and prefix:
 
-- `doc_api.txt`
+- Public/user inventory routes: [server/routes/inventoryRoutes.js](server/routes/inventoryRoutes.js)
+	mounted at `/api/inventory`
+- Admin inventory routes: [server/routes/inventoryAdminRoutes.js](server/routes/inventoryAdminRoutes.js)
+	mounted at `/api/admin/inventory`
 
-File nay da duoc cap nhat theo route va controller hien tai trong source code.
+This keeps the URL structure predictable while making route ownership clearer in the codebase.
 
-## 9) Kiem tra nhanh sau khi chay
+## Project Structure
 
-Health endpoints:
+```text
+server/
+	app.js                    # Express app wiring only, no runtime side effects
+	server.js                 # Runtime bootstrap, DB connect, listen, background jobs
+	config/                   # Environment, DB, logger, shutdown, third-party config
+	controllers/              # HTTP layer, request/response orchestration
+	middleware/               # Auth, validation, security, error handling
+	models/                   # Mongoose schemas, indexes, model-level behavior
+	routes/                   # Public and admin route definitions
+	services/                 # Business logic and transaction boundaries
+	tests/                    # Unit and integration tests
+	utils/                    # DTOs, helpers, shared primitives
+	seeds/                    # Sample data seeding script and data files
+```
+
+## Design Principles
+
+- `app.js` is side-effect free. It only builds the Express application.
+- `server.js` owns runtime startup concerns such as DB connection, HTTP listen, and background jobs.
+- Controllers stay thin and delegate business logic to services.
+- Services own transaction boundaries and consistency-sensitive workflows.
+- Models define schema constraints and indexes, but cross-document business rules stay in services.
+- Responses are standardized through shared helpers in `utils/apiResponse.js`.
+- Errors are normalized centrally through the error middleware.
+- Inventory, order, review, and password-reset flows use transactions where multiple documents must stay consistent.
+
+## API Documentation
+
+- Swagger UI is served from `/api-docs`.
+- Swagger JSON is generated from [server/swagger.js](server/swagger.js).
+- Route comments are the source of truth for endpoint descriptions.
+
+## Quick Verification
+
+After starting the server, these endpoints should respond successfully:
 
 - `GET /`
 - `GET /api`
-
-Neu server chay dung, 2 endpoint tren tra ve JSON `success: true`.
+- `GET /api-docs`

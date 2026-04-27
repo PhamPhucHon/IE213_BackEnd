@@ -1,103 +1,55 @@
-const express = require('express');
-const helmet = require('helmet');
-const cors = require('cors');
 const connectDB = require('./config/db');
 const config = require('./config/env');
-// Swagger setup
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger-output.json');
-
-const { notFound, errorHandler } = require('./middleware/errorMiddleware');
-
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const categoryRoutes = require('./routes/categoryRoutes');
-const productRoutes = require('./routes/productRoutes');
-const reviewRoutes = require('./routes/reviewRoutes');
-const cartRoutes = require('./routes/cartRoutes');
-const orderRoutes = require('./routes/orderRoutes');
-const inventoryRoutes = require('./routes/inventoryRoutes');
-const inventoryUserRoutes = require('./routes/inventoryUserRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-
+const logger = require('./config/logger');
+const app = require('./app');
+const {
+	initializeShutdown,
+	registerServer,
+	registerTimer,
+} = require('./config/shutdown');
 const orderService = require('./services/orderService');
 
-const app = express();
+const ORDER_EXPIRATION_MINUTES = 30;
+const ORDER_CANCELLATION_INTERVAL_MS = 5 * 60 * 1000;
 
-const allowedOrigins = (config.clientUrl || 'http://localhost:3000')
-	.split(',')
-	.map(origin => origin.trim())
-	.filter(Boolean);
+const startOrderCancellationJob = () => {
+	const timer = setInterval(async () => {
+		try {
+			const result = await orderService.cancelExpiredOrders(ORDER_EXPIRATION_MINUTES);
+			if (result.cancelledCount > 0) {
+				logger.info('Expired pending orders were cancelled automatically', {
+					cancelledCount: result.cancelledCount,
+					checkedCount: result.checkedCount,
+				});
+			}
+		} catch (error) {
+			logger.error('Failed to cancel expired pending orders', { error: error.message });
+		}
+	}, ORDER_CANCELLATION_INTERVAL_MS);
 
-app.use(helmet());
-app.use(cors({
-	origin(origin, callback) {
-		// Cho phép request không có Origin (curl/postman/server-to-server)
-		if (!origin) return callback(null, true);
-		if (allowedOrigins.includes(origin)) return callback(null, true);
-		return callback(new Error('Not allowed by CORS'));
-	},
-	credentials: true,
-}));
-
-app.use(express.json({ limit: '2mb' }));
-// Cấu hình Swagger UI tại đường dẫn /api-docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-app.use(express.urlencoded({ extended: true }));
-
-app.get('/', (req, res) => {
-	return res.status(200).json({
-		success: true,
-		message: 'IE213 Backend API is running',
-	});
-});
-
-app.get('/api', (req, res) => {
-	return res.status(200).json({
-		success: true,
-		message: 'API base path is available',
-	});
-});
-
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/inventory', inventoryUserRoutes);
-app.use('/api/admin/inventory', inventoryRoutes);
-
-app.use(notFound);
-app.use(errorHandler);
+	timer.unref?.();
+	return registerTimer(timer);
+};
 
 const startServer = async () => {
+	initializeShutdown();
 	await connectDB();
-	app.listen(config.port, () => {
-		console.log(`🚀 Server đang chạy tại http://localhost:${config.port}`);
-		// Cảnh báo: Đảm bảo đã chạy `node swagger.js` để tạo file swagger-output.json trước khi khởi động server
-		console.log(`📄 Swagger UI đang chạy tại http://localhost:${config.port}/api-docs`);
-
-		// setInterval(() => orderService.cancelExpiredOrders(30), 5 * 60 * 1000);
-		setInterval(async () => {
-			try {
-				const result = await orderService.cancelExpiredOrders(30);
-				if (result.cancelledCount > 0) {
-					console.log(`⏰ Đã tự động hủy ${result.cancelledCount}/${result.checkedCount} đơn hàng Pending quá hạn.`);
-				}
-			} catch (err) {
-				console.error('Lỗi khi hủy đơn quá hạn:', err.message);
-			}
-		}, 5 * 60 * 1000); // Chạy mỗi 5 phút
+	const server = app.listen(config.port, () => {
+		logger.info(`Server đang chạy tại http://localhost:${config.port}`);
+		logger.info(`Swagger UI đang chạy tại http://localhost:${config.port}/api-docs`);
 	});
+
+	registerServer(server);
+	startOrderCancellationJob();
+	return server;
 };
 
 // Chỉ khởi động server nếu không phải môi trường test
 if (process.env.NODE_ENV !== 'test') {
-	startServer();
+	startServer().catch((error) => {
+		logger.error('Server failed to start', { error: error.message });
+		process.exit(1);
+	});
 }
 
-module.exports = app;
+module.exports = startServer;

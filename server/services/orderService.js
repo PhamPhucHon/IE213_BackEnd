@@ -3,6 +3,7 @@ const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const inventoryService = require('./inventoryService');
+const logger = require('../config/logger').child({ component: 'order-service' });
 const { orderDTO } = require('../utils/dto');
 const { AppError } = require('../utils/asyncHandler');
 
@@ -342,7 +343,10 @@ exports.cancelExpiredOrders = async (expireMinutes = 30) => {
     } catch (err) {
       await session.abortTransaction();
       session.endSession();
-      console.error(`Lỗi hủy đơn quá hạn ${order._id}:`, err.message);
+      logger.error('Failed to cancel expired order', {
+        orderId: order._id,
+        error: err.message,
+      });
     }
   }
 

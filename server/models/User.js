@@ -18,6 +18,8 @@ const userSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
+userSchema.index({ createdAt: -1 });
+
 // 1. Middleware: 
 // Pre-save hook để tự động băm mật khẩu trước khi lưu vào database
 userSchema.pre('save', async function() {
