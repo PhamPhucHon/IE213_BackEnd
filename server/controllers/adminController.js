@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const Order = require('../models/Order');
+const Inventory = require('../models/Inventory');
 const userService = require('../services/userService');
 const orderService = require('../services/orderService');
 const inventoryService = require('../services/inventoryService');
@@ -7,6 +9,84 @@ const { successResponse } = require('../utils/apiResponse');
 const { HTTP_STATUS, MESSAGES, PAGINATION } = require('../config/constants');
 const { asyncHandler } = require('../utils/asyncHandler');
 const ApiError = require('../utils/apiError');
+
+// ==================== THỐNG KÊ TỔNG QUAN ====================
+
+// GET /api/admin/stats/overview
+exports.getStatsOverview = asyncHandler(async (req, res) => {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [
+    totalUsers,
+    totalOrders,
+    revenueResult,
+    lowStockCount,
+  ] = await Promise.all([
+    User.countDocuments().setOptions({ includeInactive: true }),
+    Order.countDocuments(),
+    Order.aggregate([
+      { $match: { status: 'Delivered', createdAt: { $gte: startOfMonth } } },
+      { $group: { _id: null, total: { $sum: '$totalPrice' } } },
+    ]),
+    Inventory.countDocuments({
+      $expr: { $lt: [{ $subtract: ['$stock', '$reserved'] }, 10] },
+    }),
+  ]);
+
+  const revenueThisMonth = revenueResult.length > 0 ? revenueResult[0].total : 0;
+
+  return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, {
+    totalUsers,
+    totalOrders,
+    revenueThisMonth,
+    lowStockCount,
+  });
+});
+
+// GET /api/admin/stats/top-products
+exports.getTopProducts = asyncHandler(async (req, res) => {
+  const limit = Math.min(Number(req.query.limit) || 10, 50);
+
+  const topProducts = await Order.aggregate([
+    { $match: { status: 'Delivered' } },
+    { $unwind: '$items' },
+    {
+      $group: {
+        _id: '$items.productId',
+        totalSold: { $sum: '$items.quantity' },
+        totalRevenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } },
+        name: { $first: '$items.name' },
+        image: { $first: '$items.image' },
+      },
+    },
+    { $sort: { totalSold: -1 } },
+    { $limit: limit },
+    {
+      $lookup: {
+        from: 'products',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'product',
+      },
+    },
+    { $unwind: { path: '$product', preserveNullAndEmpty: true } },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        image: 1,
+        totalSold: 1,
+        totalRevenue: 1,
+        slug: '$product.slug',
+        isActive: '$product.isActive',
+        rating: '$product.rating',
+      },
+    },
+  ]);
+
+  return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, topProducts);
+});
 
 // ==================== QUẢN LÝ NGƯỜI DÙNG ====================
 

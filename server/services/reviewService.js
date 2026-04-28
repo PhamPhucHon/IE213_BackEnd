@@ -11,6 +11,8 @@ const { AppError } = require('../utils/asyncHandler');
  * @param {String} userId - ID người dùng
  * @param {String} productId - ID sản phẩm
  * @param {Object} reviewData - Dữ liệu đánh giá (rating, comment, title, images...)
+ * @throws {AppError} 403 - Người dùng chưa mua sản phẩm này (chưa có đơn hàng status=Delivered chứa sản phẩm)
+ * @throws {AppError} 409 - Người dùng đã đánh giá sản phẩm này rồi (mỗi user chỉ được 1 review/sản phẩm)
  */
 exports.createReview = async (userId, productId, reviewData) => {
   const session = await mongoose.startSession();
@@ -28,6 +30,10 @@ exports.createReview = async (userId, productId, reviewData) => {
       status: 'Delivered',
       'items.productId': productId
     }).session(session);
+
+    if (!hasBought) {
+      throw new AppError('Bạn cần mua và nhận sản phẩm này trước khi đánh giá.', 403);
+    }
 
     const user = await User.findById(userId).session(session);
 

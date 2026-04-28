@@ -130,5 +130,12 @@ router.post(
 
 router.get('/me', protect, authController.getMe);
 router.post('/logout', protect, authController.logout);
+router.post(
+	'/refresh-token',
+	validateBody([
+		body('refreshToken').trim().notEmpty().withMessage('refreshToken là bắt buộc'),
+	]),
+	authController.refreshToken
+);
 
 module.exports = router;
