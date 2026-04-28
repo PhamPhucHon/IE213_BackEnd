@@ -2,7 +2,7 @@ const express = require('express');
 const authController = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const { validateBody, body } = require('../middleware/validateMiddleware');
-const { loginLimiter, forgotPasswordLimiter } = require('../middleware/authRateLimit');
+const { loginLimiter, forgotPasswordLimiter, refreshTokenLimiter } = require('../middleware/authRateLimit');
 
 const router = express.Router();
 
@@ -129,9 +129,11 @@ router.post(
 );
 
 router.get('/me', protect, authController.getMe);
-router.post('/logout', protect, authController.logout);
+// logout không dùng protect — cho phép access token đã expired vẫn gọi được để blacklist refresh token
+router.post('/logout', authController.logout);
 router.post(
 	'/refresh-token',
+	refreshTokenLimiter,
 	validateBody([
 		body('refreshToken').trim().notEmpty().withMessage('refreshToken là bắt buộc'),
 	]),
