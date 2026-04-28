@@ -47,6 +47,12 @@ Base: /api/auth
     "email": "a@example.com",
     "password": "123456"
   }
+- Response (thanh cong):
+  {
+    "user": { ... },
+    "token": "<access_token>",
+    "refreshToken": "<refresh_token>"
+  }
 
 1.3) Lay user hien tai
 - Method: GET
@@ -57,6 +63,14 @@ Base: /api/auth
 - Method: POST
 - Endpoint: /api/auth/logout
 - Auth: User
+- Body (optional):
+  {
+    "refreshToken": "<refresh_token>"
+  }
+- Ghi chu:
+  - Access token (tu header Authorization) se bi blacklist
+  - Neu truyen them refreshToken trong body, no cung se bi blacklist luon
+  - Nen truyen ca refreshToken de revoke ca hai token mot luc
 
 1.5) Quen mat khau - gui email
 - Method: POST
@@ -94,6 +108,31 @@ Base: /api/auth
   - Token duoc luu trong collection rieng va tu dong het han bang TTL index
   - Sau khi dat lai mat khau thanh cong, token se bi xoa
   - API reset-password khong can email, nen khong tra ve thong tin ton tai email
+
+1.7) Lam moi access token
+- Method: POST
+- Endpoint: /api/auth/refresh-token
+- Auth: Public
+- Body:
+  {
+    "refreshToken": "<refresh_token_nhan_duoc_khi_login>"
+  }
+- Response (thanh cong):
+  {
+    "success": true,
+    "message": "Lam moi token thanh cong",
+    "data": {
+      "token": "<access_token_moi>"
+    },
+    "meta": { "timestamp": "..." }
+  }
+- Response (that bai):
+  - 400: Thieu refreshToken trong body
+  - 401: refreshToken khong hop le, het han, hoac da bi blacklist
+- Ghi chu:
+  - refreshToken co thoi han dai hon (30d), access token ngan hon (7d)
+  - refreshToken dung secret rieng (JWT_REFRESH_SECRET), khong the dung thay access token
+  - Sau khi goi /logout voi refreshToken, token do se bi blacklist va khong the refresh nua
 
 =====================================================
 2) USER APIs
@@ -601,6 +640,61 @@ Base: /api/admin
 - Auth: Admin
 - Params:
   - id: Mongo ObjectId
+
+9.8) San pham ban chay nhat
+- Method: GET
+- Endpoint: /api/admin/stats/top-products
+- Auth: Admin
+- Query optional:
+  - limit: so san pham tra ve (default 10, toi da 50)
+- Response (thanh cong):
+  {
+    "success": true,
+    "message": "Thanh cong",
+    "data": [
+      {
+        "_id": "...",
+        "name": "Kinh Rayban A",
+        "image": "https://...",
+        "slug": "kinh-rayban-a",
+        "isActive": true,
+        "rating": { "avg": 4.5, "count": 12 },
+        "totalSold": 85,
+        "totalRevenue": 42500000
+      },
+      ...
+    ],
+    "meta": { "timestamp": "2026-04-29T10:00:00.000Z" }
+  }
+- Ghi chu:
+  - Chi tinh tu don hang co status=Delivered
+  - Sap xep theo totalSold giam dan
+  - totalRevenue: tong doanh thu cua san pham do (items.price * quantity)
+  - image: anh tu order item (snapshot luc mua, khong doi theo product)
+  - slug, isActive, rating: lay tu collection products (lookup)
+  - Neu san pham da bi xoa khoi DB, cac truong lookup se la null nhung van hien thi do lay name/image tu snapshot don hang
+
+9.9) Thong ke tong quan (Dashboard)
+- Method: GET
+- Endpoint: /api/admin/stats/overview
+- Auth: Admin
+- Response (thanh cong):
+  {
+    "success": true,
+    "message": "Thanh cong",
+    "data": {
+      "totalUsers": 120,
+      "totalOrders": 340,
+      "revenueThisMonth": 15800000,
+      "lowStockCount": 7
+    },
+    "meta": { "timestamp": "2026-04-29T10:00:00.000Z" }
+  }
+- Ghi chu:
+  - totalUsers: tong so tai khoan (ca active va inactive)
+  - totalOrders: tong so don hang (tat ca trang thai)
+  - revenueThisMonth: tong doanh thu cac don co status=Delivered trong thang hien tai (tinh theo createdAt)
+  - lowStockCount: so luong SKU co available (stock - reserved) < 10
 
 =====================================================
 10) AUTH HEADER

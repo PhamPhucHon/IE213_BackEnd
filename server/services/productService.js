@@ -231,7 +231,7 @@ exports.updateProduct = async (id, updateData) => {
   }
 };
 
-// Xóa sản phẩm (kèm xóa Inventory + kiểm tra đơn hàng đang xử lý)
+// Ẩn sản phẩm (soft-delete: set isActive = false, không xóa khỏi DB để giữ lịch sử đơn hàng)
 exports.deleteProduct = async (id) => {
   const session = await mongoose.startSession();
 
@@ -243,22 +243,26 @@ exports.deleteProduct = async (id) => {
       throw new AppError('Không tìm thấy sản phẩm.', 404);
     }
 
+    if (!product.isActive) {
+      throw new AppError('Sản phẩm đã bị ẩn trước đó.', 409);
+    }
+
     // Kiểm tra xem có inventory nào đang có hàng giữ chỗ (đơn Pending/Processing) không
     const skus = product.variants.map(v => v.sku);
     const reservedInventory = await Inventory.findOne({ sku: { $in: skus }, reserved: { $gt: 0 } }).session(session);
     if (reservedInventory) {
       throw new AppError(
-        `Không thể xóa sản phẩm: SKU ${reservedInventory.sku} đang có ${reservedInventory.reserved} sản phẩm giữ chỗ trong đơn hàng chưa hoàn tất.`,
+        `Không thể ẩn sản phẩm: SKU ${reservedInventory.sku} đang có ${reservedInventory.reserved} sản phẩm giữ chỗ trong đơn hàng chưa hoàn tất.`,
         409
       );
     }
 
-    await Inventory.deleteMany({ sku: { $in: skus } }, { session });
-    await Product.findByIdAndDelete(id, { session });
+    product.isActive = false;
+    await product.save({ session });
 
     await session.commitTransaction();
 
-    return { message: 'Đã xóa sản phẩm và giải phóng tồn kho liên quan thành công.' };
+    return { message: 'Đã ẩn sản phẩm thành công.' };
   } catch (error) {
     await session.abortTransaction();
     throw error;

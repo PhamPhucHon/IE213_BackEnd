@@ -56,4 +56,31 @@ const generateToken = (payload, expiresIn) => {
   }
 };
 
-module.exports = generateToken;
+/**
+ * Tạo Refresh Token (thời hạn dài, dùng secret riêng)
+ * @param {String} userId
+ * @returns {String} Chuỗi JWT refresh token
+ */
+const generateRefreshToken = (userId) => {
+  if (!userId) throw new Error('userId không được để trống');
+
+  const secret = config.jwtRefreshSecret;
+  if (!secret || typeof secret !== 'string' || secret.length < 32) {
+    throw new Error('JWT refresh secret chưa được cấu hình hoặc không đủ mạnh');
+  }
+
+  let expiresIn = config.jwtRefreshExpire;
+  if (!expiresIn || typeof expiresIn !== 'string') {
+    expiresIn = '30d';
+    logger.warn('Invalid jwtRefreshExpire configuration, falling back to 30d');
+  }
+
+  try {
+    return jwt.sign({ id: userId }, secret, { expiresIn });
+  } catch (error) {
+    logger.error('JWT refresh token signing failed', { error: error.message });
+    throw new Error(`Không thể tạo refresh token: ${error.message}`);
+  }
+};
+
+module.exports = { generateToken, generateRefreshToken };

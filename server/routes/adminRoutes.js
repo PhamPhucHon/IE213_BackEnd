@@ -8,6 +8,9 @@ const router = express.Router();
 
 router.use(protect, isAdmin);
 
+router.get('/stats/overview', adminController.getStatsOverview);
+router.get('/stats/top-products', adminController.getTopProducts);
+
 router.get('/users', adminController.getAllUsers);
 router.get('/users/:id', validateObjectId('id'), adminController.getUserById);
 router.put('/users/:id/toggle-status', validateObjectId('id'), adminController.toggleUserStatus);

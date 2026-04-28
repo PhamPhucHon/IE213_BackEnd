@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const LoginLog = require('../models/LoginLog');
 const PasswordResetToken = require('../models/PasswordResetToken');
-const generateToken = require('../utils/generateToken');
+const { generateToken, generateRefreshToken } = require('../utils/generateToken');
 const sendEmail = require('../utils/sendEmail');
 const config = require('../config/env');
 const { userDTO } = require('../utils/dto');
@@ -33,8 +33,9 @@ exports.registerUser = async (userData) => {
 
   // 3. Tạo Token để user có thể đăng nhập ngay sau khi đăng ký
   const token = generateToken(user._id.toString());
+  const refreshToken = generateRefreshToken(user._id.toString());
 
-  return { user: userDTO(user), token };
+  return { user: userDTO(user), token, refreshToken };
 };
 
 /**
@@ -77,6 +78,9 @@ exports.loginUser = async (email, password, clientInfo = {}) => {
   await LoginLog.recordLog({ userId: user._id, email, ipAddress, userAgent, status: 'success' });
   
   const token = generateToken(user._id.toString());
+  const refreshToken = generateRefreshToken(user._id.toString());
+
+  return { user: userDTO(user), token, refreshToken };
 
   return { user: userDTO(user), token };
 };

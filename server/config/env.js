@@ -12,6 +12,8 @@ const requiredEnv = [
   'MONGODB_URI',
   'JWT_SECRET',
   'JWT_EXPIRE',
+  'JWT_REFRESH_SECRET',
+  'JWT_REFRESH_EXPIRE',
   'EMAIL_HOST',
   'EMAIL_USER',
   'EMAIL_PASS',
@@ -33,7 +35,9 @@ module.exports = {
   port: parseInt(process.env.PORT, 10),
   mongodbUri: process.env.MONGODB_URI,
   jwtSecret: process.env.JWT_SECRET,
-  jwtExpire: process.env.JWT_EXPIRE, // ví dụ: '30d'
+  jwtExpire: process.env.JWT_EXPIRE,
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
+  jwtRefreshExpire: process.env.JWT_REFRESH_EXPIRE,
   resetPasswordTokenExpireMinutes: parseInt(process.env.RESET_PASSWORD_TOKEN_EXPIRE_MINUTES || '1', 10),
   email: {
     host: process.env.EMAIL_HOST,
