@@ -66,8 +66,19 @@ const forgotPasswordLimiter = rateLimit({
 	handler: buildRateLimitHandler('Bạn đã gửi yêu cầu quá nhiều lần. Vui lòng thử lại sau.'),
 });
 
+// Giới hạn refresh token: 10 lần/15 phút theo IP — chặn token stuffing attacks
+const refreshTokenLimiter = rateLimit({
+	windowMs: RATE_LIMIT_WINDOW_MS,
+	max: 10,
+	standardHeaders: true,
+	legacyHeaders: false,
+	keyGenerator: (req) => rateLimit.ipKeyGenerator(getClientIp(req)),
+	handler: buildRateLimitHandler('Quá nhiều yêu cầu làm mới token. Vui lòng thử lại sau 15 phút.'),
+});
+
 module.exports = {
 	globalApiLimiter,
 	loginLimiter,
 	forgotPasswordLimiter,
+	refreshTokenLimiter,
 };
