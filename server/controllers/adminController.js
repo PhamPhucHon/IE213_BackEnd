@@ -112,6 +112,7 @@ exports.toggleUserStatus = asyncHandler(async (req, res) => {
   if (!user) throw new ApiError(MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
 
   user.isActive = !user.isActive;
+  user.deletedAt = user.isActive ? null : new Date();
   await user.save();
 
   const statusText = user.isActive ? 'kích hoạt' : 'vô hiệu hóa';

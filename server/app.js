@@ -29,9 +29,9 @@ const { HTTP_STATUS } = require('./config/constants');
 
 const app = express();
 
-// Nếu chạy sau API Gateway, cần tin tưởng X-Forwarded-For để rate limiter dùng IP gốc của client.
-if (config.env !== 'test') {
-	app.set('trust proxy', 1);
+// Chỉ bật khi app thật sự chạy sau reverse proxy/API Gateway đáng tin cậy.
+if (config.trustProxy) {
+	app.set('trust proxy', config.trustProxy);
 }
 
 const allowedOrigins = (config.clientUrl || 'http://localhost:3000')

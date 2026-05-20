@@ -27,13 +27,34 @@ describe('userService', () => {
   });
 
   it('returns paginated users for admin screens', async () => {
-    User.find.mockReturnValue(createQueryMock([{ _id: 'user-1', name: 'Alice' }]));
-    User.countDocuments.mockResolvedValue(1);
+    const usersQuery = createQueryMock([
+      { _id: 'user-1', name: 'Alice', isActive: true },
+      { _id: 'user-2', name: 'Bob', isActive: false },
+    ]);
+    const countQuery = createQueryMock(2);
+    User.find.mockReturnValue(usersQuery);
+    User.countDocuments.mockReturnValue(countQuery);
+
+    const result = await userService.getAllUsers(1, 10, { includeInactive: true });
+
+    expect(User.countDocuments).toHaveBeenCalledWith({});
+    expect(usersQuery.setOptions).toHaveBeenCalledWith({ includeInactive: true });
+    expect(countQuery.setOptions).toHaveBeenCalledWith({ includeInactive: true });
+    expect(result.pagination).toEqual({ totalUsers: 2, currentPage: 1, totalPages: 1, limit: 10 });
+    expect(result.users).toEqual([
+      { _id: 'user-1', name: 'Alice', isActive: true },
+      { _id: 'user-2', name: 'Bob', isActive: false },
+    ]);
+  });
+
+  it('counts only active users by default', async () => {
+    User.find.mockReturnValue(createQueryMock([{ _id: 'user-1', name: 'Alice', isActive: true }]));
+    User.countDocuments.mockReturnValue(createQueryMock(1));
 
     const result = await userService.getAllUsers(1, 10);
 
-    expect(result.pagination).toEqual({ totalUsers: 1, currentPage: 1, totalPages: 1, limit: 10 });
-    expect(result.users).toEqual([{ _id: 'user-1', name: 'Alice' }]);
+    expect(User.countDocuments).toHaveBeenCalledWith({ isActive: { $ne: false } });
+    expect(result.pagination.totalUsers).toBe(1);
   });
 
   it('returns the current user profile by id', async () => {

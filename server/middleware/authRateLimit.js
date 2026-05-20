@@ -6,11 +6,7 @@ const { errorResponse } = require('../utils/apiResponse');
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 
 const getClientIp = (req) => {
-	const forwardedFor = req.headers['x-forwarded-for'] || req.headers['x-real-ip'];
-	if (typeof forwardedFor === 'string' && forwardedFor.trim() !== '') {
-		return forwardedFor.split(',')[0].trim();
-	}
-	return req.ip;
+	return req.ip || req.socket?.remoteAddress || '';
 };
 
 const buildRateLimitHandler = (message) => (req, res, next, options) => {
@@ -66,8 +62,19 @@ const forgotPasswordLimiter = rateLimit({
 	handler: buildRateLimitHandler('Bạn đã gửi yêu cầu quá nhiều lần. Vui lòng thử lại sau.'),
 });
 
+// Giới hạn refresh token: 10 lần/15 phút theo IP — chặn token stuffing attacks
+const refreshTokenLimiter = rateLimit({
+	windowMs: RATE_LIMIT_WINDOW_MS,
+	max: 10,
+	standardHeaders: true,
+	legacyHeaders: false,
+	keyGenerator: (req) => rateLimit.ipKeyGenerator(getClientIp(req)),
+	handler: buildRateLimitHandler('Quá nhiều yêu cầu làm mới token. Vui lòng thử lại sau 15 phút.'),
+});
+
 module.exports = {
 	globalApiLimiter,
 	loginLimiter,
 	forgotPasswordLimiter,
+	refreshTokenLimiter,
 };

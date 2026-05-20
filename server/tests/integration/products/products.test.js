@@ -116,7 +116,7 @@ describe('POST /api/products (admin only)', () => {
     expect(res.body.data.description).toBe('Updated description');
   });
 
-  it('should delete a product when admin', async () => {
+  it('should soft delete a product when admin', async () => {
     const createRes = await request(app)
       .post('/api/products')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -128,6 +128,11 @@ describe('POST /api/products (admin only)', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(await Product.findById(createRes.body.data._id)).toBeNull();
+
+    const product = await Product.findById(createRes.body.data._id).lean();
+    expect(product).toEqual(expect.objectContaining({ isActive: false }));
+
+    const detailRes = await request(app).get(`/api/products/${createRes.body.data._id}`);
+    expect(detailRes.statusCode).toBe(404);
   });
 });
