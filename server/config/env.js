@@ -29,6 +29,22 @@ if (missingEnv.length > 0) {
   process.exit(1);
 }
 
+const parseTrustProxy = (value) => {
+  if (!value || value === 'false' || value === '0') {
+    return false;
+  }
+
+  if (/^\d+$/.test(value)) {
+    return Number(value);
+  }
+
+  if (value === 'true') {
+    return 1;
+  }
+
+  return value;
+};
+
 // Export cấu hình
 module.exports = {
   env: process.env.NODE_ENV,
@@ -48,6 +64,7 @@ module.exports = {
     fromName: process.env.EMAIL_FROM_NAME || 'Glass Store',
   },
   clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',
+  trustProxy: parseTrustProxy(process.env.TRUST_PROXY),
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY,

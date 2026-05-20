@@ -14,8 +14,8 @@ REST API for the IE213 eyewear store project, built with Node.js, Express, and M
 
 ## Requirements
 
-- Node.js 18+
-- npm 9+
+- Node.js 20.19+
+- npm 10+
 - MongoDB local instance or MongoDB Atlas
 
 ## Clone and Install
@@ -43,10 +43,11 @@ cp .env.example .env
 Important notes:
 
 - `MONGODB_URI` must point to a writable MongoDB database.
-- `JWT_SECRET` should be a long random secret.
+- `JWT_SECRET` and `JWT_REFRESH_SECRET` should be long random secrets and must be different.
 - Cloudinary variables are required because uploads are configured at startup.
 - SMTP variables are required for the forgot-password flow.
 - `CLIENT_URL` is used for CORS and reset-password links.
+- Keep `TRUST_PROXY=0` for direct local/dev traffic; set it to the number of trusted proxies only when deploying behind a reverse proxy.
 - `LOG_LEVEL` controls structured log verbosity.
 - `LOG_SINK_URL` is optional and can be used to forward logs to an external collector.
 

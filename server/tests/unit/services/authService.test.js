@@ -1,7 +1,10 @@
 jest.mock('../../../models/User');
 jest.mock('../../../models/LoginLog');
 jest.mock('../../../models/PasswordResetToken');
-jest.mock('../../../utils/generateToken', () => jest.fn());
+jest.mock('../../../utils/generateToken', () => ({
+  generateToken: jest.fn(),
+  generateRefreshToken: jest.fn(),
+}));
 jest.mock('../../../utils/sendEmail', () => jest.fn());
 jest.mock('../../../utils/dto', () => ({
   userDTO: jest.fn((user) => ({ _id: user._id, email: user.email, name: user.name })),
@@ -11,7 +14,7 @@ const mongoose = require('mongoose');
 const User = require('../../../models/User');
 const LoginLog = require('../../../models/LoginLog');
 const PasswordResetToken = require('../../../models/PasswordResetToken');
-const generateToken = require('../../../utils/generateToken');
+const { generateToken, generateRefreshToken } = require('../../../utils/generateToken');
 const sendEmail = require('../../../utils/sendEmail');
 const authService = require('../../../services/authService');
 const { createQueryMock, createSessionMock } = require('../utils/testHelpers');
@@ -27,6 +30,7 @@ describe('authService', () => {
       User.findOne.mockResolvedValue(null);
       User.create.mockResolvedValue({ _id: 'user-1', email: 'john@example.com', name: 'John' });
       generateToken.mockReturnValue('jwt-token');
+      generateRefreshToken.mockReturnValue('refresh-token');
 
       const result = await authService.registerUser({
         name: 'John',
@@ -42,9 +46,11 @@ describe('authService', () => {
         phone: '0900000000',
       });
       expect(generateToken).toHaveBeenCalledWith('user-1');
+      expect(generateRefreshToken).toHaveBeenCalledWith('user-1');
       expect(result).toEqual({
         user: { _id: 'user-1', email: 'john@example.com', name: 'John' },
         token: 'jwt-token',
+        refreshToken: 'refresh-token',
       });
     });
 
@@ -96,6 +102,7 @@ describe('authService', () => {
       LoginLog.isBruteForceAttack.mockResolvedValue(false);
       User.findOne.mockResolvedValue(user);
       generateToken.mockReturnValue('login-token');
+      generateRefreshToken.mockReturnValue('login-refresh-token');
 
       const result = await authService.loginUser('login@example.com', '123456', {
         ipAddress: '127.0.0.1',
@@ -109,18 +116,19 @@ describe('authService', () => {
       expect(result).toEqual({
         user: { _id: 'user-2', email: 'login@example.com', name: 'Login User' },
         token: 'login-token',
+        refreshToken: 'login-refresh-token',
       });
     });
   });
 
   describe('requestPasswordReset', () => {
-    it('rejects admin accounts from password reset flow', async () => {
+    it('silently ignores admin accounts in password reset flow', async () => {
       User.findOne.mockResolvedValue({ isAdmin: true });
 
-      await expect(authService.requestPasswordReset('admin@example.com')).rejects.toMatchObject({
-        statusCode: 403,
-      });
+      await expect(authService.requestPasswordReset('admin@example.com')).resolves.toBeUndefined();
       expect(PasswordResetToken.deleteMany).not.toHaveBeenCalled();
+      expect(PasswordResetToken.create).not.toHaveBeenCalled();
+      expect(sendEmail).not.toHaveBeenCalled();
     });
 
     it('rolls back reset tokens when sending email fails', async () => {

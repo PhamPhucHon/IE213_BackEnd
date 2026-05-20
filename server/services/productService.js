@@ -69,7 +69,7 @@ exports.getProducts = async (filters = {}, page = 1, limit = 12, sort = 'newest'
 
 // Lấy chi tiết sản phẩm theo ID
 exports.getProductById = async (id) => {
-  const product = await Product.findById(id).populate('categoryId', 'name slug');
+  const product = await Product.findOne({ _id: id, isActive: true }).populate('categoryId', 'name slug');
   if (!product) {
     throw new AppError('Không tìm thấy sản phẩm.', 404);
   }

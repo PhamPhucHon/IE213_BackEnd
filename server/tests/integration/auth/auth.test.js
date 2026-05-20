@@ -139,7 +139,7 @@ describe('POST /api/auth/forgot-password', () => {
     expect(sendEmail.mock.calls[0][0].html).toContain('token=');
   });
 
-  it('should return 403 and not create token for admin account', async () => {
+  it('should respond like a missing email and not create token for admin account', async () => {
     await User.create({
       name: 'Admin User',
       email: 'admin-reset@example.com',
@@ -151,9 +151,9 @@ describe('POST /api/auth/forgot-password', () => {
       .post('/api/auth/forgot-password')
       .send({ email: 'admin-reset@example.com' });
 
-    expect(res.statusCode).toBe(403);
-    expect(res.body.success).toBe(false);
-    expect(res.body.message).toBe('Tai khoan admin khong duoc phep su dung tinh nang quen mat khau.');
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toBe('Email đặt lại mật khẩu đã được gửi');
     expect(await PasswordResetToken.findOne({ email: 'admin-reset@example.com' })).toBeNull();
     expect(sendEmail).not.toHaveBeenCalled();
   });
@@ -213,6 +213,32 @@ describe('POST /api/auth/forgot-password', () => {
     const blockedRes = await request(app)
       .post('/api/auth/forgot-password')
       .send({ email: 'rate-limit@example.com' });
+
+    expect(blockedRes.statusCode).toBe(429);
+    expect(blockedRes.body.success).toBe(false);
+  });
+
+  it('should not allow X-Forwarded-For spoofing to bypass forgot password rate limit', async () => {
+    await User.create({
+      name: 'Spoofed Rate Limit User',
+      email: 'spoofed-rate-limit@example.com',
+      password: '123456',
+      isAdmin: false,
+    });
+
+    for (let index = 0; index < 3; index += 1) {
+      const res = await request(app)
+        .post('/api/auth/forgot-password')
+        .set('X-Forwarded-For', `203.0.113.${index + 1}`)
+        .send({ email: 'spoofed-rate-limit@example.com' });
+
+      expect(res.statusCode).toBe(200);
+    }
+
+    const blockedRes = await request(app)
+      .post('/api/auth/forgot-password')
+      .set('X-Forwarded-For', '203.0.113.99')
+      .send({ email: 'spoofed-rate-limit@example.com' });
 
     expect(blockedRes.statusCode).toBe(429);
     expect(blockedRes.body.success).toBe(false);

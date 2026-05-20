@@ -1,8 +1,13 @@
+# NOTE:
+# File nay chi la mau tham khao/chua phai file Dockerfile chay truc tiep.
+# Docker Compose hien dung file that tai: server/Dockerfile
+#
 # ==============================
 # 1. Chọn base image Node.js
+# Node 20+ là bắt buộc vì dependencies hiện tại yêu cầu Node >=20.19.0
 # alpine = nhẹ hơn (khuyên dùng)
 # ==============================
-FROM node:18-alpine
+FROM node:20-alpine
 
 # ==============================
 # 2. Tạo thư mục làm việc trong container
@@ -18,7 +23,7 @@ COPY package*.json ./
 # ==============================
 # 4. Cài dependencies
 # ==============================
-RUN npm install
+RUN npm ci
 
 # ==============================
 # 5. Copy toàn bộ source code
@@ -32,6 +37,5 @@ EXPOSE 5000
 
 # ==============================
 # 7. Chạy app
-# Nếu dùng nodemon → npm run dev
 # ==============================
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]

@@ -87,7 +87,7 @@ Base: /api/auth
   }
 - Ghi chu:
   - Chi ap dung cho user thuong, khong ap dung cho admin
-  - Neu email thuoc admin, API tra ve 403 va khong tao token
+  - Neu email thuoc admin, API van tra thong bao thanh cong chung va khong tao token
   - Khong tra ve thong tin email user thuong co ton tai hay khong (email khong ton tai van tra thong bao thanh cong)
   - Moi email chi giu 1 reset token dang hoat dong (tao moi se xoa token cu)
   - Co rate limit de tranh bi spam (gioi han tren API forgot-password)

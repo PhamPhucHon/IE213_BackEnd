@@ -22,14 +22,26 @@ describe('categoryService', () => {
   });
 
   it('returns a category by id and slug', async () => {
-    Category.findById.mockResolvedValue({ _id: 'cat-1', name: 'Eyeglasses' });
-    Category.findOne.mockResolvedValue({ _id: 'cat-2', name: 'Sunglasses' });
+    Category.findOne
+      .mockResolvedValueOnce({ _id: 'cat-1', name: 'Eyeglasses' })
+      .mockResolvedValueOnce({ _id: 'cat-2', name: 'Sunglasses' });
 
     const byId = await categoryService.getCategoryById('cat-1');
     const bySlug = await categoryService.getCategoryBySlug('sun');
 
+    expect(Category.findOne).toHaveBeenNthCalledWith(1, { _id: 'cat-1', isActive: true });
+    expect(Category.findOne).toHaveBeenNthCalledWith(2, { slug: 'sun', isActive: true });
     expect(byId).toEqual({ _id: 'cat-1', name: 'Eyeglasses' });
     expect(bySlug).toEqual({ _id: 'cat-2', name: 'Sunglasses' });
+  });
+
+  it('throws 404 when category by id is inactive or missing', async () => {
+    Category.findOne.mockResolvedValue(null);
+
+    await expect(categoryService.getCategoryById('inactive-cat')).rejects.toMatchObject({
+      statusCode: 404,
+    });
+    expect(Category.findOne).toHaveBeenCalledWith({ _id: 'inactive-cat', isActive: true });
   });
 
   it('rejects duplicate category names on create', async () => {
