@@ -64,14 +64,26 @@ describe('productService', () => {
   });
 
   it('returns product detail by id and slug', async () => {
-    Product.findById.mockReturnValue(createQueryMock({ _id: 'product-1', name: 'Detail Product', variants: [] }));
-    Product.findOne.mockReturnValue(createQueryMock({ _id: 'product-2', name: 'Slug Product', variants: [] }));
+    Product.findOne
+      .mockReturnValueOnce(createQueryMock({ _id: 'product-1', name: 'Detail Product', variants: [] }))
+      .mockReturnValueOnce(createQueryMock({ _id: 'product-2', name: 'Slug Product', variants: [] }));
 
     const byId = await productService.getProductById('product-1');
     const bySlug = await productService.getProductBySlug('slug-product');
 
+    expect(Product.findOne).toHaveBeenNthCalledWith(1, { _id: 'product-1', isActive: true });
+    expect(Product.findOne).toHaveBeenNthCalledWith(2, { slug: 'slug-product', isActive: true });
     expect(byId).toEqual({ _id: 'product-1', name: 'Detail Product', variants: [] });
     expect(bySlug).toEqual({ _id: 'product-2', name: 'Slug Product', variants: [] });
+  });
+
+  it('throws 404 when product detail by id is inactive or missing', async () => {
+    Product.findOne.mockReturnValue(createQueryMock(null));
+
+    await expect(productService.getProductById('inactive-product')).rejects.toMatchObject({
+      statusCode: 404,
+    });
+    expect(Product.findOne).toHaveBeenCalledWith({ _id: 'inactive-product', isActive: true });
   });
 
   it('blocks removing variants that still have reserved stock', async () => {
@@ -118,17 +130,26 @@ describe('productService', () => {
     expect(result).toEqual({ _id: 'product-1', name: 'Updated Product', variants: [{ sku: 'sku-old' }, { sku: 'sku-new' }] });
   });
 
-  it('deletes inventory rows before deleting the product', async () => {
+  it('soft deletes the product without removing inventory rows', async () => {
     const session = createSessionMock();
+    const productDoc = {
+      _id: 'product-1',
+      isActive: true,
+      variants: [{ sku: 'sku-1' }, { sku: 'sku-2' }],
+      save: jest.fn().mockResolvedValue(undefined),
+    };
+
     mongoose.startSession.mockResolvedValue(session);
-    Product.findById.mockReturnValue(createQueryMock({ _id: 'product-1', variants: [{ sku: 'sku-1' }, { sku: 'sku-2' }] }));
+    Product.findById.mockReturnValue(createQueryMock(productDoc));
     Inventory.findOne.mockReturnValue(createQueryMock(null));
 
     const result = await productService.deleteProduct('product-1');
 
-    expect(Inventory.deleteMany).toHaveBeenCalledWith({ sku: { $in: ['sku-1', 'sku-2'] } }, { session });
-    expect(Product.findByIdAndDelete).toHaveBeenCalledWith('product-1', { session });
-    expect(result.message).toContain('Đã xóa sản phẩm');
+    expect(productDoc.isActive).toBe(false);
+    expect(productDoc.save).toHaveBeenCalledWith({ session });
+    expect(Inventory.deleteMany).not.toHaveBeenCalled();
+    expect(Product.findByIdAndDelete).not.toHaveBeenCalled();
+    expect(result.message).toContain('Đã ẩn sản phẩm');
   });
 
   it('resets rating stats when a product has no reviews left', async () => {

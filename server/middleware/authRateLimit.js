@@ -6,11 +6,7 @@ const { errorResponse } = require('../utils/apiResponse');
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 
 const getClientIp = (req) => {
-	const forwardedFor = req.headers['x-forwarded-for'] || req.headers['x-real-ip'];
-	if (typeof forwardedFor === 'string' && forwardedFor.trim() !== '') {
-		return forwardedFor.split(',')[0].trim();
-	}
-	return req.ip;
+	return req.ip || req.socket?.remoteAddress || '';
 };
 
 const buildRateLimitHandler = (message) => (req, res, next, options) => {

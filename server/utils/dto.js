@@ -29,9 +29,10 @@ const userDTO = (user) => {
     email: obj.email,
     avatar: obj.avatar,
     phone: obj.phone,
-    isAdmin: obj.isAdmin,
-    isActive: obj.isActive,
-    addresses: obj.addresses ?? [],
+	    isAdmin: obj.isAdmin,
+	    isActive: obj.isActive,
+	    deletedAt: obj.deletedAt,
+	    addresses: obj.addresses ?? [],
     createdAt: obj.createdAt,
     updatedAt: obj.updatedAt,
   };

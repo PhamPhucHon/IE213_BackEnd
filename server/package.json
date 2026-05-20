@@ -3,6 +3,10 @@
 	"version": "1.0.0",
 	"private": true,
 	"main": "server.js",
+	"engines": {
+		"node": ">=20.19.0",
+		"npm": ">=10"
+	},
 	"scripts": {
 		"start": "node server.js",
 		"swagger-gen": "node swagger.js",

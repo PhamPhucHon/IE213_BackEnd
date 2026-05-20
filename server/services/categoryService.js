@@ -19,7 +19,7 @@ exports.getAllCategories = async () => {
  * @returns {Object} - Dữ liệu danh mục
  */
 exports.getCategoryById = async (id) => {
-  const category = await Category.findById(id);
+  const category = await Category.findOne({ _id: id, isActive: true });
   if (!category) {
     throw new AppError('Không tìm thấy danh mục với ID này.', 404);
   }

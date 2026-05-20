@@ -67,14 +67,8 @@ router.post(
 	      message: 'Bạn đã gửi yêu cầu quá nhiều lần. Vui lòng thử lại sau.'
 	    }
 	  }
-	  #swagger.responses[403] = {
-	    description: 'Tai khoan admin khong duoc phep quen mat khau',
-	    schema: {
-	      success: false,
-	      message: 'Tai khoan admin khong duoc phep su dung tinh nang quen mat khau.'
-	    }
-	  }
-	*/
+		  #swagger.description = 'Neu email khong ton tai hoac thuoc admin, API van tra response thanh cong chung va khong tao reset token.'
+		*/
 	forgotPasswordLimiter,
 	validateBody([
 		body('email')

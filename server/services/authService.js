@@ -143,7 +143,7 @@ exports.requestPasswordReset = async (email) => {
   }
 
   if (user.isAdmin) {
-    throw new AppError('Tai khoan admin khong duoc phep su dung tinh nang quen mat khau.', 403);
+    return;
   }
 
   await PasswordResetToken.deleteMany({ email: normalizedEmail });

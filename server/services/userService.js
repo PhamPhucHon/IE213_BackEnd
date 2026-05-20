@@ -3,13 +3,30 @@ const Order = require('../models/Order');
 const { userDTO } = require('../utils/dto');
 const { AppError } = require('../utils/asyncHandler');
 
+const applyQueryOptions = (query, options = {}) => {
+  if (query && typeof query.setOptions === 'function' && options.includeInactive) {
+    return query.setOptions({ includeInactive: true });
+  }
+  return query;
+};
+
 // Lấy danh sách người dùng (phân trang) cho Admin
-exports.getAllUsers = async (page = 1, limit = 10) => {
+exports.getAllUsers = async (page = 1, limit = 10, options = {}) => {
   const skip = (page - 1) * limit;
+  const countFilter = options.includeInactive ? {} : { isActive: { $ne: false } };
+  let usersQuery = User.find()
+    .select('-password')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+  let countQuery = User.countDocuments(countFilter);
+
+  usersQuery = applyQueryOptions(usersQuery, options);
+  countQuery = applyQueryOptions(countQuery, options);
 
   const [users, totalUsers] = await Promise.all([
-    User.find().select('-password').sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-    User.countDocuments(),
+    usersQuery.lean(),
+    countQuery,
   ]);
 
   return {
