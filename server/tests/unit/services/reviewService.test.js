@@ -75,6 +75,17 @@ describe('reviewService', () => {
     expect(result.reviews).toEqual([{ _id: 'review-1', rating: 5, likes: 1 }]);
   });
 
+  it('returns paginated reviews for admin moderation', async () => {
+    Review.find.mockReturnValue(createQueryMock([{ _id: 'review-2', rating: 4, likes: 2 }]));
+    Review.countDocuments.mockResolvedValue(1);
+
+    const result = await reviewService.getAllReviews({ page: 2, limit: 10, ratingFilter: 4 });
+
+    expect(Review.find).toHaveBeenCalledWith({ rating: 4 });
+    expect(result.pagination).toEqual({ totalReviews: 1, currentPage: 2, totalPages: 1, limit: 10 });
+    expect(result.reviews).toEqual([{ _id: 'review-2', rating: 4, likes: 2 }]);
+  });
+
   it('updates the review and refreshes product stats when rating changes', async () => {
     const session = createSessionMock();
     const reviewDoc = {

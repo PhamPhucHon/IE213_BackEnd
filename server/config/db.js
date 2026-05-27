@@ -1,10 +1,27 @@
 // config/db.js
+const dns = require('dns');
 const mongoose = require('mongoose');
 const config = require('./env');
 const logger = require('./logger').child({ component: 'database' });
 
+const configureDnsServers = () => {
+  if (!config.dnsServers.length) {
+    return;
+  }
+
+  try {
+    dns.setServers(config.dnsServers);
+    logger.info('Custom DNS servers configured for MongoDB SRV lookup', {
+      servers: config.dnsServers,
+    });
+  } catch (error) {
+    logger.warn('Failed to configure custom DNS servers', { error: error.message });
+  }
+};
+
 const connectDB = async () => {
   try {
+    configureDnsServers();
     const conn = await mongoose.connect(config.mongodbUri, {
       // Các tùy chọn cho Mongoose 6+ (không cần useNewUrlParser... nữa)
       // Tuy nhiên vẫn có thể thêm một số option:

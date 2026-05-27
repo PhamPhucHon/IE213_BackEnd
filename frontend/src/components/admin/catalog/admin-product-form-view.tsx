@@ -1,0 +1,774 @@
+"use client";
+
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { Product, ProductSpecifications } from "@/types/models";
+import {
+  createAdminProduct,
+  getLocalAdminCatalogErrorMessage,
+  updateAdminProduct,
+  uploadAdminProductImage,
+  type AdminProductPayload
+} from "@/lib/api/local-admin-catalog";
+import {
+  adminProductQueryKey,
+  adminProductsQueryKey,
+  useAdminCategories,
+  useAdminProduct
+} from "@/lib/hooks/use-admin-catalog";
+import { getProductCategoryId } from "@/lib/admin/catalog-utils";
+import { useToast } from "@/components/ui/toast-provider";
+
+type VariantForm = {
+  sku: string;
+  color: string;
+  price: string;
+  originalPrice: string;
+  images: string;
+  isDefault: boolean;
+};
+
+type ProductFormState = {
+  name: string;
+  description: string;
+  brand: string;
+  categoryId: string;
+  type: NonNullable<Product["type"]>;
+  sale: boolean;
+  availability: NonNullable<Product["availability"]>;
+  isActive: boolean;
+  images: string;
+  specifications: {
+    material: string;
+    lensMaterial: string;
+    origin: string;
+    gender: NonNullable<NonNullable<ProductSpecifications["gender"]>>;
+    dimensions: string;
+    width: string;
+    angle: string;
+    bridge: string;
+    totalWidth: string;
+    longestDiameter: string;
+  };
+  variants: VariantForm[];
+};
+
+const emptyVariant: VariantForm = {
+  sku: "",
+  color: "",
+  price: "",
+  originalPrice: "",
+  images: "",
+  isDefault: false
+};
+
+const emptyForm: ProductFormState = {
+  name: "",
+  description: "",
+  brand: "",
+  categoryId: "",
+  type: "Sunglasses",
+  sale: false,
+  availability: "in_stock",
+  isActive: true,
+  images: "",
+  specifications: {
+    material: "",
+    lensMaterial: "",
+    origin: "",
+    gender: "Unisex",
+    dimensions: "",
+    width: "",
+    angle: "",
+    bridge: "",
+    totalWidth: "",
+    longestDiameter: ""
+  },
+  variants: [{ ...emptyVariant, isDefault: true }]
+};
+
+function joinLines(values?: string[]) {
+  return (values ?? []).filter(Boolean).join("\n");
+}
+
+function splitLines(value: string) {
+  return Array.from(
+    new Set(
+      value
+        .split(/\r?\n|,/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+    )
+  );
+}
+
+function optionalNumber(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function isValidNumberString(value: string, { required = false } = {}) {
+  const trimmed = value.trim();
+  if (!trimmed) return !required;
+
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) && parsed >= 0;
+}
+
+function productToForm(product: Product): ProductFormState {
+  const size = product.specifications?.size ?? {};
+
+  return {
+    name: product.name,
+    description: product.description,
+    brand: product.brand,
+    categoryId: getProductCategoryId(product.categoryId),
+    type: product.type ?? "Sunglasses",
+    sale: product.sale ?? false,
+    availability: product.availability ?? "in_stock",
+    isActive: product.isActive !== false,
+    images: joinLines(product.images),
+    specifications: {
+      material: product.specifications?.material ?? "",
+      lensMaterial: product.specifications?.lensMaterial ?? "",
+      origin: product.specifications?.origin ?? "",
+      gender: product.specifications?.gender ?? "Unisex",
+      dimensions: size.dimensions ?? "",
+      width: size.width === undefined ? "" : String(size.width),
+      angle: size.angle === undefined ? "" : String(size.angle),
+      bridge: size.bridge === undefined ? "" : String(size.bridge),
+      totalWidth: size.totalWidth === undefined ? "" : String(size.totalWidth),
+      longestDiameter: size.longestDiameter === undefined ? "" : String(size.longestDiameter)
+    },
+    variants:
+      product.variants.length > 0
+        ? product.variants.map((variant, index) => ({
+            sku: variant.sku,
+            color: variant.color ?? "",
+            price: String(variant.price ?? ""),
+            originalPrice: variant.originalPrice === undefined ? "" : String(variant.originalPrice),
+            images: joinLines(variant.images),
+            isDefault: variant.isDefault ?? index === 0
+          }))
+        : [{ ...emptyVariant, isDefault: true }]
+  };
+}
+
+function formToPayload(form: ProductFormState): AdminProductPayload {
+  const firstDefaultIndex = form.variants.findIndex((variant) => variant.isDefault);
+  const defaultIndex = firstDefaultIndex >= 0 ? firstDefaultIndex : 0;
+  const specs = form.specifications;
+
+  return {
+    name: form.name.trim(),
+    description: form.description.trim(),
+    brand: form.brand.trim(),
+    categoryId: form.categoryId,
+    type: form.type,
+    sale: form.sale,
+    availability: form.availability,
+    isActive: form.isActive,
+    images: splitLines(form.images),
+    specifications: {
+      material: specs.material.trim() || undefined,
+      lensMaterial: specs.lensMaterial.trim() || undefined,
+      origin: specs.origin.trim() || undefined,
+      gender: specs.gender,
+      size: {
+        dimensions: specs.dimensions.trim() || undefined,
+        width: optionalNumber(specs.width),
+        angle: optionalNumber(specs.angle),
+        bridge: optionalNumber(specs.bridge),
+        totalWidth: optionalNumber(specs.totalWidth),
+        longestDiameter: optionalNumber(specs.longestDiameter)
+      }
+    },
+    variants: form.variants.map((variant, index) => ({
+      sku: variant.sku.trim(),
+      color: variant.color.trim() || undefined,
+      price: Number(variant.price),
+      originalPrice: optionalNumber(variant.originalPrice),
+      images: splitLines(variant.images),
+      isDefault: index === defaultIndex
+    }))
+  };
+}
+
+function validateProductForm(form: ProductFormState) {
+  if (!form.name.trim()) return "Product name is required.";
+  if (!form.brand.trim()) return "Brand is required.";
+  if (!form.categoryId) return "Category is required.";
+  if (!form.description.trim()) return "Description is required.";
+  if (!form.variants.length) return "Add at least one variant.";
+
+  const skus = form.variants.map((variant) => variant.sku.trim()).filter(Boolean);
+  if (skus.length !== form.variants.length) return "Every variant needs a SKU.";
+
+  const duplicateSku = skus.find((sku, index) => {
+    const normalized = sku.toLowerCase();
+    return skus.findIndex((item) => item.toLowerCase() === normalized) !== index;
+  });
+  if (duplicateSku) return `SKU ${duplicateSku} is duplicated.`;
+
+  const invalidPrice = form.variants.find(
+    (variant) => !isValidNumberString(variant.price, { required: true })
+  );
+  if (invalidPrice) return "Every variant needs a non-negative price.";
+
+  const invalidOriginalPrice = form.variants.find(
+    (variant) => !isValidNumberString(variant.originalPrice)
+  );
+  if (invalidOriginalPrice) return "Original price must be a non-negative number.";
+
+  const invalidSpecNumber = [
+    form.specifications.width,
+    form.specifications.angle,
+    form.specifications.bridge,
+    form.specifications.totalWidth,
+    form.specifications.longestDiameter
+  ].some((value) => !isValidNumberString(value));
+  if (invalidSpecNumber) return "Specification numbers must be non-negative.";
+
+  return null;
+}
+
+function FormField({
+  label,
+  children
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="grid gap-1 text-sm font-medium text-ink">
+      {label}
+      {children}
+    </label>
+  );
+}
+
+function ProductFormSkeleton() {
+  return (
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="h-[720px] rounded-lg bg-surface" />
+      <div className="h-72 rounded-lg bg-surface" />
+    </div>
+  );
+}
+
+export function AdminProductFormView({ id }: { id?: string }) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const isEditing = Boolean(id);
+  const productQuery = useAdminProduct(id ?? "", Boolean(id));
+  const categoriesQuery = useAdminCategories();
+  const [form, setForm] = useState<ProductFormState>(emptyForm);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const hydratedProductId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (productQuery.data && hydratedProductId.current !== productQuery.data._id) {
+      setForm(productToForm(productQuery.data));
+      hydratedProductId.current = productQuery.data._id;
+    }
+  }, [productQuery.data]);
+
+  const saveMutation = useMutation({
+    mutationFn: (payload: AdminProductPayload) =>
+      id ? updateAdminProduct(id, payload) : createAdminProduct(payload),
+    onSuccess: (product) => {
+      queryClient.invalidateQueries({ queryKey: adminProductsQueryKey });
+      queryClient.setQueryData(adminProductQueryKey(product._id), product);
+      setActionError(null);
+
+      if (!id) {
+        showToast({
+          title: "Product created",
+          description: `${product.name} is ready for inventory setup.`,
+          variant: "success"
+        });
+        router.push(`/admin/products/${product._id}/edit`);
+        return;
+      }
+
+      setMessage(`${product.name} saved.`);
+      showToast({ title: "Product saved", description: product.name, variant: "success" });
+    },
+    onError: (mutationError) => {
+      const message = getLocalAdminCatalogErrorMessage(mutationError);
+      setActionError(message);
+      showToast({ title: "Could not save product", description: message, variant: "error" });
+    }
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: uploadAdminProductImage,
+    onSuccess: ({ imageUrl }) => {
+      setForm((current) => ({
+        ...current,
+        images: [...splitLines(current.images), imageUrl].join("\n")
+      }));
+      setSelectedFile(null);
+      setActionError(null);
+      setMessage("Image uploaded and added to product images.");
+      showToast({ title: "Image uploaded", variant: "success" });
+    },
+    onError: (mutationError) => {
+      const message = getLocalAdminCatalogErrorMessage(mutationError);
+      setActionError(message);
+      showToast({ title: "Could not upload image", description: message, variant: "error" });
+    }
+  });
+
+  const previewImages = useMemo(() => splitLines(form.images).slice(0, 4), [form.images]);
+
+  if (productQuery.isLoading || categoriesQuery.isLoading) {
+    return <ProductFormSkeleton />;
+  }
+
+  if (productQuery.error) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+        {getLocalAdminCatalogErrorMessage(productQuery.error)}
+      </div>
+    );
+  }
+
+  if (categoriesQuery.error) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+        {getLocalAdminCatalogErrorMessage(categoriesQuery.error)}
+      </div>
+    );
+  }
+
+  function updateVariant(index: number, nextVariant: VariantForm) {
+    setForm((current) => ({
+      ...current,
+      variants: current.variants.map((variant, variantIndex) =>
+        variantIndex === index ? nextVariant : variant
+      )
+    }));
+  }
+
+  function setDefaultVariant(index: number) {
+    setForm((current) => ({
+      ...current,
+      variants: current.variants.map((variant, variantIndex) => ({
+        ...variant,
+        isDefault: variantIndex === index
+      }))
+    }));
+  }
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <form
+        className="grid gap-6"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const validationError = validateProductForm(form);
+          if (validationError) {
+            setActionError(validationError);
+            showToast({ title: "Check product form", description: validationError, variant: "error" });
+            return;
+          }
+
+          saveMutation.mutate(formToPayload(form));
+        }}
+      >
+        {message ? (
+          <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            {message}
+          </p>
+        ) : null}
+        {actionError ? (
+          <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {actionError}
+          </p>
+        ) : null}
+
+        <section className="rounded-lg border border-line bg-white p-5">
+          <h2 className="text-lg font-semibold text-ink">Product details</h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <FormField label="Name">
+              <input
+                value={form.name}
+                onChange={(event) => setForm({ ...form, name: event.target.value })}
+                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                required
+              />
+            </FormField>
+            <FormField label="Brand">
+              <input
+                value={form.brand}
+                onChange={(event) => setForm({ ...form, brand: event.target.value })}
+                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                required
+              />
+            </FormField>
+            <FormField label="Category">
+              <select
+                value={form.categoryId}
+                onChange={(event) => setForm({ ...form, categoryId: event.target.value })}
+                className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+                required
+              >
+                <option value="">Select category</option>
+                {(categoriesQuery.data ?? []).map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+            <FormField label="Type">
+              <select
+                value={form.type}
+                onChange={(event) =>
+                  setForm({ ...form, type: event.target.value as ProductFormState["type"] })
+                }
+                className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+              >
+                <option value="Sunglasses">Sunglasses</option>
+                <option value="Eyeglasses">Eyeglasses</option>
+                <option value="All">All</option>
+              </select>
+            </FormField>
+            <FormField label="Availability">
+              <select
+                value={form.availability}
+                onChange={(event) =>
+                  setForm({
+                    ...form,
+                    availability: event.target.value as ProductFormState["availability"]
+                  })
+                }
+                className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+              >
+                <option value="in_stock">In stock</option>
+                <option value="out_of_stock">Out of stock</option>
+                <option value="pre_order">Pre-order</option>
+              </select>
+            </FormField>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="flex items-center gap-2 rounded-md border border-line px-3 py-2 text-sm font-medium text-ink">
+                <input
+                  type="checkbox"
+                  checked={form.sale}
+                  onChange={(event) => setForm({ ...form, sale: event.target.checked })}
+                />
+                On sale
+              </label>
+              <label className="flex items-center gap-2 rounded-md border border-line px-3 py-2 text-sm font-medium text-ink">
+                <input
+                  type="checkbox"
+                  checked={form.isActive}
+                  onChange={(event) => setForm({ ...form, isActive: event.target.checked })}
+                />
+                Active
+              </label>
+            </div>
+            <label className="grid gap-1 text-sm font-medium text-ink md:col-span-2">
+              Description
+              <textarea
+                value={form.description}
+                onChange={(event) => setForm({ ...form, description: event.target.value })}
+                className="focus-ring min-h-32 rounded-md border border-line px-3 py-2 text-sm"
+                required
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-line bg-white p-5">
+          <h2 className="text-lg font-semibold text-ink">Images</h2>
+          <p className="mt-2 text-sm text-muted">Use one image URL per line, or upload one image at a time.</p>
+          <div className="mt-5 grid gap-4">
+            <textarea
+              value={form.images}
+              onChange={(event) => setForm({ ...form, images: event.target.value })}
+              className="focus-ring min-h-28 rounded-md border border-line px-3 py-2 text-sm"
+              placeholder="https://..."
+            />
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+                className="text-sm text-muted"
+              />
+              <button
+                type="button"
+                className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-semibold text-ink hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={!selectedFile || uploadMutation.isPending}
+                onClick={() => {
+                  if (selectedFile) uploadMutation.mutate(selectedFile);
+                }}
+              >
+                {uploadMutation.isPending ? "Uploading..." : "Upload image"}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-line bg-white p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-ink">Variants</h2>
+              <p className="mt-2 text-sm text-muted">Each variant creates or syncs one inventory SKU.</p>
+            </div>
+            <button
+              type="button"
+              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-semibold text-ink hover:bg-surface"
+              onClick={() =>
+                setForm((current) => ({
+                  ...current,
+                  variants: [...current.variants, { ...emptyVariant }]
+                }))
+              }
+            >
+              Add variant
+            </button>
+          </div>
+
+          <div className="mt-5 grid gap-4">
+            {form.variants.map((variant, index) => (
+              <article key={index} className="rounded-lg border border-line p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h3 className="font-semibold text-ink">Variant {index + 1}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="focus-ring rounded-md border border-line bg-white px-3 py-1.5 text-sm font-semibold text-ink hover:bg-surface"
+                      onClick={() => setDefaultVariant(index)}
+                    >
+                      {variant.isDefault ? "Default" : "Set default"}
+                    </button>
+                    <button
+                      type="button"
+                      className="focus-ring rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={form.variants.length <= 1}
+                      onClick={() =>
+                        setForm((current) => ({
+                          ...current,
+                          variants: current.variants.filter((_, variantIndex) => variantIndex !== index)
+                        }))
+                      }
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  <FormField label="SKU">
+                    <input
+                      value={variant.sku}
+                      onChange={(event) =>
+                        updateVariant(index, { ...variant, sku: event.target.value })
+                      }
+                      className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                      required
+                    />
+                  </FormField>
+                  <FormField label="Color">
+                    <input
+                      value={variant.color}
+                      onChange={(event) =>
+                        updateVariant(index, { ...variant, color: event.target.value })
+                      }
+                      className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                    />
+                  </FormField>
+                  <FormField label="Price">
+                    <input
+                      value={variant.price}
+                      onChange={(event) =>
+                        updateVariant(index, { ...variant, price: event.target.value })
+                      }
+                      className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                      min={0}
+                      required
+                      type="number"
+                    />
+                  </FormField>
+                  <FormField label="Original price">
+                    <input
+                      value={variant.originalPrice}
+                      onChange={(event) =>
+                        updateVariant(index, { ...variant, originalPrice: event.target.value })
+                      }
+                      className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                      min={0}
+                      type="number"
+                    />
+                  </FormField>
+                  <label className="grid gap-1 text-sm font-medium text-ink md:col-span-2">
+                    Variant image URLs
+                    <textarea
+                      value={variant.images}
+                      onChange={(event) =>
+                        updateVariant(index, { ...variant, images: event.target.value })
+                      }
+                      className="focus-ring min-h-20 rounded-md border border-line px-3 py-2 text-sm"
+                      placeholder="https://..."
+                    />
+                  </label>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-line bg-white p-5">
+          <h2 className="text-lg font-semibold text-ink">Specifications</h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            <FormField label="Material">
+              <input
+                value={form.specifications.material}
+                onChange={(event) =>
+                  setForm({
+                    ...form,
+                    specifications: { ...form.specifications, material: event.target.value }
+                  })
+                }
+                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+              />
+            </FormField>
+            <FormField label="Lens material">
+              <input
+                value={form.specifications.lensMaterial}
+                onChange={(event) =>
+                  setForm({
+                    ...form,
+                    specifications: { ...form.specifications, lensMaterial: event.target.value }
+                  })
+                }
+                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+              />
+            </FormField>
+            <FormField label="Origin">
+              <input
+                value={form.specifications.origin}
+                onChange={(event) =>
+                  setForm({
+                    ...form,
+                    specifications: { ...form.specifications, origin: event.target.value }
+                  })
+                }
+                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+              />
+            </FormField>
+            <FormField label="Gender">
+              <select
+                value={form.specifications.gender}
+                onChange={(event) =>
+                  setForm({
+                    ...form,
+                    specifications: {
+                      ...form.specifications,
+                      gender: event.target.value as ProductFormState["specifications"]["gender"]
+                    }
+                  })
+                }
+                className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+              >
+                <option value="Unisex">Unisex</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </FormField>
+            {[
+              ["Dimensions", "dimensions"],
+              ["Width", "width"],
+              ["Angle", "angle"],
+              ["Bridge", "bridge"],
+              ["Total width", "totalWidth"],
+              ["Longest diameter", "longestDiameter"]
+            ].map(([label, key]) => (
+              <FormField key={key} label={label}>
+                <input
+                  value={form.specifications[key as keyof ProductFormState["specifications"]]}
+                  onChange={(event) =>
+                    setForm({
+                      ...form,
+                      specifications: {
+                        ...form.specifications,
+                        [key]: event.target.value
+                      }
+                    })
+                  }
+                  className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                  type={key === "dimensions" ? "text" : "number"}
+                />
+              </FormField>
+            ))}
+          </div>
+        </section>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="submit"
+            className="focus-ring rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={saveMutation.isPending}
+          >
+            {saveMutation.isPending ? "Saving..." : isEditing ? "Save product" : "Create product"}
+          </button>
+          <button
+            type="button"
+            className="focus-ring rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-surface"
+            onClick={() => router.push("/admin/products")}
+          >
+            Back to products
+          </button>
+        </div>
+      </form>
+
+      <aside className="grid gap-6 self-start lg:sticky lg:top-20">
+        <section className="rounded-lg border border-line bg-white p-5">
+          <h2 className="text-lg font-semibold text-ink">Preview</h2>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {previewImages.length ? (
+              previewImages.map((image) => (
+                <div key={image} className="relative aspect-square overflow-hidden rounded-md bg-surface">
+                  <Image src={image} alt={form.name || "Product image"} fill sizes="140px" className="object-cover" />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-2 rounded-md bg-surface p-6 text-center text-sm text-muted">
+                No images yet
+              </div>
+            )}
+          </div>
+          <div className="mt-5 grid gap-2 text-sm">
+            <p className="font-semibold text-ink">{form.name || "Untitled product"}</p>
+            <p className="text-muted">{form.brand || "No brand"}</p>
+            <p className="text-muted">{form.variants.length} variants</p>
+          </div>
+        </section>
+
+        {isEditing && productQuery.data ? (
+          <section className="rounded-lg border border-line bg-white p-5">
+            <h2 className="text-lg font-semibold text-ink">System data</h2>
+            <div className="mt-4 grid gap-2 text-sm">
+              <p className="break-all text-muted">ID: {productQuery.data._id}</p>
+              <p className="text-muted">Slug: /{productQuery.data.slug}</p>
+              <p className="text-muted">
+                Rating: {productQuery.data.rating?.avg ?? 0} ({productQuery.data.rating?.count ?? 0})
+              </p>
+            </div>
+          </section>
+        ) : null}
+      </aside>
+    </div>
+  );
+}

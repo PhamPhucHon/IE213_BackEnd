@@ -24,6 +24,7 @@ router.put(
 	adminController.updateOrderStatus
 );
 
+router.get('/reviews', adminController.getAllReviews);
 router.delete('/reviews/:id', validateObjectId('id'), adminController.deleteReview);
 
 module.exports = router;

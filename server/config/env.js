@@ -63,8 +63,12 @@ module.exports = {
     pass: process.env.EMAIL_PASS,
     fromName: process.env.EMAIL_FROM_NAME || 'Glass Store',
   },
-  clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',
+  clientUrl: process.env.CLIENT_URL || 'http://localhost:3001',
   trustProxy: parseTrustProxy(process.env.TRUST_PROXY),
+  dnsServers: (process.env.DNS_SERVERS || '')
+    .split(',')
+    .map((server) => server.trim())
+    .filter(Boolean),
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY,

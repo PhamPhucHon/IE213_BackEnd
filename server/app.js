@@ -34,7 +34,7 @@ if (config.trustProxy) {
 	app.set('trust proxy', config.trustProxy);
 }
 
-const allowedOrigins = (config.clientUrl || 'http://localhost:3000')
+const allowedOrigins = (config.clientUrl || 'http://localhost:3001')
 	.split(',')
 	.map(origin => origin.trim())
 	.filter(Boolean);

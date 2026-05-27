@@ -1,175 +1,187 @@
-# IE213 Backend API
+# IE213 Eyewear Store
 
-REST API for the IE213 eyewear store project, built with Node.js, Express, and MongoDB.
+Dự án full-stack e-commerce cho cửa hàng kính mắt IE213 Eyewear. Repo gồm backend Express API và frontend Next.js App Router, phục vụ các luồng chính như catalog, auth, cart, checkout, orders, reviews, account và admin dashboard.
 
-## Overview
+## Tổng Quan
 
-- Runtime: Node.js + Express 5
-- Database: MongoDB + Mongoose
-- Authentication: JWT
-- Media upload: Cloudinary
-- Email: Nodemailer SMTP
-- Logging: structured JSON logs + HTTP request logging
-- API docs: Swagger UI at `/api-docs`
+- Frontend: Next.js 15 App Router, React 19, TypeScript, Tailwind CSS
+- Backend: Node.js, Express 5, MongoDB, Mongoose
+- Auth: JWT access token + refresh token
+- Frontend session: HttpOnly cookies thông qua Next.js route handlers
+- Data fetching: TanStack React Query
+- State/UI helpers: Zustand, React Hook Form, Zod, lucide-react, Recharts
+- Upload ảnh: Cloudinary
+- Email reset password: Nodemailer SMTP
+- API docs: Swagger UI
 
-## Requirements
+## URL Mặc Định
 
-- Node.js 20.19+
-- npm 10+
-- MongoDB local instance or MongoDB Atlas
+| Phần | URL |
+| --- | --- |
+| Frontend | `http://localhost:3001` |
+| Backend API | `http://localhost:5001/api` |
+| Backend root | `http://localhost:5001/` |
+| Swagger UI | `http://localhost:5001/api-docs` |
 
-## Clone and Install
-
-```bash
-git clone <your-repository-url>
-cd IE213_BackEnd
-cd server
-npm install
-```
-
-## Environment Setup
-
-The application reads environment variables from `server/.env`.
-
-1. Copy the template file:
-
-```bash
-cd server
-cp .env.example .env
-```
-
-2. Fill in the real values in `server/.env`.
-
-Important notes:
-
-- `MONGODB_URI` must point to a writable MongoDB database.
-- `JWT_SECRET` and `JWT_REFRESH_SECRET` should be long random secrets and must be different.
-- Cloudinary variables are required because uploads are configured at startup.
-- SMTP variables are required for the forgot-password flow.
-- `CLIENT_URL` is used for CORS and reset-password links.
-- Keep `TRUST_PROXY=0` for direct local/dev traffic; set it to the number of trusted proxies only when deploying behind a reverse proxy.
-- `LOG_LEVEL` controls structured log verbosity.
-- `LOG_SINK_URL` is optional and can be used to forward logs to an external collector.
-
-See [server/.env.example](server/.env.example) for the full list and inline descriptions.
-
-## Run the Application
-
-From the `server` directory:
-
-```bash
-# development with auto-reload
-npm run dev
-
-# production-style start
-npm start
-```
-
-Default local URLs:
-
-- API root: `http://localhost:5000/api`
-- Health check: `http://localhost:5000/`
-- Swagger UI: `http://localhost:5000/api-docs`
-
-If route comments change, regenerate the Swagger JSON:
-
-```bash
-cd server
-npm run swagger-gen
-```
-
-## Logging
-
-- Application logs are structured JSON logs generated through the shared logger in `server/config/logger.js`.
-- HTTP requests are logged automatically with method, URL, status code, response time, request id, and authenticated user id when available.
-- Sensitive fields such as passwords, tokens, cookies, and authorization headers are redacted.
-- If `LOG_SINK_URL` is configured, logs are also forwarded asynchronously to that external HTTP sink.
-
-## Migration and Seed
-
-This project does not currently use a separate migration framework.
-
-- Schema and index changes are defined in the Mongoose models.
-- For sample data, use the seed script.
-
-Run seed data:
-
-```bash
-cd server
-npm run seed
-```
-
-Practical note:
-
-- Seed expects a valid `MONGODB_URI` in `server/.env`.
-- If you want a clean dataset, drop the target database first or point `MONGODB_URI` to a fresh database name before running the seed.
-
-## Run Tests
-
-From the `server` directory:
-
-```bash
-# run the full suite
-npm test
-
-# watch mode
-npm run test:watch
-```
-
-Testing notes:
-
-- Jest uses `mongodb-memory-server` in replica-set mode so transaction flows can be tested.
-- Full test bootstrap is configured through `tests/globalSetup.js`, `tests/globalTeardown.js`, and `tests/setup.js`.
-
-## Inventory Route Layout
-
-Inventory routes are now grouped by audience and prefix:
-
-- Public/user inventory routes: [server/routes/inventoryRoutes.js](server/routes/inventoryRoutes.js)
-	mounted at `/api/inventory`
-- Admin inventory routes: [server/routes/inventoryAdminRoutes.js](server/routes/inventoryAdminRoutes.js)
-	mounted at `/api/admin/inventory`
-
-This keeps the URL structure predictable while making route ownership clearer in the codebase.
-
-## Project Structure
+## Cấu Trúc Repo
 
 ```text
-server/
-	app.js                    # Express app wiring only, no runtime side effects
-	server.js                 # Runtime bootstrap, DB connect, listen, background jobs
-	config/                   # Environment, DB, logger, shutdown, third-party config
-	controllers/              # HTTP layer, request/response orchestration
-	middleware/               # Auth, validation, security, error handling
-	models/                   # Mongoose schemas, indexes, model-level behavior
-	routes/                   # Public and admin route definitions
-	services/                 # Business logic and transaction boundaries
-	tests/                    # Unit and integration tests
-	utils/                    # DTOs, helpers, shared primitives
-	seeds/                    # Sample data seeding script and data files
+.
+├── frontend/              # Next.js storefront, account, checkout, admin UI
+├── server/                # Express API, MongoDB models, services, tests
+├── docker-compose.yml     # Docker setup cho backend app
+├── README.md              # README tổng của repo
+└── doc_api.txt            # Ghi chú API bổ sung
 ```
 
-## Design Principles
+## Yêu Cầu Môi Trường
 
-- `app.js` is side-effect free. It only builds the Express application.
-- `server.js` owns runtime startup concerns such as DB connection, HTTP listen, and background jobs.
-- Controllers stay thin and delegate business logic to services.
-- Services own transaction boundaries and consistency-sensitive workflows.
-- Models define schema constraints and indexes, but cross-document business rules stay in services.
-- Responses are standardized through shared helpers in `utils/apiResponse.js`.
-- Errors are normalized centrally through the error middleware.
-- Inventory, order, review, and password-reset flows use transactions where multiple documents must stay consistent.
+- Node.js `>=20.19.0`
+- npm `>=10`
+- MongoDB Atlas hoặc MongoDB local có thể ghi dữ liệu
+- Cloudinary account nếu dùng upload ảnh sản phẩm
+- SMTP account nếu dùng forgot/reset password
 
-## API Documentation
+## Chạy Local
 
-- Swagger UI is served from `/api-docs`.
-- Swagger JSON is generated from [server/swagger.js](server/swagger.js).
-- Route comments are the source of truth for endpoint descriptions.
+Mở 2 terminal riêng: một terminal cho backend, một terminal cho frontend.
 
-## Quick Verification
+### 1. Backend
 
-After starting the server, these endpoints should respond successfully:
+```powershell
+cd D:\Vs_code\IE213_BackEnd\server
+npm install
+Copy-Item .env.example .env
+npm run dev
+```
 
-- `GET /`
-- `GET /api`
-- `GET /api-docs`
+Sau khi copy `.env.example`, mở `server/.env` và cập nhật các biến thật:
+
+```env
+PORT=5001
+CLIENT_URL=http://localhost:3001
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/glassStore?retryWrites=true&w=majority&authSource=admin
+DNS_SERVERS=1.1.1.1,8.8.8.8
+```
+
+Nếu kết nối MongoDB Atlas báo `querySrv ECONNREFUSED`, giữ `DNS_SERVERS=1.1.1.1,8.8.8.8`.
+
+Nếu báo `bad auth : authentication failed`, kiểm tra username/password trong Atlas Database Access và URL-encode password nếu có ký tự đặc biệt.
+
+### 2. Frontend
+
+```powershell
+cd D:\Vs_code\IE213_BackEnd\frontend
+npm install
+Copy-Item .env.example .env.local
+npm run dev
+```
+
+File `frontend/.env.local` nên trỏ về backend local:
+
+```env
+NEXT_PUBLIC_APP_URL=http://localhost:3001
+BACKEND_API_URL=http://localhost:5001/api
+NEXT_PUBLIC_BACKEND_API_URL=http://localhost:5001/api
+NEXT_PUBLIC_IMAGE_HOSTS=res.cloudinary.com
+```
+
+Mở trình duyệt tại:
+
+```text
+http://localhost:3001
+```
+
+## Scripts Thường Dùng
+
+### Frontend
+
+```powershell
+cd frontend
+npm run dev        # chạy Next.js dev server ở port 3001
+npm run build      # build production
+npm run start      # chạy production server ở port 3001
+npm run lint       # ESLint
+npm run typecheck  # TypeScript strict check
+npm run smoke      # kiểm tra các flow frontend quan trọng
+```
+
+### Backend
+
+```powershell
+cd server
+npm run dev         # chạy Express với nodemon ở port 5001
+npm start           # chạy production-style bằng node server.js
+npm run seed        # seed dữ liệu mẫu
+npm test            # chạy Jest test suite
+npm run test:watch  # chạy Jest watch mode
+npm run swagger-gen # regenerate Swagger JSON
+```
+
+## Docker Backend
+
+`docker-compose.yml` hiện build backend app và expose port `5001`.
+
+```powershell
+docker compose up --build
+```
+
+Docker vẫn đọc biến môi trường từ `server/.env`.
+
+## Tài Liệu Chi Tiết
+
+- Frontend: [frontend/README.md](frontend/README.md)
+- Backend: [server/README.md](server/README.md)
+- Smoke tests frontend: [frontend/SMOKE_TESTS.md](frontend/SMOKE_TESTS.md)
+
+## Troubleshooting Nhanh
+
+### Frontend hiện lỗi "Backend did not return JSON"
+
+Thường là frontend đang trỏ nhầm backend hoặc backend port bị process khác chiếm.
+
+Kiểm tra:
+
+```powershell
+Get-Content frontend\.env.local
+netstat -ano | findstr ":5001"
+```
+
+`BACKEND_API_URL` phải là:
+
+```env
+BACKEND_API_URL=http://localhost:5001/api
+```
+
+Sau khi sửa env, restart frontend.
+
+### Backend không kết nối được MongoDB Atlas
+
+Kiểm tra SRV DNS:
+
+```powershell
+nslookup -type=SRV _mongodb._tcp.cluster0.xxxxx.mongodb.net
+```
+
+Kiểm tra TCP tới shard:
+
+```powershell
+Test-NetConnection ac-xxxxx-shard-00-00.xxxxx.mongodb.net -Port 27017
+```
+
+Nếu `nslookup` OK nhưng Node báo `querySrv ECONNREFUSED`, thêm:
+
+```env
+DNS_SERVERS=1.1.1.1,8.8.8.8
+```
+
+### Port 3000 hoặc 5000 bị chiếm
+
+Dự án đã đổi mặc định sang:
+
+```text
+frontend: http://localhost:3001
+backend:  http://localhost:5001
+```
+
+Nếu vẫn thấy app chạy ở port cũ, tắt terminal dev cũ và chạy lại `npm run dev`.

@@ -634,14 +634,23 @@ Base: /api/admin
     "status": "Processing"
   }
 
-9.7) Xoa review bat ky
+9.7) Danh sach review cho admin
+- Method: GET
+- Endpoint: /api/admin/reviews
+- Auth: Admin
+- Query optional:
+  - rating: 1..5
+  - page
+  - limit
+
+9.8) Xoa review bat ky
 - Method: DELETE
 - Endpoint: /api/admin/reviews/:id
 - Auth: Admin
 - Params:
   - id: Mongo ObjectId
 
-9.8) San pham ban chay nhat
+9.9) San pham ban chay nhat
 - Method: GET
 - Endpoint: /api/admin/stats/top-products
 - Auth: Admin
