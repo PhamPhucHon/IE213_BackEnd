@@ -7,7 +7,7 @@ const doc = {
     description: 'REST API documentation for the IE213 eyewear store backend.',
     version: '1.0.0'
   },
-  host: 'localhost:5000',
+  host: 'localhost:5001',
   schemes: ['http'],
   consumes: ['application/json'],
   produces: ['application/json'],

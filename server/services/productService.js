@@ -158,7 +158,17 @@ exports.createProduct = async (productData) => {
 // Cập nhật thông tin sản phẩm
 // Chỉ cho phép cập nhật các trường an toàn (whitelist) — tránh mass-assignment
 const ALLOWED_PRODUCT_UPDATE_FIELDS = [
-  'name', 'description', 'brand', 'categoryId', 'variants', 'images', 'isActive'
+  'name',
+  'description',
+  'brand',
+  'categoryId',
+  'variants',
+  'images',
+  'isActive',
+  'type',
+  'sale',
+  'availability',
+  'specifications'
 ];
 
 exports.updateProduct = async (id, updateData) => {

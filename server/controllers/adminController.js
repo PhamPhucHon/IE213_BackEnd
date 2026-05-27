@@ -172,6 +172,19 @@ exports.updateInventory = asyncHandler(async (req, res) => {
 
 // ==================== QUẢN LÝ ĐÁNH GIÁ ====================
 
+// GET /api/admin/reviews
+exports.getAllReviews = asyncHandler(async (req, res) => {
+  const page = Number(req.query.page) || PAGINATION.DEFAULT_PAGE;
+  const limit = Math.min(Number(req.query.limit) || PAGINATION.DEFAULT_LIMIT, PAGINATION.MAX_LIMIT);
+  const result = await reviewService.getAllReviews({
+    page,
+    limit,
+    ratingFilter: req.query.rating ?? 'all',
+  });
+
+  return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, result.reviews, {}, result.pagination);
+});
+
 // DELETE /api/admin/reviews/:id
 exports.deleteReview = asyncHandler(async (req, res) => {
   const result = await reviewService.deleteReview(req.params.id, req.user._id, true);

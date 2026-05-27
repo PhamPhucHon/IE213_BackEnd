@@ -100,6 +100,41 @@ exports.getReviewsByProduct = async (productId, page = 1, limit = 5, ratingFilte
 };
 
 /**
+ * Lấy danh sách đánh giá cho admin (phân trang, lọc theo sao).
+ */
+exports.getAllReviews = async ({ page = 1, limit = 10, ratingFilter = 'all' } = {}) => {
+  const normalizedPage = Number(page) || 1;
+  const normalizedLimit = Number(limit) || 10;
+  const query = {};
+
+  if (ratingFilter !== 'all' && !isNaN(ratingFilter)) {
+    query.rating = Number(ratingFilter);
+  }
+
+  const skip = (normalizedPage - 1) * normalizedLimit;
+
+  const [reviews, totalReviews] = await Promise.all([
+    Review.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(normalizedLimit)
+      .populate('productId', 'name slug brand')
+      .lean(),
+    Review.countDocuments(query)
+  ]);
+
+  return {
+    reviews: reviews.map(reviewDTO),
+    pagination: {
+      totalReviews,
+      currentPage: normalizedPage,
+      totalPages: Math.ceil(totalReviews / normalizedLimit),
+      limit: normalizedLimit
+    }
+  };
+};
+
+/**
  * Cập nhật đánh giá (Chỉ dành cho chủ sở hữu)
  */
 exports.updateReview = async (reviewId, userId, updateData) => {
