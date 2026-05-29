@@ -9,20 +9,17 @@ import {
 } from "@/lib/auth/session";
 import { clearAuthCookies } from "@/lib/auth/route-utils";
 
-function userResponse(user: Awaited<ReturnType<typeof authApi.me>>) {
+function sessionResponse(user: Awaited<ReturnType<typeof authApi.me>> | null) {
   return NextResponse.json({
     success: true,
-    message: "Success",
+    message: user ? "Success" : "Not authenticated",
     data: user
   });
 }
 
 async function refreshAndRetry(refreshToken?: string, clearStaleCookies = false) {
   if (!refreshToken) {
-    const response = NextResponse.json(
-      { success: false, message: "Not authenticated", data: null },
-      { status: 401 }
-    );
+    const response = sessionResponse(null);
 
     if (clearStaleCookies) {
       clearAuthCookies(response);
@@ -34,7 +31,7 @@ async function refreshAndRetry(refreshToken?: string, clearStaleCookies = false)
   try {
     const tokens = await authApi.refreshToken(refreshToken);
     const user = await authApi.me(tokens.token);
-    const response = userResponse(user);
+    const response = sessionResponse(user);
 
     response.cookies.set(ACCESS_TOKEN_COOKIE, tokens.token, {
       ...authCookieOptions,
@@ -50,10 +47,7 @@ async function refreshAndRetry(refreshToken?: string, clearStaleCookies = false)
 
     return response;
   } catch {
-    const response = NextResponse.json(
-      { success: false, message: "Session is invalid or expired", data: null },
-      { status: 401 }
-    );
+    const response = sessionResponse(null);
     clearAuthCookies(response);
     return response;
   }
@@ -69,7 +63,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const user = await authApi.me(token);
-    return userResponse(user);
+    return sessionResponse(user);
   } catch {
     return refreshAndRetry(refreshToken, true);
   }

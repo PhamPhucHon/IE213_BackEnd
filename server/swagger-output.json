@@ -93,7 +93,7 @@
           "Auth"
         ],
         "summary": "Quên mật khẩu - gửi email đặt lại mật khẩu",
-        "description": "",
+        "description": "Neu email khong ton tai hoac thuoc admin, API van tra response thanh cong chung va khong tao reset token.",
         "parameters": [
           {
             "name": "body",
@@ -137,25 +137,6 @@
                     },
                     "requestId": {}
                   }
-                }
-              },
-              "xml": {
-                "name": "main"
-              }
-            }
-          },
-          "403": {
-            "description": "Tai khoan admin khong duoc phep quen mat khau",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "success": {
-                  "type": "boolean",
-                  "example": false
-                },
-                "message": {
-                  "type": "string",
-                  "example": "Tai khoan admin khong duoc phep su dung tinh nang quen mat khau."
                 }
               },
               "xml": {
@@ -283,6 +264,44 @@
     "/api/auth/logout": {
       "post": {
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "refreshToken": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/auth/refresh-token": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "refreshToken": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -795,16 +814,6 @@
         }
       }
     },
-    "/api/products/upload-image": {
-      "post": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/api/products/{id}": {
       "get": {
         "description": "",
@@ -1047,6 +1056,96 @@
         }
       }
     },
+    "/api/admin/stats/overview": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/admin/stats/top-products": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/admin/uploads/images": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Upload anh cho admin catalog",
+        "description": "Upload mot file anh len Cloudinary va tra ve URL da optimize de BE/FE luu vao product hoac variant.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "name": "image",
+            "in": "formData",
+            "type": "file",
+            "required": true,
+            "description": "File anh JPG, PNG, WEBP hoac AVIF"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload thanh cong",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Image uploaded successfully"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "imageUrl": {
+                      "type": "string",
+                      "example": "https://res.cloudinary.com/.../image/upload/f_webp,q_auto/..."
+                    },
+                    "publicId": {
+                      "type": "string",
+                      "example": "products/example"
+                    },
+                    "format": {
+                      "type": "string",
+                      "example": "webp"
+                    },
+                    "optimized": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/users": {
       "get": {
         "description": "",
@@ -1152,6 +1251,16 @@
             "type": "string"
           }
         ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/admin/reviews": {
+      "get": {
+        "description": "",
         "responses": {
           "default": {
             "description": ""

@@ -27,6 +27,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   ]);
   const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
   const products = productsResult.status === "fulfilled" ? productsResult.value.data ?? [] : [];
+  const didLoadProducts = productsResult.status === "fulfilled";
   const pagination =
     productsResult.status === "fulfilled"
       ? getPagination(productsResult.value.meta)
@@ -58,8 +59,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
           {errors.length ? <CatalogError message={errors[0]} /> : null}
 
-          <ProductGrid products={products} />
-          <ProductPagination basePath="/products" pagination={pagination} query={query} />
+          {didLoadProducts ? (
+            <>
+              <ProductGrid products={products} />
+              <ProductPagination basePath="/products" pagination={pagination} query={query} />
+            </>
+          ) : null}
         </section>
       </div>
     </main>

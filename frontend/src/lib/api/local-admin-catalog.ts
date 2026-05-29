@@ -35,6 +35,13 @@ export type AdminProductPayload = {
   isActive?: boolean;
 };
 
+export type UploadImageResult = {
+  imageUrl: string;
+  publicId?: string;
+  format?: string;
+  optimized?: boolean;
+};
+
 export class LocalAdminCatalogError<T = unknown> extends LocalApiError<T> {
   constructor(message: string, status: number, payload?: ApiResponse<T> | null) {
     super(message, status, payload, "LocalAdminCatalogError");
@@ -122,15 +129,15 @@ export async function uploadAdminProductImage(file: File) {
   const formData = new FormData();
   formData.append("image", file);
 
-  const response = await localEnvelope<{ imageUrl: string }>(
-    "/api/products/upload-image",
+  const response = await localEnvelope<UploadImageResult>(
+    "/api/admin/uploads/images",
     {
       method: "POST",
       body: formData
     },
     createAdminCatalogError
   );
-  return response.data as { imageUrl: string };
+  return response.data as UploadImageResult;
 }
 
 export async function createAdminProduct(payload: AdminProductPayload) {

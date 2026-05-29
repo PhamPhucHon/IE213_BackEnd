@@ -1,5 +1,6 @@
 import type { ApiMeta } from "@/types/api";
 import type { Category, Product, ProductVariant } from "@/types/models";
+import { toUserErrorMessage } from "@/lib/api/error-message";
 
 export type CatalogPagination = {
   totalProducts: number;
@@ -35,6 +36,11 @@ export function getCategoryName(category: Product["categoryId"]) {
   return category.name;
 }
 
+export function getCategoryId(category: Product["categoryId"]) {
+  if (typeof category === "string") return category;
+  return category._id;
+}
+
 export function getCategorySlug(category: Product["categoryId"]) {
   if (typeof category === "string") return "";
   return category.slug;
@@ -56,9 +62,5 @@ export function getPagination(meta?: ApiMeta): CatalogPagination {
 }
 
 export function getCatalogErrorMessage(error: unknown) {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Catalog data could not be loaded.";
+  return toUserErrorMessage(error, "Catalog data could not be loaded.");
 }

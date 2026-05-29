@@ -123,8 +123,12 @@ export default async function CategoryDetailPage({ params, searchParams }: Categ
           </div>
 
           {productsResult.error ? <CatalogError message={getCatalogErrorMessage(productsResult.error)} /> : null}
-          <ProductGrid products={products} emptyDescription="No active products are currently assigned to this category." />
-          <ProductPagination basePath={`/categories/${slug}`} pagination={pagination} query={categoryQuery} />
+          {productsResult.result ? (
+            <>
+              <ProductGrid products={products} emptyDescription="No active products are currently assigned to this category." />
+              <ProductPagination basePath={`/categories/${slug}`} pagination={pagination} query={categoryQuery} />
+            </>
+          ) : null}
         </section>
       </main>
     );

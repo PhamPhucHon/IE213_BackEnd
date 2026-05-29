@@ -16,6 +16,32 @@ const LoginLog = require('../models/LoginLog');
 const PasswordResetToken = require('../models/PasswordResetToken');
 
 const dataDir = path.join(__dirname, 'data');
+const MIN_SEED_STOCK = 3;
+const MAX_SEED_STOCK = 10;
+const DEFAULT_WAREHOUSE = 'main';
+
+const seedStockForIndex = (index) =>
+	MIN_SEED_STOCK + (index % (MAX_SEED_STOCK - MIN_SEED_STOCK + 1));
+
+const buildInventoryDocsFromProducts = (products) => {
+	const docs = [];
+
+	for (const product of products) {
+		for (const variant of product.variants || []) {
+			if (!variant?.sku) continue;
+
+			docs.push({
+				sku: variant.sku,
+				productId: product._id,
+				stock: seedStockForIndex(docs.length),
+				reserved: 0,
+				warehouse: DEFAULT_WAREHOUSE,
+			});
+		}
+	}
+
+	return docs;
+};
 
 const readSeed = (fileName) => {
 	const filePath = path.join(dataDir, fileName);
@@ -185,26 +211,8 @@ const syncCategoryTotals = async () => {
 	return { updatedCategories: result.modifiedCount ?? 0 };
 };
 
-const seedInventory = async (productSlugMap) => {
-	const inventories = readSeed('inventory.json');
-	if (!inventories.length) return [];
-
-	const docs = inventories
-		.map((row) => {
-			const product = productSlugMap.get(row.productSlug);
-			if (!product) return null;
-
-			return {
-				sku: row.sku,
-				productId: product._id,
-				stock: row.stock ?? 0,
-				reserved: row.reserved ?? 0,
-				warehouse: row.warehouse || 'main',
-				...(row.lastRestocked ? { lastRestocked: row.lastRestocked } : {}),
-			};
-		})
-		.filter(Boolean);
-
+const seedInventory = async (productDocs) => {
+	const docs = buildInventoryDocsFromProducts(productDocs);
 	if (!docs.length) return [];
 	return Inventory.insertMany(docs);
 };
@@ -368,7 +376,7 @@ const run = async () => {
 		const { updatedCategories } = await syncCategoryTotals();
 		console.log(`🔄 Synced category total_products: ${updatedCategories}`);
 
-		const inventoryDocs = await seedInventory(productSlugMap);
+		const inventoryDocs = await seedInventory(productDocs);
 		console.log(`✅ Seeded inventory: ${inventoryDocs.length}`);
 
 		const cartDocs = await seedCarts(userEmailMap, productSlugMap);

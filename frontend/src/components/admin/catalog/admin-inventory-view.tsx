@@ -201,7 +201,10 @@ export function AdminInventoryView() {
                           </Link>
                           <AdminInventoryStockButton
                             inventory={item}
-                            onError={setActionError}
+                            onError={(errorMessage) => {
+                              setMessage(null);
+                              setActionError(errorMessage);
+                            }}
                             onSuccess={(nextItem) => {
                               setActionError(null);
                               setMessage(`${nextItem.sku} stock updated to ${nextItem.stock}.`);
@@ -268,7 +271,10 @@ export function AdminInventoryView() {
                     </Link>
                     <AdminInventoryStockButton
                       inventory={item}
-                      onError={setActionError}
+                      onError={(errorMessage) => {
+                        setMessage(null);
+                        setActionError(errorMessage);
+                      }}
                       onSuccess={(nextItem) => {
                         setActionError(null);
                         setMessage(`${nextItem.sku} stock updated to ${nextItem.stock}.`);

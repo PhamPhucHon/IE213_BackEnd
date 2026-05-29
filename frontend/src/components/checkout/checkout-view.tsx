@@ -255,11 +255,11 @@ export function CheckoutView() {
             <div key={item.sku} className="grid grid-cols-[56px_1fr] gap-3">
               <div className="relative aspect-square overflow-hidden rounded-md bg-surface">
                 {item.image ? (
-                  <Image src={item.image} alt={item.name ?? item.sku} fill sizes="56px" className="object-cover" />
+                  <Image src={item.image} alt={item.name ?? "Checkout item"} fill sizes="56px" className="object-cover" />
                 ) : null}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-ink">{item.name ?? item.sku}</p>
+                <p className="truncate text-sm font-medium text-ink">{item.name ?? "Selected item"}</p>
                 <p className="mt-1 text-xs text-muted">
                   {item.quantity} x {formatCurrency(item.price)}
                 </p>

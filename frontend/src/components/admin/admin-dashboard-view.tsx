@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis
 } from "recharts";
+import { getLocalAdminErrorMessage } from "@/lib/api/local-admin";
 import { useAdminOverview, useAdminTopProducts } from "@/lib/hooks/use-admin";
 import { formatCurrency } from "@/lib/utils";
 
@@ -44,17 +45,15 @@ export function AdminDashboardView() {
   const topProductsQuery = useAdminTopProducts(8);
   const overview = overviewQuery.data;
   const topProducts = topProductsQuery.data ?? [];
-  const isLoading = overviewQuery.isLoading || topProductsQuery.isLoading;
-  const error = overviewQuery.error ?? topProductsQuery.error;
 
-  if (isLoading) {
+  if (overviewQuery.isLoading) {
     return <DashboardSkeleton />;
   }
 
-  if (error) {
+  if (overviewQuery.error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
-        Could not load dashboard data. Please refresh or sign in with an admin account.
+        {getLocalAdminErrorMessage(overviewQuery.error)}
       </div>
     );
   }
@@ -127,7 +126,14 @@ export function AdminDashboardView() {
           </Link>
         </div>
 
-        {!topProducts.length ? (
+        {topProductsQuery.isLoading ? (
+          <div className="mt-6 h-72 rounded-md bg-surface" />
+        ) : topProductsQuery.error ? (
+          <div className="mt-6 flex items-start gap-3 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>{getLocalAdminErrorMessage(topProductsQuery.error)}</p>
+          </div>
+        ) : !topProducts.length ? (
           <div className="mt-6 flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>No delivered orders yet, so top products are not available.</p>

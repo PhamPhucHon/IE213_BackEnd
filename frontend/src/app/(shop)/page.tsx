@@ -35,6 +35,9 @@ async function loadHomeCatalog() {
     categories: categoriesResult.status === "fulfilled" ? getActiveCategories(categoriesResult.value) : [],
     latestProducts: latestResult.status === "fulfilled" ? latestResult.value.data ?? [] : [],
     topRatedProducts: topRatedResult.status === "fulfilled" ? topRatedResult.value.data ?? [] : [],
+    didLoadCategories: categoriesResult.status === "fulfilled",
+    didLoadLatestProducts: latestResult.status === "fulfilled",
+    didLoadTopRatedProducts: topRatedResult.status === "fulfilled",
     errors: [categoriesResult, latestResult, topRatedResult]
       .flatMap((result) =>
         result.status === "rejected" ? [getCatalogErrorMessage(result.reason)] : []
@@ -43,7 +46,15 @@ async function loadHomeCatalog() {
 }
 
 export default async function HomePage() {
-  const { categories, latestProducts, topRatedProducts, errors } = await loadHomeCatalog();
+  const {
+    categories,
+    latestProducts,
+    topRatedProducts,
+    didLoadCategories,
+    didLoadLatestProducts,
+    didLoadTopRatedProducts,
+    errors
+  } = await loadHomeCatalog();
   const heroProduct = latestProducts[0] ?? topRatedProducts[0];
   const heroImage = heroProduct ? getProductImage(heroProduct) : categories[0]?.image;
 
@@ -99,7 +110,7 @@ export default async function HomePage() {
             <CategoryCard key={category._id} category={category} />
           ))}
         </div>
-        {!categories.length ? (
+        {didLoadCategories && !categories.length ? (
           <div className="mt-5 rounded-lg border border-dashed border-line bg-white p-8 text-center">
             <h3 className="text-lg font-semibold text-ink">No active categories yet</h3>
             <p className="mt-2 text-sm leading-6 text-muted">
@@ -120,7 +131,9 @@ export default async function HomePage() {
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <ProductGrid products={latestProducts} emptyDescription="Products will appear here once the backend returns catalog data." />
+        {didLoadLatestProducts ? (
+          <ProductGrid products={latestProducts} emptyDescription="Products will appear here after catalog data is added." />
+        ) : null}
       </section>
 
       <section className="border-t border-line bg-surface">
@@ -134,7 +147,9 @@ export default async function HomePage() {
               See top rated
             </Link>
           </div>
-          <ProductGrid products={topRatedProducts} emptyDescription="Top rated products will show after reviews are available." />
+          {didLoadTopRatedProducts ? (
+            <ProductGrid products={topRatedProducts} emptyDescription="Top rated products will show after reviews are available." />
+          ) : null}
         </div>
       </section>
     </main>

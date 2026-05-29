@@ -4,7 +4,9 @@ import { CatalogError } from "@/components/catalog/catalog-error";
 import { ProductDetailView } from "@/components/product/product-detail-view";
 import { ApiError } from "@/lib/api/http";
 import { productsApi } from "@/lib/api/products";
+import type { Product } from "@/types/models";
 import {
+  getCategoryId,
   getCatalogErrorMessage,
   getProductImage,
   getProductPrice
@@ -15,6 +17,32 @@ export const revalidate = 60;
 type ProductDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+async function loadRelatedProducts(product: Product) {
+  const categoryId = getCategoryId(product.categoryId);
+  const requests = [
+    categoryId
+      ? productsApi.list({ categoryId, page: 1, limit: 8, sort: "topRated" })
+      : Promise.resolve({ data: [] }),
+    product.type && product.type !== "All"
+      ? productsApi.list({ type: product.type, page: 1, limit: 8, sort: "topRated" })
+      : Promise.resolve({ data: [] }),
+    productsApi.list({ page: 1, limit: 8, sort: "newest" })
+  ];
+  const results = await Promise.allSettled(requests);
+  const related = new Map<string, Product>();
+
+  results.forEach((result) => {
+    if (result.status !== "fulfilled") return;
+
+    (result.value.data ?? []).forEach((candidate) => {
+      if (candidate._id === product._id || candidate.slug === product.slug) return;
+      related.set(candidate._id, candidate);
+    });
+  });
+
+  return Array.from(related.values()).slice(0, 4);
+}
 
 export async function generateMetadata({
   params
@@ -54,7 +82,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   try {
     const product = await productsApi.getBySlug(slug);
-    return <ProductDetailView product={product} />;
+    const relatedProducts = await loadRelatedProducts(product).catch(() => []);
+    return <ProductDetailView product={product} relatedProducts={relatedProducts} />;
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       notFound();

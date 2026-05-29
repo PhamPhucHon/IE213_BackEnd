@@ -13,6 +13,7 @@ const imageHostnames = Array.from(
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(process.cwd()),
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       ...imageHostnames.map((hostname) => ({
         protocol: "https" as const,

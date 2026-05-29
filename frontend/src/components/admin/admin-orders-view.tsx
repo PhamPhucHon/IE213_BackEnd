@@ -10,6 +10,7 @@ import {
   getOrderCustomer,
   parseAdminOrderStatus
 } from "@/lib/admin/admin-utils";
+import { getLocalAdminErrorMessage } from "@/lib/api/local-admin";
 import { useAdminOrders } from "@/lib/hooks/use-admin";
 import { orderStatuses } from "@/lib/orders/order-utils";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -74,7 +75,7 @@ export function AdminOrdersView() {
   if (error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
-        Could not load admin orders. Please refresh or sign in with an admin account.
+        {getLocalAdminErrorMessage(error)}
       </div>
     );
   }
@@ -174,7 +175,10 @@ export function AdminOrdersView() {
                           <AdminOrderStatusActions
                             order={order}
                             showEmpty
-                            onError={setActionError}
+                            onError={(errorMessage) => {
+                              setMessage(null);
+                              setActionError(errorMessage);
+                            }}
                             onSuccess={(nextOrder) => {
                               setActionError(null);
                               setMessage(`${nextOrder.orderNumber} moved to ${nextOrder.status}.`);
@@ -228,7 +232,10 @@ export function AdminOrdersView() {
                     </Link>
                     <AdminOrderStatusActions
                       order={order}
-                      onError={setActionError}
+                      onError={(errorMessage) => {
+                        setMessage(null);
+                        setActionError(errorMessage);
+                      }}
                       onSuccess={(nextOrder) => {
                         setActionError(null);
                         setMessage(`${nextOrder.orderNumber} moved to ${nextOrder.status}.`);

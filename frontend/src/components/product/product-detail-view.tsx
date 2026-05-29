@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import type { Product, ProductVariant } from "@/types/models";
 import {
   addCartItem,
@@ -24,14 +24,43 @@ import {
 import { cartQueryKey } from "@/lib/hooks/use-cart";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 import { formatCurrency } from "@/lib/utils";
+import { ProductCard } from "./product-card";
 import { ProductReviews } from "./product-reviews";
 
 type ProductDetailViewProps = {
   product: Product;
+  relatedProducts?: Product[];
 };
 
-function variantLabel(variant: ProductVariant) {
-  return variant.color || variant.sku;
+function variantLabel(variant: ProductVariant, index: number) {
+  return variant.color || `Option ${index + 1}`;
+}
+
+function getVariantSwatchStyle(color?: string): CSSProperties {
+  const normalized = (color ?? "").toLowerCase().replace(/[-_]/g, " ");
+
+  if (normalized.includes("havana")) {
+    return {
+      background:
+        "linear-gradient(135deg, #3b2418 0%, #7a4a2e 45%, #b58155 65%, #2c1a12 100%)"
+    };
+  }
+  if (normalized.includes("transparent") || normalized.includes("crystal")) return { background: "#f4f5f2" };
+  if (normalized.includes("faded ash")) return { background: "#757b6b" };
+  if (normalized.includes("olive")) return { background: "#59624d" };
+  if (normalized.includes("green")) return { background: "#58634f" };
+  if (normalized.includes("denim") || normalized.includes("blue")) return { background: "#425a72" };
+  if (normalized.includes("purple")) return { background: "#6f5a82" };
+  if (normalized.includes("brown")) return { background: "#573a2e" };
+  if (normalized.includes("beige")) return { background: "#c9b79e" };
+  if (normalized.includes("black")) return { background: "#111315" };
+  if (normalized.includes("gunmetal")) return { background: "#565b5f" };
+  if (normalized.includes("silver")) return { background: "#c7c9ca" };
+  if (normalized.includes("grey") || normalized.includes("gray") || normalized.includes("ash")) {
+    return { background: "#76787a" };
+  }
+
+  return { background: "#7b7d7f" };
 }
 
 function specifications(product: Product) {
@@ -50,7 +79,7 @@ function specifications(product: Product) {
   ].filter((item): item is [string, string] => Boolean(item[1]));
 }
 
-export function ProductDetailView({ product }: ProductDetailViewProps) {
+export function ProductDetailView({ product, relatedProducts = [] }: ProductDetailViewProps) {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
@@ -72,10 +101,29 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
   const categoryName = getCategoryName(product.categoryId);
   const categorySlug = getCategorySlug(product.categoryId);
   const specItems = specifications(product);
+  const selectedVariantIndex = Math.max(
+    product.variants.findIndex((variant) => variant.sku === selectedVariant?.sku),
+    0
+  );
+  const selectedVariantLabel = selectedVariant
+    ? variantLabel(selectedVariant, selectedVariantIndex)
+    : "Color";
+  const activeImageIndex = Math.max(
+    images.findIndex((image) => image === activeImage),
+    0
+  );
+  const hasImageCarousel = images.length > 1;
 
   useEffect(() => {
     setActiveImage(images[0] ?? "");
   }, [images]);
+
+  function showAdjacentImage(direction: -1 | 1) {
+    if (!images.length) return;
+
+    const nextIndex = (activeImageIndex + direction + images.length) % images.length;
+    setActiveImage(images[nextIndex] ?? "");
+  }
 
   async function handleAddToCart() {
     setCartError(null);
@@ -97,7 +145,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
       const inventory = await checkInventory(selectedVariant.sku, quantity);
 
       if (!inventory.available) {
-        setCartError(`Only ${inventory.availableStock} item(s) available for this SKU.`);
+        setCartError(`Only ${inventory.availableStock} item(s) available.`);
         return;
       }
 
@@ -136,6 +184,28 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 No product image
               </div>
             )}
+            {hasImageCarousel ? (
+              <>
+                <button
+                  type="button"
+                  aria-label="Previous product image"
+                  title="Previous image"
+                  className="focus-ring absolute inset-y-0 left-0 flex w-1/4 items-center justify-start px-4 text-ink opacity-0 transition hover:opacity-100 focus-visible:opacity-100"
+                  onClick={() => showAdjacentImage(-1)}
+                >
+                  <ChevronLeft className="h-9 w-9 drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)]" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next product image"
+                  title="Next image"
+                  className="focus-ring absolute inset-y-0 right-0 flex w-1/4 items-center justify-end px-4 text-ink opacity-0 transition hover:opacity-100 focus-visible:opacity-100"
+                  onClick={() => showAdjacentImage(1)}
+                >
+                  <ChevronRight className="h-9 w-9 drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)]" />
+                </button>
+              </>
+            ) : null}
           </div>
 
           {images.length > 1 ? (
@@ -144,7 +214,9 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <button
                   key={image}
                   type="button"
-                  className="focus-ring relative aspect-square overflow-hidden rounded-md border border-line bg-white"
+                  className={`focus-ring relative aspect-square overflow-hidden rounded-md border bg-white ${
+                    image === activeImage ? "border-brand-600 ring-2 ring-brand-600" : "border-line"
+                  }`}
                   onClick={() => setActiveImage(image)}
                   aria-label={`View ${product.name} image`}
                 >
@@ -187,25 +259,34 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           {product.variants.length ? (
             <div className="mt-6">
               <h2 className="text-sm font-semibold text-ink">Color</h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {product.variants.map((variant) => (
-                  <button
-                    key={variant.sku}
-                    type="button"
-                    className={`focus-ring rounded-md border px-3 py-2 text-sm font-medium ${
-                      variant.sku === selectedVariant?.sku
-                        ? "border-ink bg-ink text-white"
-                        : "border-line bg-white text-ink hover:bg-surface"
-                    }`}
-                    onClick={() => setSelectedSku(variant.sku)}
-                  >
-                    {variantLabel(variant)}
-                  </button>
-                ))}
+              <div className="mt-3 flex min-h-8 items-center justify-between gap-4">
+                <p className="min-w-0 truncate text-sm text-muted">{selectedVariantLabel}</p>
+                <div className="flex shrink-0 flex-wrap justify-end gap-2.5">
+                  {product.variants.map((variant, index) => (
+                    <button
+                      key={variant.sku}
+                      type="button"
+                      className={`focus-ring inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border p-1 transition ${
+                        variant.sku === selectedVariant?.sku
+                          ? "border-ink"
+                          : "border-transparent hover:border-line"
+                      }`}
+                      onClick={() => setSelectedSku(variant.sku)}
+                      aria-label={`Choose ${variantLabel(variant, index)}`}
+                      title={variantLabel(variant, index)}
+                    >
+                      <span
+                        className={`h-full w-full rounded-full ${
+                          variant.sku === selectedVariant?.sku
+                            ? "border border-white shadow-[0_0_0_1px_rgba(17,24,39,0.9)]"
+                            : "border border-black/10"
+                        }`}
+                        style={getVariantSwatchStyle(variant.color)}
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
-              {selectedVariant ? (
-                <p className="mt-3 text-xs text-muted">SKU: {selectedVariant.sku}</p>
-              ) : null}
             </div>
           ) : null}
 
@@ -270,6 +351,31 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           ) : null}
         </section>
       </div>
+
+      {relatedProducts.length ? (
+        <section className="mt-12 border-t border-line pt-8">
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
+                You may also like
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-ink">Explore similar frames</h2>
+            </div>
+            <Link
+              href={categorySlug ? `/categories/${categorySlug}` : "/products"}
+              className="focus-ring hidden rounded-md px-2 py-1 text-sm font-semibold text-brand-600 hover:text-brand-700 sm:inline-flex"
+            >
+              View more
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {relatedProducts.map((relatedProduct) => (
+              <ProductCard key={relatedProduct._id} product={relatedProduct} />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <ProductReviews product={product} />
     </div>

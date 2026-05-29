@@ -102,7 +102,10 @@ export function AdminInventoryDetailView({ sku }: AdminInventoryDetailViewProps)
           <div className="mt-6">
             <AdminInventoryStockButton
               inventory={inventory}
-              onError={setActionError}
+              onError={(errorMessage) => {
+                setMessage(null);
+                setActionError(errorMessage);
+              }}
               onSuccess={(nextInventory) => {
                 setActionError(null);
                 setMessage(`${nextInventory.sku} stock updated to ${nextInventory.stock}.`);

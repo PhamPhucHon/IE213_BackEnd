@@ -53,15 +53,7 @@ function FilterFields({ categories, query }: ProductFiltersProps) {
 
   return (
     <div className="grid gap-4">
-      <label className="grid gap-1 text-sm font-medium text-ink">
-        Search
-        <input
-          name="keyword"
-          defaultValue={query.keyword ?? ""}
-          className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
-          placeholder="Search frames"
-        />
-      </label>
+      {query.keyword ? <input type="hidden" name="keyword" value={query.keyword} /> : null}
 
       <label className="grid gap-1 text-sm font-medium text-ink">
         Category
@@ -110,6 +102,7 @@ function FilterFields({ categories, query }: ProductFiltersProps) {
             defaultValue={query.minPrice ?? ""}
             className="focus-ring min-w-0 rounded-md border border-line px-3 py-2 text-sm"
             min={0}
+            step={100000}
             type="number"
           />
         </label>
@@ -120,6 +113,7 @@ function FilterFields({ categories, query }: ProductFiltersProps) {
             defaultValue={query.maxPrice ?? ""}
             className="focus-ring min-w-0 rounded-md border border-line px-3 py-2 text-sm"
             min={0}
+            step={100000}
             type="number"
           />
         </label>

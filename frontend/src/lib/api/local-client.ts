@@ -1,4 +1,5 @@
 import type { ApiResponse } from "@/types/api";
+import { NETWORK_ERROR_MESSAGE, toUserErrorMessage } from "./error-message";
 
 export class LocalApiError<T = unknown> extends Error {
   status: number;
@@ -36,11 +37,26 @@ export async function localEnvelope<T>(
   init: RequestInit = {},
   createError?: ErrorFactory<T>
 ) {
-  const response = await fetch(path, {
-    ...init,
-    cache: "no-store",
-    credentials: "include"
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(path, {
+      ...init,
+      cache: "no-store",
+      credentials: "include"
+    });
+  } catch {
+    const payload = {
+      success: false,
+      message: NETWORK_ERROR_MESSAGE,
+      data: null
+    } as ApiResponse<T>;
+
+    throw createError
+      ? createError(NETWORK_ERROR_MESSAGE, 0, payload)
+      : new LocalApiError<T>(NETWORK_ERROR_MESSAGE, 0, payload);
+  }
+
   const payload = await readPayload<T>(response);
 
   if (!response.ok || !payload?.success) {
@@ -75,12 +91,8 @@ export async function jsonRequest<T>(
 
 export function getLocalErrorMessage(error: unknown, fallback: string) {
   if (error instanceof LocalApiError) {
-    return error.message;
+    return toUserErrorMessage(error, fallback);
   }
 
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return fallback;
+  return toUserErrorMessage(error, fallback);
 }

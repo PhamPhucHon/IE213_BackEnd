@@ -8,7 +8,7 @@ export const revalidate = 60;
 async function loadHeaderCategories() {
   return categoriesApi
     .list()
-    .then((categories) => getActiveCategories(categories).slice(0, 4))
+    .then((categories) => getActiveCategories(categories))
     .catch(() => []);
 }
 
