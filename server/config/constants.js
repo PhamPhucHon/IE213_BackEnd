@@ -37,7 +37,7 @@ module.exports = {
   MAX_IMAGE_SIZE: 5 * 1024 * 1024, // 5MB
 
   // Các định dạng ảnh cho phép
-  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'],
+  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/jpg'],
 
   // Trạng thái đơn hàng
   ORDER_STATUS: {

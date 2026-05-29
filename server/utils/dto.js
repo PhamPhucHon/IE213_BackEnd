@@ -15,6 +15,8 @@ const toPlain = (doc) => {
   return typeof doc.toObject === 'function' ? doc.toObject() : { ...doc };
 };
 
+const { optimizeImageUrl, optimizeImageUrls } = require('./imageUrl');
+
 // ─────────────────────────────────────────
 // USER DTO
 // Loại bỏ: password, __v
@@ -50,7 +52,7 @@ const categoryDTO = (category) => {
     name: obj.name,
     slug: obj.slug,
     description: obj.description,
-    image: obj.image,
+    image: optimizeImageUrl(obj.image),
     isActive: obj.isActive,
     order: obj.order,
     createdAt: obj.createdAt,
@@ -71,7 +73,7 @@ const variantDTO = (variant) => {
     color: variant.color,
     price: variant.price,
     originalPrice: variant.originalPrice,
-    images: variant.images ?? [],
+    images: optimizeImageUrls(variant.images ?? []),
     isDefault: variant.isDefault ?? false,
   };
 };
@@ -92,7 +94,7 @@ const productDTO = (product) => {
     availability: obj.availability,
     specifications: obj.specifications ?? {},
     variants: (obj.variants ?? []).map(variantDTO),
-    images: obj.images ?? [],
+    images: optimizeImageUrls(obj.images ?? []),
     rating: obj.rating ?? { avg: 0, count: 0 },
     isActive: obj.isActive,
     createdAt: obj.createdAt,
@@ -118,7 +120,7 @@ const reviewDTO = (review) => {
     rating: obj.rating,
     title: obj.title,
     comment: obj.comment,
-    images: obj.images ?? [],
+    images: optimizeImageUrls(obj.images ?? []),
     likes: obj.likes ?? 0,
     // likedBy bị ẩn: không trả về danh sách userId đã like
     replies: (obj.replies ?? []).map((r) => ({
@@ -150,7 +152,7 @@ const cartDTO = (cart) => {
       productId: item.productId,
       sku: item.sku,
       name: item.name,
-      image: item.image,
+      image: optimizeImageUrl(item.image),
       price: item.price,
       quantity: item.quantity,
     })),
@@ -175,7 +177,7 @@ const orderDTO = (order) => {
       productId: item.productId,
       sku: item.sku,
       name: item.name,
-      image: item.image,
+      image: optimizeImageUrl(item.image),
       price: item.price,
       quantity: item.quantity,
     })),

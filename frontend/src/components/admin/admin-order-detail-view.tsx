@@ -80,7 +80,10 @@ export function AdminOrderDetailView({ id }: AdminOrderDetailViewProps) {
             <OrderStatusBadge status={order.status} />
             <AdminOrderStatusActions
               order={order}
-              onError={setActionError}
+              onError={(errorMessage) => {
+                setMessage(null);
+                setActionError(errorMessage);
+              }}
               onSuccess={(nextOrder) => {
                 setActionError(null);
                 setMessage(`${nextOrder.orderNumber} moved to ${nextOrder.status}.`);

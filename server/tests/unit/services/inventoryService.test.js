@@ -76,12 +76,49 @@ describe('inventoryService', () => {
     expect(result).toEqual({ sku: 'sku-1', stock: 10, reserved: 1 });
   });
 
+  it('allows cancelling legacy orders that do not have reserved stock', async () => {
+    const session = { id: 'session-1' };
+    const legacyInventory = { sku: 'sku-legacy', stock: 5, reserved: 0 };
+    Inventory.findOneAndUpdate.mockResolvedValue(null);
+    Inventory.findOne.mockReturnValue(createQueryMock(legacyInventory));
+
+    const result = await inventoryService.releaseStock('sku-legacy', 1, session);
+
+    expect(result).toBe(legacyInventory);
+    expect(Inventory.findOne).toHaveBeenCalledWith({ sku: 'sku-legacy' });
+  });
+
   it('confirms stock after delivery', async () => {
     Inventory.findOneAndUpdate.mockResolvedValue({ sku: 'sku-3', stock: 8, reserved: 0 });
 
     const result = await inventoryService.confirmStock('sku-3', 2);
 
     expect(result).toEqual({ sku: 'sku-3', stock: 8, reserved: 0 });
+  });
+
+  it('delivers legacy orders by decrementing stock when reserved stock is missing', async () => {
+    const session = { id: 'session-1' };
+    Inventory.findOneAndUpdate
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ sku: 'sku-legacy', stock: 4, reserved: 0 });
+    Inventory.findOne.mockReturnValue(createQueryMock({ sku: 'sku-legacy', stock: 5, reserved: 0 }));
+
+    const result = await inventoryService.confirmStock('sku-legacy', 1, session);
+
+    expect(result).toEqual({ sku: 'sku-legacy', stock: 4, reserved: 0 });
+    expect(Inventory.findOneAndUpdate).toHaveBeenNthCalledWith(
+      2,
+      {
+        sku: 'sku-legacy',
+        stock: { $gte: 1 },
+        reserved: { $lt: 1 },
+      },
+      {
+        $inc: { stock: -1 },
+        $set: { reserved: 0 },
+      },
+      { returnDocument: 'after', session }
+    );
   });
 
   it('lists inventory with pagination metadata', async () => {

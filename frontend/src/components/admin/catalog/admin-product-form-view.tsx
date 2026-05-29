@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ImagePlus, Trash2, Upload } from "lucide-react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { Product, ProductSpecifications } from "@/types/models";
 import {
   createAdminProduct,
@@ -54,6 +55,8 @@ type ProductFormState = {
   };
   variants: VariantForm[];
 };
+
+type ImageUploadTarget = { type: "product" } | { type: "variant"; index: number };
 
 const emptyVariant: VariantForm = {
   sku: "",
@@ -252,6 +255,77 @@ function FormField({
   );
 }
 
+function ImageGalleryField({
+  label,
+  images,
+  isUploading = false,
+  onUpload,
+  onRemove
+}: {
+  label: string;
+  images: string[];
+  isUploading?: boolean;
+  onUpload: (file: File) => void;
+  onRemove: (image: string) => void;
+}) {
+  const inputId = useId();
+
+  return (
+    <div className="grid gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm font-medium text-ink">{label}</p>
+        <input
+          id={inputId}
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+          className="sr-only"
+          disabled={isUploading}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.currentTarget.value = "";
+            if (file) onUpload(file);
+          }}
+        />
+        <label
+          htmlFor={inputId}
+          className={`focus-ring inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink hover:bg-surface ${
+            isUploading ? "pointer-events-none opacity-60" : ""
+          }`}
+          aria-disabled={isUploading}
+        >
+          <Upload className="h-4 w-4" />
+          <span>{isUploading ? "Uploading..." : "Upload image"}</span>
+        </label>
+      </div>
+
+      {images.length ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {images.map((image, index) => (
+            <div key={`${image}-${index}`} className="group relative aspect-square overflow-hidden rounded-md bg-surface">
+              <Image src={image} alt={`${label} ${index + 1}`} fill sizes="180px" className="object-cover" />
+              <button
+                type="button"
+                aria-label="Remove image"
+                className="focus-ring absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md bg-white/95 text-red-700 shadow-soft opacity-100 transition hover:bg-red-50 sm:opacity-0 sm:group-hover:opacity-100"
+                onClick={() => onRemove(image)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid min-h-32 place-items-center rounded-md border border-dashed border-line bg-surface p-5 text-center text-sm text-muted">
+          <div>
+            <ImagePlus className="mx-auto h-6 w-6" />
+            <p className="mt-2">No images yet</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProductFormSkeleton() {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -269,7 +343,6 @@ export function AdminProductFormView({ id }: { id?: string }) {
   const productQuery = useAdminProduct(id ?? "", Boolean(id));
   const categoriesQuery = useAdminCategories();
   const [form, setForm] = useState<ProductFormState>(emptyForm);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const hydratedProductId = useRef<string | null>(null);
@@ -310,15 +383,27 @@ export function AdminProductFormView({ id }: { id?: string }) {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: uploadAdminProductImage,
-    onSuccess: ({ imageUrl }) => {
-      setForm((current) => ({
-        ...current,
-        images: [...splitLines(current.images), imageUrl].join("\n")
-      }));
-      setSelectedFile(null);
+    mutationFn: ({ file }: { file: File; target: ImageUploadTarget }) => uploadAdminProductImage(file),
+    onSuccess: ({ imageUrl }, { target }) => {
+      setForm((current) => {
+        if (target.type === "product") {
+          return {
+            ...current,
+            images: [...splitLines(current.images), imageUrl].join("\n")
+          };
+        }
+
+        return {
+          ...current,
+          variants: current.variants.map((variant, index) =>
+            index === target.index
+              ? { ...variant, images: [...splitLines(variant.images), imageUrl].join("\n") }
+              : variant
+          )
+        };
+      });
       setActionError(null);
-      setMessage("Image uploaded and added to product images.");
+      setMessage("Image uploaded.");
       showToast({ title: "Image uploaded", variant: "success" });
     },
     onError: (mutationError) => {
@@ -329,6 +414,12 @@ export function AdminProductFormView({ id }: { id?: string }) {
   });
 
   const previewImages = useMemo(() => splitLines(form.images).slice(0, 4), [form.images]);
+  const activeUploadTarget = uploadMutation.variables?.target;
+  const isUploadingTarget = (target: ImageUploadTarget) =>
+    uploadMutation.isPending &&
+    activeUploadTarget?.type === target.type &&
+    (target.type === "product" ||
+      (activeUploadTarget.type === "variant" && activeUploadTarget.index === target.index));
 
   if (productQuery.isLoading || categoriesQuery.isLoading) {
     return <ProductFormSkeleton />;
@@ -491,32 +582,19 @@ export function AdminProductFormView({ id }: { id?: string }) {
 
         <section className="rounded-lg border border-line bg-white p-5">
           <h2 className="text-lg font-semibold text-ink">Images</h2>
-          <p className="mt-2 text-sm text-muted">Use one image URL per line, or upload one image at a time.</p>
-          <div className="mt-5 grid gap-4">
-            <textarea
-              value={form.images}
-              onChange={(event) => setForm({ ...form, images: event.target.value })}
-              className="focus-ring min-h-28 rounded-md border border-line px-3 py-2 text-sm"
-              placeholder="https://..."
+          <div className="mt-5">
+            <ImageGalleryField
+              label="Product images"
+              images={splitLines(form.images)}
+              isUploading={isUploadingTarget({ type: "product" })}
+              onUpload={(file) => uploadMutation.mutate({ file, target: { type: "product" } })}
+              onRemove={(image) =>
+                setForm((current) => ({
+                  ...current,
+                  images: splitLines(current.images).filter((item) => item !== image).join("\n")
+                }))
+              }
             />
-            <div className="flex flex-wrap items-center gap-2">
-              <input
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,image/webp"
-                onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
-                className="text-sm text-muted"
-              />
-              <button
-                type="button"
-                className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-semibold text-ink hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={!selectedFile || uploadMutation.isPending}
-                onClick={() => {
-                  if (selectedFile) uploadMutation.mutate(selectedFile);
-                }}
-              >
-                {uploadMutation.isPending ? "Uploading..." : "Upload image"}
-              </button>
-            </div>
           </div>
         </section>
 
@@ -612,17 +690,22 @@ export function AdminProductFormView({ id }: { id?: string }) {
                       type="number"
                     />
                   </FormField>
-                  <label className="grid gap-1 text-sm font-medium text-ink md:col-span-2">
-                    Variant image URLs
-                    <textarea
-                      value={variant.images}
-                      onChange={(event) =>
-                        updateVariant(index, { ...variant, images: event.target.value })
+                  <div className="md:col-span-2">
+                    <ImageGalleryField
+                      label="Variant images"
+                      images={splitLines(variant.images)}
+                      isUploading={isUploadingTarget({ type: "variant", index })}
+                      onUpload={(file) =>
+                        uploadMutation.mutate({ file, target: { type: "variant", index } })
                       }
-                      className="focus-ring min-h-20 rounded-md border border-line px-3 py-2 text-sm"
-                      placeholder="https://..."
+                      onRemove={(image) =>
+                        updateVariant(index, {
+                          ...variant,
+                          images: splitLines(variant.images).filter((item) => item !== image).join("\n")
+                        })
+                      }
                     />
-                  </label>
+                  </div>
                 </div>
               </article>
             ))}

@@ -21,20 +21,60 @@ exports.getStatsOverview = asyncHandler(async (req, res) => {
     totalUsers,
     totalOrders,
     revenueResult,
-    lowStockCount,
+    lowStockResult,
   ] = await Promise.all([
     User.countDocuments().setOptions({ includeInactive: true }),
     Order.countDocuments(),
     Order.aggregate([
       { $match: { status: 'Delivered', createdAt: { $gte: startOfMonth } } },
-      { $group: { _id: null, total: { $sum: '$totalPrice' } } },
+      {
+        $group: {
+          _id: null,
+          total: {
+            $sum: {
+              $convert: {
+                input: '$totalPrice',
+                to: 'double',
+                onError: 0,
+                onNull: 0,
+              },
+            },
+          },
+        },
+      },
     ]),
-    Inventory.countDocuments({
-      $expr: { $lt: [{ $subtract: ['$stock', '$reserved'] }, 10] },
-    }),
+    Inventory.aggregate([
+      {
+        $project: {
+          available: {
+            $subtract: [
+              {
+                $convert: {
+                  input: '$stock',
+                  to: 'double',
+                  onError: 0,
+                  onNull: 0,
+                },
+              },
+              {
+                $convert: {
+                  input: '$reserved',
+                  to: 'double',
+                  onError: 0,
+                  onNull: 0,
+                },
+              },
+            ],
+          },
+        },
+      },
+      { $match: { available: { $lt: 10 } } },
+      { $count: 'count' },
+    ]),
   ]);
 
   const revenueThisMonth = revenueResult.length > 0 ? revenueResult[0].total : 0;
+  const lowStockCount = lowStockResult[0]?.count ?? 0;
 
   return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, {
     totalUsers,
@@ -46,21 +86,42 @@ exports.getStatsOverview = asyncHandler(async (req, res) => {
 
 // GET /api/admin/stats/top-products
 exports.getTopProducts = asyncHandler(async (req, res) => {
-  const limit = Math.min(Number(req.query.limit) || 10, 50);
+  const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
 
   const topProducts = await Order.aggregate([
     { $match: { status: 'Delivered' } },
     { $unwind: '$items' },
     {
-      $group: {
-        _id: '$items.productId',
-        totalSold: { $sum: '$items.quantity' },
-        totalRevenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } },
-        name: { $first: '$items.name' },
-        image: { $first: '$items.image' },
+      $addFields: {
+        itemQuantity: {
+          $convert: {
+            input: '$items.quantity',
+            to: 'int',
+            onError: 0,
+            onNull: 0,
+          },
+        },
+        itemPrice: {
+          $convert: {
+            input: '$items.price',
+            to: 'double',
+            onError: 0,
+            onNull: 0,
+          },
+        },
       },
     },
-    { $sort: { totalSold: -1 } },
+    { $match: { itemQuantity: { $gt: 0 } } },
+    {
+      $group: {
+        _id: { $ifNull: ['$items.productId', '$items.sku'] },
+        totalSold: { $sum: '$itemQuantity' },
+        totalRevenue: { $sum: { $multiply: ['$itemPrice', '$itemQuantity'] } },
+        name: { $first: { $ifNull: ['$items.name', '$items.sku'] } },
+        image: { $first: { $ifNull: ['$items.image', ''] } },
+      },
+    },
+    { $sort: { totalSold: -1, totalRevenue: -1 } },
     { $limit: limit },
     {
       $lookup: {
@@ -74,8 +135,8 @@ exports.getTopProducts = asyncHandler(async (req, res) => {
     {
       $project: {
         _id: 1,
-        name: 1,
-        image: 1,
+        name: { $ifNull: ['$name', '$product.name'] },
+        image: { $ifNull: ['$image', { $arrayElemAt: ['$product.images', 0] }] },
         totalSold: 1,
         totalRevenue: 1,
         slug: '$product.slug',

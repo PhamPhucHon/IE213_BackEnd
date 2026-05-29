@@ -4,11 +4,11 @@ const cloudinary = require('../config/cloudinary');
 const { HTTP_STATUS, MAX_IMAGE_SIZE, ALLOWED_IMAGE_TYPES } = require('../config/constants');
 const { errorResponse } = require('../utils/apiResponse');
 
-const allowedExts = ['jpg', 'jpeg', 'png', 'webp'];
+const allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
 
 const fileFilter = (req, file, cb) => {
   if (!ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
-    return cb(new Error('Chỉ chấp nhận file ảnh: jpeg, jpg, png, webp'));
+    return cb(new Error('Chi chap nhan file anh: jpeg, jpg, png, webp, avif'));
   }
   return cb(null, true);
 };
@@ -18,8 +18,10 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'GlassStore_Uploads',
+    resource_type: 'image',
     allowed_formats: allowedExts,
-    transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+    format: 'webp',
+    transformation: [{ width: 1600, height: 1600, crop: 'limit', quality: 'auto:good' }],
   },
 });
 

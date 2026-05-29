@@ -23,7 +23,13 @@ function createCartError<T>(
 }
 
 export function getLocalCartErrorMessage(error: unknown) {
-  return getLocalErrorMessage(error, "Cart request failed. Please try again.");
+  const message = getLocalErrorMessage(error, "Cart request failed. Please try again.");
+
+  if (/sku/i.test(message)) {
+    return "This product is not available right now. Please choose another option.";
+  }
+
+  return message;
 }
 
 export async function getCart() {

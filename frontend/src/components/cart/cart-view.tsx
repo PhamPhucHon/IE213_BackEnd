@@ -101,7 +101,7 @@ export function CartView() {
       const inventory = await checkInventory(sku, quantity);
 
       if (!inventory.available) {
-        throw new Error(`Only ${inventory.availableStock} item(s) available for this SKU.`);
+        throw new Error(`Only ${inventory.availableStock} item(s) available.`);
       }
 
       return updateCartItem(sku, quantity);
@@ -263,7 +263,7 @@ export function CartView() {
           <article key={item.sku} className="grid gap-4 rounded-lg border border-line bg-white p-4 sm:grid-cols-[112px_1fr]">
             <div className="relative aspect-square overflow-hidden rounded-md bg-surface">
               {item.image ? (
-                <Image src={item.image} alt={item.name ?? item.sku} fill sizes="112px" className="object-cover" />
+                <Image src={item.image} alt={item.name ?? "Cart item"} fill sizes="112px" className="object-cover" />
               ) : (
                 <div className="flex h-full items-center justify-center px-3 text-center text-xs text-muted">
                   No image
@@ -273,15 +273,14 @@ export function CartView() {
 
             <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
               <div>
-                <h2 className="font-semibold text-ink">{item.name ?? item.sku}</h2>
-                <p className="mt-1 text-xs text-muted">SKU: {item.sku}</p>
+                <h2 className="font-semibold text-ink">{item.name ?? "Selected item"}</h2>
                 <p className="mt-3 text-sm font-semibold text-ink">{formatCurrency(item.price)}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                 <button
                   type="button"
-                  aria-label={`Decrease ${item.name ?? item.sku}`}
+                  aria-label={`Decrease ${item.name ?? "item"}`}
                   className="focus-ring inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-white text-ink"
                   disabled={isMutating}
                   onClick={() => updateMutation.mutate({ sku: item.sku, quantity: item.quantity - 1 })}
@@ -289,7 +288,7 @@ export function CartView() {
                   <Minus className="h-4 w-4" />
                 </button>
                 <input
-                  aria-label={`Quantity for ${item.name ?? item.sku}`}
+                  aria-label={`Quantity for ${item.name ?? "item"}`}
                   className="focus-ring h-9 w-16 rounded-md border border-line text-center text-sm"
                   type="number"
                   min={1}
@@ -311,7 +310,7 @@ export function CartView() {
                 />
                 <button
                   type="button"
-                  aria-label={`Increase ${item.name ?? item.sku}`}
+                  aria-label={`Increase ${item.name ?? "item"}`}
                   className="focus-ring inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-white text-ink"
                   disabled={isMutating}
                   onClick={() => updateMutation.mutate({ sku: item.sku, quantity: item.quantity + 1 })}

@@ -48,16 +48,6 @@ export const productsApi = {
       ...publicCatalogFetchOptions
     });
   },
-  uploadImage(file: File, token?: string) {
-    const form = new FormData();
-    form.append("image", file);
-
-    return apiRequest<{ imageUrl: string }>("/products/upload-image", {
-      method: "POST",
-      token,
-      body: form
-    });
-  },
   create(payload: ProductPayload, token?: string) {
     return apiRequest<Product>("/products", {
       method: "POST",

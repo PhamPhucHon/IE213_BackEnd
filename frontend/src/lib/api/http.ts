@@ -1,4 +1,5 @@
 import type { ApiResponse, QueryParams } from "@/types/api";
+import { NETWORK_ERROR_MESSAGE } from "./error-message";
 
 const configuredApiBaseUrl =
   process.env.BACKEND_API_URL ??
@@ -78,12 +79,22 @@ export async function apiEnvelope<T>(
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const response = await fetch(buildUrl(path, query), {
-    ...fetchOptions,
-    cache: fetchOptions.cache ?? "no-store",
-    headers,
-    body: prepareBody(body, headers)
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(buildUrl(path, query), {
+      ...fetchOptions,
+      cache: fetchOptions.cache ?? "no-store",
+      headers,
+      body: prepareBody(body, headers)
+    });
+  } catch {
+    throw new ApiError<T>(NETWORK_ERROR_MESSAGE, 502, {
+      success: false,
+      message: NETWORK_ERROR_MESSAGE,
+      data: null
+    } as ApiResponse<T>);
+  }
 
   const payload = (await response.json().catch(() => null)) as ApiResponse<T> | null;
 

@@ -3,7 +3,6 @@ const productController = require('../controllers/productController');
 const reviewController = require('../controllers/reviewController');
 const { protect } = require('../middleware/authMiddleware');
 const { isAdmin } = require('../middleware/adminMiddleware');
-const upload = require('../middleware/uploadMiddleware');
 const { validateBody, validateQuery, validateParams, validateObjectId, body, query, param } = require('../middleware/validateMiddleware');
 
 const router = express.Router();
@@ -154,15 +153,6 @@ router.get(
 	'/:productId/reviews',
 	validateObjectId('productId'),
 	reviewController.getReviewsByProduct
-);
-
-router.post(
-	'/upload-image',
-	protect,
-	isAdmin,
-	upload.uploadSingle('image'),
-	upload.handleUploadError,
-	productController.uploadImage
 );
 
 router.post(

@@ -341,27 +341,20 @@ Base: /api/products
 - Params:
   - id: Mongo ObjectId
 
-4.6) Upload 1 anh product
-- Method: POST
-- Endpoint: /api/products/upload-image
-- Auth: Admin
-- Form-data:
-  - image: file
-
-4.7) Tao product
+4.6) Tao product
 - Method: POST
 - Endpoint: /api/products
 - Auth: Admin
 - Body: theo schema Product (name, categoryId, variants, ...)
 
-4.8) Cap nhat product
+4.7) Cap nhat product
 - Method: PUT
 - Endpoint: /api/products/:id
 - Auth: Admin
 - Params:
   - id: Mongo ObjectId
 
-4.9) Xoa product
+4.8) Xoa product
 - Method: DELETE
 - Endpoint: /api/products/:id
 - Auth: Admin
@@ -650,7 +643,30 @@ Base: /api/admin
 - Params:
   - id: Mongo ObjectId
 
-9.9) San pham ban chay nhat
+9.9) Upload anh cho admin catalog
+- Method: POST
+- Endpoint: /api/admin/uploads/images
+- Auth: Admin
+- Content-Type: multipart/form-data
+- Form-data:
+  - image: file (JPG, PNG, WEBP hoac AVIF, toi da 5MB tu FE proxy)
+- Response (thanh cong):
+  {
+    "success": true,
+    "message": "Image uploaded successfully",
+    "data": {
+      "imageUrl": "https://res.cloudinary.com/.../image/upload/f_webp,q_auto/...",
+      "publicId": "products/example",
+      "format": "webp",
+      "optimized": true
+    },
+    "meta": { "timestamp": "2026-04-29T10:00:00.000Z" }
+  }
+- Ghi chu:
+  - Day la endpoint upload anh duy nhat cho admin catalog
+  - FE admin dung URL tra ve de luu vao images cua product/variant, nhung khong hien URL cho admin tren form
+
+9.10) San pham ban chay nhat
 - Method: GET
 - Endpoint: /api/admin/stats/top-products
 - Auth: Admin
@@ -683,7 +699,7 @@ Base: /api/admin
   - slug, isActive, rating: lay tu collection products (lookup)
   - Neu san pham da bi xoa khoi DB, cac truong lookup se la null nhung van hien thi do lay name/image tu snapshot don hang
 
-9.9) Thong ke tong quan (Dashboard)
+9.11) Thong ke tong quan (Dashboard)
 - Method: GET
 - Endpoint: /api/admin/stats/overview
 - Auth: Admin

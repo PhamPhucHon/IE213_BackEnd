@@ -116,12 +116,11 @@ export function OrderDetailView({ id }: OrderDetailViewProps) {
               <article key={item.sku} className="grid grid-cols-[72px_1fr] gap-3">
                 <div className="relative aspect-square overflow-hidden rounded-md bg-surface">
                   {item.image ? (
-                    <Image src={item.image} alt={item.name ?? item.sku} fill sizes="72px" className="object-cover" />
+                    <Image src={item.image} alt={item.name ?? "Order item"} fill sizes="72px" className="object-cover" />
                   ) : null}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-ink">{item.name ?? item.sku}</h3>
-                  <p className="mt-1 text-xs text-muted">SKU: {item.sku}</p>
+                  <h3 className="font-medium text-ink">{item.name ?? "Ordered item"}</h3>
                   <p className="mt-2 text-sm text-muted">
                     {item.quantity} x {formatCurrency(item.price)}
                   </p>

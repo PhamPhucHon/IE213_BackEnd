@@ -15,6 +15,8 @@ const configuredBackendApiUrl =
   "http://localhost:5001/api";
 
 const backendApiUrl = configuredBackendApiUrl.replace(/\/+$/, "");
+const backendUnavailableMessage =
+  "Cannot reach server. Please make sure the backend is running and try again.";
 
 type BackendResult<T> = {
   status: number;
@@ -72,7 +74,7 @@ export async function backendJson<T>(
       status: 502,
       payload: {
         success: false,
-        message: "Cannot reach server. Please try again.",
+        message: backendUnavailableMessage,
         data: null
       }
     };

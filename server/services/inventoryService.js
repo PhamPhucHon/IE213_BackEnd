@@ -215,3 +215,117 @@ exports.checkStock = async (sku, quantity) => {
     requestedQuantity: quantity,
   };
 };
+
+const releaseStockWithLegacyFallback = async (sku, quantity, session = null) => {
+  if (quantity <= 0) throw new AppError('Release quantity must be greater than 0', 400);
+
+  const inventory = await Inventory.findOneAndUpdate(
+    {
+      sku,
+      reserved: { $gte: quantity },
+    },
+    {
+      $inc: {
+        reserved: -quantity,
+      },
+    },
+    { returnDocument: 'after', session }
+  );
+
+  if (inventory) {
+    return inventory;
+  }
+
+  const existingInventory = await Inventory.findOne({ sku }).session(session);
+  if (!existingInventory) {
+    throw new AppError(`SKU ${sku} was not found in inventory.`, 404);
+  }
+
+  const reserved = Math.max(Number(existingInventory.reserved) || 0, 0);
+  if (reserved <= 0) {
+    return existingInventory;
+  }
+
+  const partiallyReleasedInventory = await Inventory.findOneAndUpdate(
+    {
+      sku,
+      reserved: { $gt: 0, $lt: quantity },
+    },
+    {
+      $set: {
+        reserved: 0,
+      },
+    },
+    { returnDocument: 'after', session }
+  );
+
+  if (partiallyReleasedInventory) {
+    return partiallyReleasedInventory;
+  }
+
+  const latestInventory = await Inventory.findOne({ sku }).session(session);
+  if (latestInventory) {
+    return latestInventory;
+  }
+
+  throw new AppError(`SKU ${sku} was not found in inventory.`, 404);
+};
+
+const confirmStockWithLegacyFallback = async (sku, quantity, session = null) => {
+  if (quantity <= 0) throw new AppError('Confirmed quantity must be greater than 0', 400);
+
+  const inventory = await Inventory.findOneAndUpdate(
+    {
+      sku,
+      stock: { $gte: quantity },
+      reserved: { $gte: quantity },
+    },
+    {
+      $inc: {
+        stock: -quantity,
+        reserved: -quantity,
+      },
+    },
+    { returnDocument: 'after', session }
+  );
+
+  if (inventory) {
+    return inventory;
+  }
+
+  const existingInventory = await Inventory.findOne({ sku }).session(session);
+  if (!existingInventory) {
+    throw new AppError(`SKU ${sku} was not found in inventory.`, 404);
+  }
+
+  const currentStock = Number(existingInventory.stock) || 0;
+  if (currentStock < quantity) {
+    throw new AppError(`Inventory issue: SKU ${sku} only has ${currentStock}, cannot deliver ${quantity}.`, 409);
+  }
+
+  const legacyInventory = await Inventory.findOneAndUpdate(
+    {
+      sku,
+      stock: { $gte: quantity },
+      reserved: { $lt: quantity },
+    },
+    {
+      $inc: {
+        stock: -quantity,
+      },
+      $set: {
+        reserved: 0,
+      },
+    },
+    { returnDocument: 'after', session }
+  );
+
+  if (legacyInventory) {
+    return legacyInventory;
+  }
+
+  throw new AppError(`Inventory issue: SKU ${sku} could not be updated. Please try again.`, 409);
+};
+
+exports.releaseStock = releaseStockWithLegacyFallback;
+exports.confirmStock = confirmStockWithLegacyFallback;

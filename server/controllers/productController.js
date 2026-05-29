@@ -2,7 +2,6 @@ const productService = require('../services/productService');
 const { successResponse } = require('../utils/apiResponse');
 const { HTTP_STATUS, MESSAGES, PAGINATION } = require('../config/constants');
 const { asyncHandler } = require('../utils/asyncHandler');
-const ApiError = require('../utils/apiError');
 
 // GET /api/products
 exports.getProducts = asyncHandler(async (req, res) => {
@@ -79,13 +78,4 @@ exports.updateProduct = asyncHandler(async (req, res) => {
 exports.deleteProduct = asyncHandler(async (req, res) => {
   const result = await productService.deleteProduct(req.params.id);
   return successResponse(res, HTTP_STATUS.OK, result.message, null);
-});
-
-// POST /api/products/upload-image  (Admin only)
-exports.uploadImage = asyncHandler(async (req, res) => {
-  if (!req.file && !req.files) {
-    throw new ApiError('Không có file được tải lên', HTTP_STATUS.BAD_REQUEST);
-  }
-  const imageUrl = req.file.path;
-  return successResponse(res, HTTP_STATUS.OK, 'Tải ảnh thành công', { imageUrl });
 });

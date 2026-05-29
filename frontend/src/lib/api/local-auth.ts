@@ -19,14 +19,14 @@ export async function getCurrentUser() {
     cache: "no-store",
     credentials: "include"
   });
-  const payload = await readPayload<User>(response);
+  const payload = await readPayload<User | null>(response);
 
   if (response.status === 401) {
     return null;
   }
 
   if (!response.ok || !payload?.success) {
-    throw new LocalApiError<User>(
+    throw new LocalApiError<User | null>(
       responseErrorMessage(response, payload),
       response.status,
       payload
