@@ -186,7 +186,7 @@ export function ProductDetailView({ product, relatedProducts = [] }: ProductDeta
     <div className="container-page py-8 sm:py-10">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] lg:gap-8">
         <section className="grid gap-3">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-lg border border-line bg-white shadow-subtle">
+          <div className="group/gallery relative aspect-[4/3] overflow-hidden rounded-lg border border-line bg-white shadow-subtle">
             {activeImage ? (
               <Image
                 src={activeImage}
@@ -194,7 +194,7 @@ export function ProductDetailView({ product, relatedProducts = [] }: ProductDeta
                 fill
                 priority
                 sizes="(min-width: 1024px) 58vw, 100vw"
-                className="object-contain p-5 sm:p-8"
+                className="object-cover transition duration-300 ease-ui group-hover/gallery:scale-[1.015] motion-reduce:transition-none motion-reduce:group-hover/gallery:scale-100"
               />
             ) : (
               <div className="flex h-full items-center justify-center text-sm font-medium text-muted">
@@ -212,39 +212,39 @@ export function ProductDetailView({ product, relatedProducts = [] }: ProductDeta
                   type="button"
                   aria-label="Previous product image"
                   title="Previous image"
-                  className="focus-ring absolute left-3 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md border border-line bg-white/90 text-ink shadow-soft transition hover:bg-white"
+                  className="focus-ring pointer-events-none absolute left-3 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-ink/80 opacity-0 transition duration-200 ease-ui hover:text-ink focus-visible:pointer-events-auto focus-visible:opacity-100 group-focus-within/gallery:pointer-events-auto group-focus-within/gallery:opacity-100 group-hover/gallery:pointer-events-auto group-hover/gallery:opacity-100"
                   onClick={() => showAdjacentImage(-1)}
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="h-7 w-7 drop-shadow-[0_2px_8px_rgba(255,255,255,0.9)]" />
                 </button>
                 <button
                   type="button"
                   aria-label="Next product image"
                   title="Next image"
-                  className="focus-ring absolute right-3 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md border border-line bg-white/90 text-ink shadow-soft transition hover:bg-white"
+                  className="focus-ring pointer-events-none absolute right-3 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md text-ink/80 opacity-0 transition duration-200 ease-ui hover:text-ink focus-visible:pointer-events-auto focus-visible:opacity-100 group-focus-within/gallery:pointer-events-auto group-focus-within/gallery:opacity-100 group-hover/gallery:pointer-events-auto group-hover/gallery:opacity-100"
                   onClick={() => showAdjacentImage(1)}
                 >
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="h-7 w-7 drop-shadow-[0_2px_8px_rgba(255,255,255,0.9)]" />
                 </button>
               </>
             ) : null}
           </div>
 
           {images.length > 1 ? (
-            <div className="grid grid-cols-4 gap-2 min-[390px]:grid-cols-5 sm:grid-cols-6">
+            <div className="grid grid-cols-4 gap-2.5 min-[390px]:grid-cols-5 sm:grid-cols-6">
               {images.slice(0, 12).map((image, index) => (
                 <button
                   key={image}
                   type="button"
                   className={cn(
-                    "focus-ring relative aspect-square overflow-hidden rounded-md border bg-white transition hover:border-line-strong",
+                    "focus-ring relative aspect-[4/3] overflow-hidden rounded-md border bg-white transition hover:border-line-strong",
                     image === activeImage ? "border-ink ring-2 ring-ink" : "border-line"
                   )}
                   onClick={() => setActiveImage(image)}
                   aria-label={`View image ${index + 1} of ${images.length} for ${product.name}`}
                   aria-current={image === activeImage ? "true" : undefined}
                 >
-                  <Image src={image} alt="" fill sizes="96px" className="object-contain p-1.5" />
+                  <Image src={image} alt="" fill sizes="128px" className="object-cover" />
                 </button>
               ))}
             </div>

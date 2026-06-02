@@ -46,6 +46,13 @@ function copyCart(cart: Cart) {
   };
 }
 
+function getDraftQuantities(items: Cart["items"]) {
+  return items.reduce<Record<string, string>>((next, item) => {
+    next[item.sku] = String(item.quantity);
+    return next;
+  }, {});
+}
+
 function CartSkeleton() {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
@@ -78,15 +85,7 @@ export function CartView() {
   }, [error, pathname, router]);
 
   useEffect(() => {
-    setDraftQuantities((current) => {
-      const next: Record<string, string> = {};
-
-      items.forEach((item) => {
-        next[item.sku] = current[item.sku] ?? String(item.quantity);
-      });
-
-      return next;
-    });
+    setDraftQuantities(getDraftQuantities(items));
   }, [items]);
 
   function handleMutationError(error: unknown, previousCart?: Cart) {
