@@ -10,6 +10,7 @@ import {
   FieldError,
   FormAlert,
   applyZodFieldErrors,
+  getFieldDescribedBy,
   inputClassName,
   primaryButtonClassName
 } from "@/components/auth/form-utils";
@@ -22,6 +23,12 @@ import {
 } from "@/lib/api/local-users";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 import { clearSessionQueries } from "@/lib/query/session-cache";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
+import {
+  getButtonClassName,
+  getFieldClassName
+} from "@/components/ui/style-primitives";
 
 type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
 
@@ -55,7 +62,7 @@ export function AccountSecurityView() {
   }, [isLoading, pathname, router, user]);
 
   if (isLoading) {
-    return <div className="h-[420px] rounded-lg bg-surface" />;
+    return <Skeleton className="h-[420px]" />;
   }
 
   if (!user) {
@@ -112,7 +119,7 @@ export function AccountSecurityView() {
 
   return (
     <div className="grid gap-6">
-      <form className="rounded-lg border border-line bg-white p-5" onSubmit={onSubmit}>
+      <form className="rounded-lg border border-line bg-white p-5 shadow-subtle" onSubmit={onSubmit}>
         <h2 className="text-lg font-semibold text-ink">Change password</h2>
         <div className="mt-5 grid gap-4">
           {message ? <FormAlert tone="success">{message}</FormAlert> : null}
@@ -120,23 +127,37 @@ export function AccountSecurityView() {
 
           <label className="grid gap-1 text-sm font-medium text-ink">
             Current password
-            <input className={inputClassName} type="password" autoComplete="current-password" {...register("currentPassword")} />
-            <FieldError message={errors.currentPassword?.message} />
+            <input
+              className={inputClassName}
+              type="password"
+              autoComplete="current-password"
+              aria-invalid={errors.currentPassword ? "true" : undefined}
+              aria-describedby={getFieldDescribedBy(errors.currentPassword && "security-current-password-error")}
+              {...register("currentPassword")}
+            />
+            <FieldError id="security-current-password-error" message={errors.currentPassword?.message} />
           </label>
 
           <label className="grid gap-1 text-sm font-medium text-ink">
             New password
-            <input className={inputClassName} type="password" autoComplete="new-password" {...register("newPassword")} />
-            <FieldError message={errors.newPassword?.message} />
+            <input
+              className={inputClassName}
+              type="password"
+              autoComplete="new-password"
+              aria-invalid={errors.newPassword ? "true" : undefined}
+              aria-describedby={getFieldDescribedBy(errors.newPassword && "security-new-password-error")}
+              {...register("newPassword")}
+            />
+            <FieldError id="security-new-password-error" message={errors.newPassword?.message} />
           </label>
 
-          <button type="submit" className={primaryButtonClassName} disabled={isSubmitting}>
+          <button type="submit" className={primaryButtonClassName} disabled={isSubmitting} aria-busy={isSubmitting}>
             {isSubmitting ? "Changing..." : "Change password"}
           </button>
         </div>
       </form>
 
-      <section className="rounded-lg border border-line bg-white p-5">
+      <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
         <h2 className="text-lg font-semibold text-ink">Session</h2>
         <p className="mt-2 text-sm leading-6 text-muted">Logout clears the local HttpOnly auth cookies.</p>
         <div className="mt-4">
@@ -144,25 +165,32 @@ export function AccountSecurityView() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-red-200 bg-red-50 p-5">
-        <h2 className="text-lg font-semibold text-red-700">Delete account</h2>
-        <p className="mt-2 text-sm leading-6 text-red-700">
-          This disables your account. The backend will block deletion while you have Pending or Processing orders.
+      <section className="rounded-lg border border-danger-200 bg-danger-50 p-5 shadow-subtle">
+        <h2 className="text-lg font-semibold text-danger-700">Delete account</h2>
+        <p className="mt-2 text-sm leading-6 text-danger-700">
+          This disables your account. Deletion is blocked while you have Pending or Processing orders.
         </p>
-        <label className="mt-4 grid gap-1 text-sm font-medium text-red-700">
+        <label className="mt-4 grid gap-1 text-sm font-medium text-danger-700">
           Type your email to confirm
           <input
-            className="focus-ring rounded-md border border-red-200 bg-white px-3 py-2 text-sm text-ink"
+            className={getFieldClassName(Boolean(deleteError))}
             value={confirmText}
             onChange={(event) => setConfirmText(event.target.value)}
             placeholder={userEmail}
+            aria-invalid={deleteError ? "true" : undefined}
+            aria-describedby={getFieldDescribedBy(deleteError && "delete-account-email-error")}
           />
         </label>
-        {deleteError ? <p className="mt-3 text-sm font-medium text-red-700">{deleteError}</p> : null}
+        {deleteError ? (
+          <StatusAlert id="delete-account-email-error" tone="error" className="mt-3">
+            {deleteError}
+          </StatusAlert>
+        ) : null}
         <button
           type="button"
-          className="focus-ring mt-4 rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className={getButtonClassName("danger", "mt-4")}
           disabled={isDeleting}
+          aria-busy={isDeleting}
           onClick={handleDeleteAccount}
         >
           {isDeleting ? "Deleting..." : "Delete account"}

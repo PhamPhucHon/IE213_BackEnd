@@ -28,6 +28,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="vi" data-scroll-behavior="smooth">
       <body>
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

@@ -12,6 +12,15 @@ import {
 import { getLocalAdminCatalogErrorMessage } from "@/lib/api/local-admin-catalog";
 import { useAdminInventory } from "@/lib/hooks/use-admin-catalog";
 import { cn, formatDate } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
+import {
+  fieldClassName,
+  getBadgeClassName,
+  getButtonClassName,
+  selectClassName
+} from "@/components/ui/style-primitives";
 import { AdminInventoryStockButton } from "./admin-inventory-stock-button";
 
 function pageFromSearchParams(searchParams: URLSearchParams) {
@@ -49,7 +58,7 @@ function InventorySkeleton() {
   return (
     <div className="grid gap-4">
       {Array.from({ length: 6 }).map((_, index) => (
-        <div key={index} className="h-24 rounded-lg bg-surface" />
+        <Skeleton key={index} className="h-24 rounded-lg" />
       ))}
     </div>
   );
@@ -61,29 +70,29 @@ function InventoryFilterForm({ searchParams }: { searchParams: URLSearchParams }
       <input
         name="productId"
         defaultValue={searchParams.get("productId") ?? ""}
-        className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+        className={fieldClassName}
         placeholder="Filter by product ID"
       />
       <select
         name="lowStock"
         defaultValue={searchParams.get("lowStock") ?? ""}
-        className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+        className={selectClassName}
       >
         <option value="">All stock</option>
         <option value="true">Low stock</option>
         <option value="false">Healthy stock</option>
       </select>
       <input type="hidden" name="page" value="1" />
-      <div className="flex gap-2">
+      <div className="grid gap-2 min-[390px]:flex">
         <button
           type="submit"
-          className="focus-ring rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white"
+          className={getButtonClassName("primary", "w-full min-[390px]:w-auto")}
         >
           Apply
         </button>
         <Link
           href="/admin/inventory"
-          className="focus-ring rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-surface"
+          className={getButtonClassName("secondary", "w-full min-[390px]:w-auto")}
         >
           Clear
         </Link>
@@ -114,23 +123,23 @@ export function AdminInventoryView() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error" className="p-5">
         {getLocalAdminCatalogErrorMessage(error)}
-      </div>
+      </StatusAlert>
     );
   }
 
   return (
     <div className="grid gap-5">
       {message ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <StatusAlert tone="success">
           {message}
-        </p>
+        </StatusAlert>
       ) : null}
       {actionError ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <StatusAlert tone="error">
           {actionError}
-        </p>
+        </StatusAlert>
       ) : null}
 
       <InventoryFilterForm searchParams={searchParams} />
@@ -141,13 +150,13 @@ export function AdminInventoryView() {
       </div>
 
       {!inventory.length ? (
-        <div className="rounded-lg border border-line bg-white p-8 text-center">
-          <h2 className="text-xl font-semibold text-ink">No inventory rows found</h2>
-          <p className="mt-2 text-sm text-muted">Try another filter or create product variants first.</p>
-        </div>
+        <EmptyState
+          title="No inventory rows found"
+          description="Try another filter or create product variants first."
+        />
       ) : (
         <>
-          <div className="hidden overflow-x-auto rounded-lg border border-line bg-white lg:block">
+          <div className="hidden overflow-x-auto rounded-lg border border-line bg-white xl:block">
             <table className="min-w-full divide-y divide-line text-sm">
               <thead className="bg-surface text-left text-xs font-semibold uppercase tracking-wide text-muted">
                 <tr>
@@ -164,15 +173,15 @@ export function AdminInventoryView() {
                 {inventory.map((item) => {
                   const product = getInventoryProduct(item);
                   return (
-                    <tr key={item._id} className={cn(isLowStock(item) && "bg-amber-50/50")}>
+                    <tr key={item._id} className={cn(isLowStock(item) && "bg-warning-50/50")}>
                       <td className="px-4 py-4">
-                        <Link href={`/admin/inventory/${encodeURIComponent(item.sku)}`} className="font-semibold text-ink">
+                        <Link href={`/admin/inventory/${encodeURIComponent(item.sku)}`} className="break-all font-semibold text-ink">
                           {item.sku}
                         </Link>
                         <p className="mt-1 text-xs text-muted">Restocked {formatDate(item.lastRestocked)}</p>
                       </td>
                       <td className="px-4 py-4 text-muted">
-                        <Link href={`/admin/products/${product.id}/edit`} className="font-medium text-ink">
+                        <Link href={`/admin/products/${product.id}/edit`} className="break-words font-medium text-ink">
                           {product.name}
                         </Link>
                       </td>
@@ -181,12 +190,7 @@ export function AdminInventoryView() {
                       <td className="px-4 py-4 text-right font-semibold text-ink">{item.available}</td>
                       <td className="px-4 py-4">
                         <span
-                          className={cn(
-                            "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
-                            isLowStock(item)
-                              ? "border-amber-200 bg-amber-50 text-amber-700"
-                              : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                          )}
+                          className={getBadgeClassName(isLowStock(item) ? "warning" : "success", "px-2.5 py-1")}
                         >
                           {stockBadge(item)}
                         </span>
@@ -195,7 +199,7 @@ export function AdminInventoryView() {
                         <div className="flex justify-end gap-2">
                           <Link
                             href={`/admin/inventory/${encodeURIComponent(item.sku)}`}
-                            className="focus-ring inline-flex h-9 items-center justify-center rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink hover:bg-surface"
+                            className={getButtonClassName("secondary", "px-3")}
                           >
                             Detail
                           </Link>
@@ -219,7 +223,7 @@ export function AdminInventoryView() {
             </table>
           </div>
 
-          <div className="grid gap-4 lg:hidden">
+          <div className="grid gap-4 xl:hidden">
             {inventory.map((item) => {
               const product = getInventoryProduct(item);
               return (
@@ -227,23 +231,18 @@ export function AdminInventoryView() {
                   key={item._id}
                   className={cn(
                     "rounded-lg border bg-white p-4",
-                    isLowStock(item) ? "border-amber-200" : "border-line"
+                    isLowStock(item) ? "border-warning-200" : "border-line"
                   )}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <Link href={`/admin/inventory/${encodeURIComponent(item.sku)}`} className="font-semibold text-ink">
+                    <div className="min-w-0">
+                      <Link href={`/admin/inventory/${encodeURIComponent(item.sku)}`} className="break-all font-semibold text-ink">
                         {item.sku}
                       </Link>
-                      <p className="mt-1 text-sm text-muted">{product.name}</p>
+                      <p className="mt-1 break-words text-sm text-muted">{product.name}</p>
                     </div>
                     <span
-                      className={cn(
-                        "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
-                        isLowStock(item)
-                          ? "border-amber-200 bg-amber-50 text-amber-700"
-                          : "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      )}
+                      className={getBadgeClassName(isLowStock(item) ? "warning" : "success", "px-2.5 py-1")}
                     >
                       {stockBadge(item)}
                     </span>
@@ -262,10 +261,10 @@ export function AdminInventoryView() {
                       <p className="font-semibold text-ink">{item.available}</p>
                     </div>
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-4 grid gap-2 min-[390px]:flex min-[390px]:flex-wrap">
                     <Link
                       href={`/admin/inventory/${encodeURIComponent(item.sku)}`}
-                      className="focus-ring rounded-md bg-ink px-3 py-2 text-sm font-semibold text-white"
+                      className={getButtonClassName("primary", "px-3")}
                     >
                       Detail
                     </Link>
@@ -289,22 +288,24 @@ export function AdminInventoryView() {
       )}
 
       {pagination.totalPages > 1 ? (
-        <nav className="flex items-center justify-between border-t border-line pt-5">
+        <nav className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
           <p className="text-sm text-muted">
             Page {pagination.currentPage} of {pagination.totalPages}
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link
               href={pageHref(searchParams, Math.max(1, pagination.currentPage - 1))}
-              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
+              className={getButtonClassName("secondary", "px-3 aria-disabled:pointer-events-none aria-disabled:opacity-50")}
               aria-disabled={pagination.currentPage <= 1}
+              tabIndex={pagination.currentPage <= 1 ? -1 : undefined}
             >
               Previous
             </Link>
             <Link
               href={pageHref(searchParams, Math.min(pagination.totalPages, pagination.currentPage + 1))}
-              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
+              className={getButtonClassName("secondary", "px-3 aria-disabled:pointer-events-none aria-disabled:opacity-50")}
               aria-disabled={pagination.currentPage >= pagination.totalPages}
+              tabIndex={pagination.currentPage >= pagination.totalPages ? -1 : undefined}
             >
               Next
             </Link>

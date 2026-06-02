@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { OrdersView } from "@/components/orders/orders-view";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function OrdersPage() {
   return (
@@ -8,10 +9,11 @@ export default function OrdersPage() {
       <PageHeader
         eyebrow="Account"
         title="Order history"
-        description="Track your orders, payment state, totals, and cancellation availability."
+        description="Track order status, payment state, totals, and available actions from one place."
+        variant="storefront"
       />
       <div className="mt-8">
-        <Suspense fallback={<div className="h-72 rounded-lg bg-surface" />}>
+        <Suspense fallback={<Skeleton className="h-72 rounded-lg" />}>
           <OrdersView />
         </Suspense>
       </div>

@@ -11,11 +11,15 @@ import { currentUserQueryKey, useCurrentUser } from "@/lib/hooks/use-current-use
 import { profileQueryKey, useProfile } from "@/lib/hooks/use-account";
 import {
   FieldError,
+  FieldHelp,
   FormAlert,
   applyZodFieldErrors,
+  getFieldDescribedBy,
   inputClassName,
   primaryButtonClassName
 } from "@/components/auth/form-utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
@@ -66,7 +70,7 @@ export function AccountProfileView() {
   }, [error, pathname, router]);
 
   if (isLoadingSession || (sessionUser && isLoading)) {
-    return <div className="h-[420px] rounded-lg bg-surface" />;
+    return <Skeleton className="h-[420px]" />;
   }
 
   if (!sessionUser) {
@@ -75,9 +79,9 @@ export function AccountProfileView() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error" className="p-5">
         {getLocalUserErrorMessage(error)}
-      </div>
+      </StatusAlert>
     );
   }
 
@@ -118,10 +122,10 @@ export function AccountProfileView() {
   });
 
   return (
-    <form className="rounded-lg border border-line bg-white p-5" onSubmit={onSubmit}>
+    <form className="rounded-lg border border-line bg-white p-5 shadow-subtle" onSubmit={onSubmit}>
       <h2 className="text-lg font-semibold text-ink">Profile information</h2>
       <p className="mt-2 text-sm leading-6 text-muted">
-        Update your customer profile. Email is managed by the backend and cannot be edited here.
+        Update your customer profile. Email is used for account access and cannot be edited here.
       </p>
 
       <div className="mt-5 grid gap-4">
@@ -130,28 +134,53 @@ export function AccountProfileView() {
 
         <label className="grid gap-1 text-sm font-medium text-ink">
           Name
-          <input className={inputClassName} {...register("name")} />
-          <FieldError message={errors.name?.message} />
+          <input
+            className={inputClassName}
+            aria-invalid={errors.name ? "true" : undefined}
+            aria-describedby={getFieldDescribedBy(errors.name && "profile-name-error")}
+            {...register("name")}
+          />
+          <FieldError id="profile-name-error" message={errors.name?.message} />
         </label>
 
         <label className="grid gap-1 text-sm font-medium text-ink">
           Email
-          <input className={inputClassName} value={profile?.email ?? ""} disabled readOnly />
+          <input
+            className={inputClassName}
+            value={profile?.email ?? ""}
+            disabled
+            readOnly
+            aria-describedby="profile-email-help"
+          />
+          <FieldHelp id="profile-email-help">Email is used for sign in and cannot be changed here.</FieldHelp>
         </label>
 
         <label className="grid gap-1 text-sm font-medium text-ink">
           Phone
-          <input className={inputClassName} placeholder="0901234567" type="tel" {...register("phone")} />
-          <FieldError message={errors.phone?.message} />
+          <input
+            className={inputClassName}
+            placeholder="0901234567"
+            type="tel"
+            aria-invalid={errors.phone ? "true" : undefined}
+            aria-describedby={getFieldDescribedBy(errors.phone && "profile-phone-error")}
+            {...register("phone")}
+          />
+          <FieldError id="profile-phone-error" message={errors.phone?.message} />
         </label>
 
         <label className="grid gap-1 text-sm font-medium text-ink">
           Avatar URL
-          <input className={inputClassName} placeholder="https://..." {...register("avatar")} />
-          <FieldError message={errors.avatar?.message} />
+          <input
+            className={inputClassName}
+            placeholder="https://..."
+            aria-invalid={errors.avatar ? "true" : undefined}
+            aria-describedby={getFieldDescribedBy(errors.avatar && "profile-avatar-error")}
+            {...register("avatar")}
+          />
+          <FieldError id="profile-avatar-error" message={errors.avatar?.message} />
         </label>
 
-        <button type="submit" className={primaryButtonClassName} disabled={isSubmitting}>
+        <button type="submit" className={primaryButtonClassName} disabled={isSubmitting} aria-busy={isSubmitting}>
           {isSubmitting ? "Saving..." : "Save profile"}
         </button>
       </div>

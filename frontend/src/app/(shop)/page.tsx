@@ -1,11 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { CategoryCard } from "@/components/catalog/category-card";
 import { CatalogError } from "@/components/catalog/catalog-error";
 import { ProductGrid } from "@/components/product/product-grid";
 import { ButtonLink } from "@/components/ui/button-link";
+import { EmptyState } from "@/components/ui/empty-state";
 import { categoriesApi } from "@/lib/api/categories";
 import { productsApi } from "@/lib/api/products";
 import {
@@ -45,6 +47,29 @@ async function loadHomeCatalog() {
   };
 }
 
+function StorefrontSectionHeader({
+  eyebrow,
+  title,
+  description,
+  action
+}: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="max-w-2xl">
+        <p className="text-sm font-semibold text-brand-700">{eyebrow}</p>
+        <h2 className="mt-1 text-2xl font-semibold tracking-tight text-ink">{title}</h2>
+        {description ? <p className="mt-2 text-sm leading-6 text-muted">{description}</p> : null}
+      </div>
+      {action ? <div className="flex shrink-0">{action}</div> : null}
+    </div>
+  );
+}
+
 export default async function HomePage() {
   const {
     categories,
@@ -68,42 +93,53 @@ export default async function HomePage() {
             fill
             priority
             sizes="100vw"
-            className="object-cover opacity-55"
+            className="object-cover opacity-60"
           />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/20" />
-        <div className="container-page relative grid min-h-[460px] content-center gap-6 py-16">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-wide text-white/80">IE213 Eyewear</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
-              Frames for daily focus and sunny weekends
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/20" />
+        <div className="container-page relative grid min-h-[520px] items-end gap-8 py-12 sm:py-16 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="max-w-2xl pb-2">
+            <p className="text-sm font-semibold text-white/80">IE213 Eyewear</p>
+            <h1 className="mt-3 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
+              Clearer frames for everyday focus
             </h1>
             <p className="mt-4 max-w-xl text-base leading-7 text-white/80">
-              Browse sunglasses and eyeglasses with real product images, variants, prices, and ratings
-              from the IE213 backend.
+              Shop sunglasses and optical frames with clear pricing, visible variants, and customer
+              ratings before checkout.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <ButtonLink href="/products">Browse products</ButtonLink>
+              <ButtonLink href="/products" className="bg-white text-ink hover:bg-surface">
+                Browse products
+              </ButtonLink>
               <ButtonLink href="/products?type=Sunglasses" variant="secondary">
                 Sunglasses
               </ButtonLink>
             </div>
           </div>
+
+          {heroProduct ? (
+            <div className="hidden rounded-lg border border-white/20 bg-white/10 p-4 text-white shadow-soft backdrop-blur lg:block">
+              <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Featured frame</p>
+              <p className="mt-2 line-clamp-2 text-lg font-semibold">{heroProduct.name}</p>
+              <p className="mt-1 text-sm text-white/75">{heroProduct.brand}</p>
+            </div>
+          ) : null}
         </div>
       </section>
 
       <section className="container-page py-10">
         {errors.length ? <CatalogError message={errors[0]} /> : null}
 
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">Categories</p>
-            <h2 className="mt-2 text-2xl font-semibold text-ink">Shop by collection</h2>
-          </div>
-          <Link href="/products" className="hidden text-sm font-medium text-brand-600 sm:inline-flex">
-            View all
-          </Link>
-        </div>
+        <StorefrontSectionHeader
+          eyebrow="Collections"
+          title="Shop by frame style"
+          description="Start with the shape, lens, or daily use that fits your routine."
+          action={
+            <Link href="/products" className="focus-ring hidden rounded-md px-2 py-1 text-sm font-semibold text-brand-700 hover:bg-brand-50 sm:inline-flex">
+              View all
+            </Link>
+          }
+        />
 
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.slice(0, 4).map((category) => (
@@ -111,26 +147,26 @@ export default async function HomePage() {
           ))}
         </div>
         {didLoadCategories && !categories.length ? (
-          <div className="mt-5 rounded-lg border border-dashed border-line bg-white p-8 text-center">
-            <h3 className="text-lg font-semibold text-ink">No active categories yet</h3>
-            <p className="mt-2 text-sm leading-6 text-muted">
-              Collections will appear here after the backend returns category data.
-            </p>
-          </div>
+          <EmptyState
+            title="No active categories yet"
+            description="Collections will appear here when category data is available."
+            className="mt-5"
+          />
         ) : null}
       </section>
 
       <section className="container-page py-10">
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">New arrivals</p>
-            <h2 className="mt-2 text-2xl font-semibold text-ink">Fresh frames</h2>
-          </div>
-          <Link href="/products?sort=newest" className="inline-flex items-center gap-1 text-sm font-medium text-brand-600">
-            Browse all
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
+        <StorefrontSectionHeader
+          eyebrow="New arrivals"
+          title="Fresh frames"
+          description="Recent additions with product images, pricing, and ratings kept close to the card."
+          action={
+            <Link href="/products?sort=newest" className="focus-ring inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold text-brand-700 hover:bg-brand-50">
+              Browse all
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          }
+        />
         {didLoadLatestProducts ? (
           <ProductGrid products={latestProducts} emptyDescription="Products will appear here after catalog data is added." />
         ) : null}
@@ -138,15 +174,16 @@ export default async function HomePage() {
 
       <section className="border-t border-line bg-surface">
         <div className="container-page py-10">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">Top rated</p>
-              <h2 className="mt-2 text-2xl font-semibold text-ink">Customer favorites</h2>
-            </div>
-            <Link href="/products?sort=topRated" className="text-sm font-medium text-brand-600">
-              See top rated
-            </Link>
-          </div>
+          <StorefrontSectionHeader
+            eyebrow="Top rated"
+            title="Customer favorites"
+            description="Highly rated frames surfaced for faster comparison."
+            action={
+              <Link href="/products?sort=topRated" className="focus-ring rounded-md px-2 py-1 text-sm font-semibold text-brand-700 hover:bg-brand-50">
+                See top rated
+              </Link>
+            }
+          />
           {didLoadTopRatedProducts ? (
             <ProductGrid products={topRatedProducts} emptyDescription="Top rated products will show after reviews are available." />
           ) : null}

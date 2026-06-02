@@ -20,6 +20,17 @@ import {
   useAdminProduct
 } from "@/lib/hooks/use-admin-catalog";
 import { getProductCategoryId } from "@/lib/admin/catalog-utils";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
+import {
+  checkboxClassName,
+  fieldClassName,
+  formLabelClassName,
+  getButtonClassName,
+  selectClassName,
+  textareaClassName
+} from "@/components/ui/style-primitives";
 import { useToast } from "@/components/ui/toast-provider";
 
 type VariantForm = {
@@ -248,7 +259,7 @@ function FormField({
   children: React.ReactNode;
 }) {
   return (
-    <label className="grid gap-1 text-sm font-medium text-ink">
+    <label className={formLabelClassName}>
       {label}
       {children}
     </label>
@@ -288,9 +299,10 @@ function ImageGalleryField({
         />
         <label
           htmlFor={inputId}
-          className={`focus-ring inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink hover:bg-surface ${
-            isUploading ? "pointer-events-none opacity-60" : ""
-          }`}
+          className={cn(
+            getButtonClassName("secondary", "h-9 cursor-pointer px-3"),
+            isUploading && "pointer-events-none opacity-60"
+          )}
           aria-disabled={isUploading}
         >
           <Upload className="h-4 w-4" />
@@ -306,7 +318,7 @@ function ImageGalleryField({
               <button
                 type="button"
                 aria-label="Remove image"
-                className="focus-ring absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md bg-white/95 text-red-700 shadow-soft opacity-100 transition hover:bg-red-50 sm:opacity-0 sm:group-hover:opacity-100"
+                className={getButtonClassName("danger", "absolute right-2 top-2 h-11 w-11 px-0 shadow-soft")}
                 onClick={() => onRemove(image)}
               >
                 <Trash2 className="h-4 w-4" />
@@ -328,9 +340,9 @@ function ImageGalleryField({
 
 function ProductFormSkeleton() {
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <div className="h-[720px] rounded-lg bg-surface" />
-      <div className="h-72 rounded-lg bg-surface" />
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <Skeleton className="h-[720px]" />
+      <Skeleton className="h-72" />
     </div>
   );
 }
@@ -427,17 +439,17 @@ export function AdminProductFormView({ id }: { id?: string }) {
 
   if (productQuery.error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error" className="p-5">
         {getLocalAdminCatalogErrorMessage(productQuery.error)}
-      </div>
+      </StatusAlert>
     );
   }
 
   if (categoriesQuery.error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error" className="p-5">
         {getLocalAdminCatalogErrorMessage(categoriesQuery.error)}
-      </div>
+      </StatusAlert>
     );
   }
 
@@ -461,7 +473,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
       <form
         className="grid gap-6"
         onSubmit={(event) => {
@@ -477,24 +489,24 @@ export function AdminProductFormView({ id }: { id?: string }) {
         }}
       >
         {message ? (
-          <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <StatusAlert tone="success">
             {message}
-          </p>
+          </StatusAlert>
         ) : null}
         {actionError ? (
-          <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <StatusAlert tone="error">
             {actionError}
-          </p>
+          </StatusAlert>
         ) : null}
 
-        <section className="rounded-lg border border-line bg-white p-5">
+        <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
           <h2 className="text-lg font-semibold text-ink">Product details</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <FormField label="Name">
               <input
                 value={form.name}
                 onChange={(event) => setForm({ ...form, name: event.target.value })}
-                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                className={fieldClassName}
                 required
               />
             </FormField>
@@ -502,7 +514,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
               <input
                 value={form.brand}
                 onChange={(event) => setForm({ ...form, brand: event.target.value })}
-                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                className={fieldClassName}
                 required
               />
             </FormField>
@@ -510,7 +522,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
               <select
                 value={form.categoryId}
                 onChange={(event) => setForm({ ...form, categoryId: event.target.value })}
-                className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+                className={selectClassName}
                 required
               >
                 <option value="">Select category</option>
@@ -527,7 +539,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                 onChange={(event) =>
                   setForm({ ...form, type: event.target.value as ProductFormState["type"] })
                 }
-                className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+                className={selectClassName}
               >
                 <option value="Sunglasses">Sunglasses</option>
                 <option value="Eyeglasses">Eyeglasses</option>
@@ -543,7 +555,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                     availability: event.target.value as ProductFormState["availability"]
                   })
                 }
-                className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+                className={selectClassName}
               >
                 <option value="in_stock">In stock</option>
                 <option value="out_of_stock">Out of stock</option>
@@ -551,36 +563,38 @@ export function AdminProductFormView({ id }: { id?: string }) {
               </select>
             </FormField>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex items-center gap-2 rounded-md border border-line px-3 py-2 text-sm font-medium text-ink">
+              <label className="flex items-center gap-2 rounded-md border border-line bg-surface px-3 py-2 text-sm font-medium text-ink">
                 <input
                   type="checkbox"
+                  className={checkboxClassName}
                   checked={form.sale}
                   onChange={(event) => setForm({ ...form, sale: event.target.checked })}
                 />
                 On sale
               </label>
-              <label className="flex items-center gap-2 rounded-md border border-line px-3 py-2 text-sm font-medium text-ink">
+              <label className="flex items-center gap-2 rounded-md border border-line bg-surface px-3 py-2 text-sm font-medium text-ink">
                 <input
                   type="checkbox"
+                  className={checkboxClassName}
                   checked={form.isActive}
                   onChange={(event) => setForm({ ...form, isActive: event.target.checked })}
                 />
                 Active
               </label>
             </div>
-            <label className="grid gap-1 text-sm font-medium text-ink md:col-span-2">
+            <label className={`${formLabelClassName} md:col-span-2`}>
               Description
               <textarea
                 value={form.description}
                 onChange={(event) => setForm({ ...form, description: event.target.value })}
-                className="focus-ring min-h-32 rounded-md border border-line px-3 py-2 text-sm"
+                className={textareaClassName}
                 required
               />
             </label>
           </div>
         </section>
 
-        <section className="rounded-lg border border-line bg-white p-5">
+        <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
           <h2 className="text-lg font-semibold text-ink">Images</h2>
           <div className="mt-5">
             <ImageGalleryField
@@ -598,7 +612,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
           </div>
         </section>
 
-        <section className="rounded-lg border border-line bg-white p-5">
+        <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-ink">Variants</h2>
@@ -606,7 +620,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
             </div>
             <button
               type="button"
-              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-semibold text-ink hover:bg-surface"
+              className={getButtonClassName("secondary", "w-full px-3 min-[390px]:w-auto")}
               onClick={() =>
                 setForm((current) => ({
                   ...current,
@@ -620,20 +634,20 @@ export function AdminProductFormView({ id }: { id?: string }) {
 
           <div className="mt-5 grid gap-4">
             {form.variants.map((variant, index) => (
-              <article key={index} className="rounded-lg border border-line p-4">
+              <article key={index} className="rounded-lg border border-line bg-surface p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h3 className="font-semibold text-ink">Variant {index + 1}</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid gap-2 min-[390px]:flex min-[390px]:flex-wrap">
                     <button
                       type="button"
-                      className="focus-ring rounded-md border border-line bg-white px-3 py-1.5 text-sm font-semibold text-ink hover:bg-surface"
+                      className={getButtonClassName(variant.isDefault ? "primary" : "secondary", "w-full px-3 min-[390px]:w-auto")}
                       onClick={() => setDefaultVariant(index)}
                     >
                       {variant.isDefault ? "Default" : "Set default"}
                     </button>
                     <button
                       type="button"
-                      className="focus-ring rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      className={getButtonClassName("danger", "w-full px-3 min-[390px]:w-auto")}
                       disabled={form.variants.length <= 1}
                       onClick={() =>
                         setForm((current) => ({
@@ -654,7 +668,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                       onChange={(event) =>
                         updateVariant(index, { ...variant, sku: event.target.value })
                       }
-                      className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                      className={fieldClassName}
                       required
                     />
                   </FormField>
@@ -664,7 +678,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                       onChange={(event) =>
                         updateVariant(index, { ...variant, color: event.target.value })
                       }
-                      className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                      className={fieldClassName}
                     />
                   </FormField>
                   <FormField label="Price">
@@ -673,7 +687,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                       onChange={(event) =>
                         updateVariant(index, { ...variant, price: event.target.value })
                       }
-                      className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                      className={fieldClassName}
                       min={0}
                       required
                       type="number"
@@ -685,7 +699,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                       onChange={(event) =>
                         updateVariant(index, { ...variant, originalPrice: event.target.value })
                       }
-                      className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                      className={fieldClassName}
                       min={0}
                       type="number"
                     />
@@ -712,7 +726,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
           </div>
         </section>
 
-        <section className="rounded-lg border border-line bg-white p-5">
+        <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
           <h2 className="text-lg font-semibold text-ink">Specifications</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             <FormField label="Material">
@@ -724,7 +738,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                     specifications: { ...form.specifications, material: event.target.value }
                   })
                 }
-                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                className={fieldClassName}
               />
             </FormField>
             <FormField label="Lens material">
@@ -736,7 +750,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                     specifications: { ...form.specifications, lensMaterial: event.target.value }
                   })
                 }
-                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                className={fieldClassName}
               />
             </FormField>
             <FormField label="Origin">
@@ -748,7 +762,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                     specifications: { ...form.specifications, origin: event.target.value }
                   })
                 }
-                className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                className={fieldClassName}
               />
             </FormField>
             <FormField label="Gender">
@@ -763,7 +777,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                     }
                   })
                 }
-                className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+                className={selectClassName}
               >
                 <option value="Unisex">Unisex</option>
                 <option value="Male">Male</option>
@@ -790,7 +804,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
                       }
                     })
                   }
-                  className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+                  className={fieldClassName}
                   type={key === "dimensions" ? "text" : "number"}
                 />
               </FormField>
@@ -798,17 +812,18 @@ export function AdminProductFormView({ id }: { id?: string }) {
           </div>
         </section>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="grid gap-2 min-[390px]:flex min-[390px]:flex-wrap">
           <button
             type="submit"
-            className="focus-ring rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className={getButtonClassName("primary", "w-full min-[390px]:w-auto")}
             disabled={saveMutation.isPending}
+            aria-busy={saveMutation.isPending}
           >
             {saveMutation.isPending ? "Saving..." : isEditing ? "Save product" : "Create product"}
           </button>
           <button
             type="button"
-            className="focus-ring rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-surface"
+            className={getButtonClassName("secondary", "w-full min-[390px]:w-auto")}
             onClick={() => router.push("/admin/products")}
           >
             Back to products
@@ -816,8 +831,8 @@ export function AdminProductFormView({ id }: { id?: string }) {
         </div>
       </form>
 
-      <aside className="grid gap-6 self-start lg:sticky lg:top-20">
-        <section className="rounded-lg border border-line bg-white p-5">
+      <aside className="grid gap-6 self-start xl:sticky xl:top-20">
+        <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
           <h2 className="text-lg font-semibold text-ink">Preview</h2>
           <div className="mt-4 grid grid-cols-2 gap-3">
             {previewImages.length ? (
@@ -833,18 +848,18 @@ export function AdminProductFormView({ id }: { id?: string }) {
             )}
           </div>
           <div className="mt-5 grid gap-2 text-sm">
-            <p className="font-semibold text-ink">{form.name || "Untitled product"}</p>
-            <p className="text-muted">{form.brand || "No brand"}</p>
+            <p className="break-words font-semibold text-ink">{form.name || "Untitled product"}</p>
+            <p className="break-words text-muted">{form.brand || "No brand"}</p>
             <p className="text-muted">{form.variants.length} variants</p>
           </div>
         </section>
 
         {isEditing && productQuery.data ? (
-          <section className="rounded-lg border border-line bg-white p-5">
+          <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
             <h2 className="text-lg font-semibold text-ink">System data</h2>
             <div className="mt-4 grid gap-2 text-sm">
               <p className="break-all text-muted">ID: {productQuery.data._id}</p>
-              <p className="text-muted">Slug: /{productQuery.data.slug}</p>
+              <p className="break-all text-muted">Slug: /{productQuery.data.slug}</p>
               <p className="text-muted">
                 Rating: {productQuery.data.rating?.avg ?? 0} ({productQuery.data.rating?.count ?? 0})
               </p>

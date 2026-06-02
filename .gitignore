@@ -1,7 +1,7 @@
-# ─── Dependencies ─────────────────────────────────────
+# Dependencies
 node_modules/
 
-# ─── Environment ──────────────────────────────────────
+# Environment
 **/.env
 **/.env.local
 **/.env.development
@@ -10,7 +10,7 @@ node_modules/
 **/.env.*
 !**/.env.example
 
-# ─── Logs ─────────────────────────────────────────────
+# Logs
 logs/
 *.log
 npm-debug.log*
@@ -18,34 +18,34 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# ─── Runtime / Process ────────────────────────────────
+# Runtime / Process
 pids/
 *.pid
 *.pid.lock
 
-# ─── Test & Coverage ──────────────────────────────────
+# Test & Coverage
 coverage/
 .nyc_output/
 
-# ─── Build artifacts ──────────────────────────────────
+# Build artifacts
 dist/
 build/
 
-# ─── Swagger generated file ───────────────────────────
+# Swagger generated file
 server/swagger-output.json
 
-# ─── Cache / Temp ─────────────────────────────────────
+# Cache / Temp
 .cache/
 .tmp/
 tmp/
 *.tmp
 
-# ─── macOS ────────────────────────────────────────────
+# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
 
-# ─── IDE / Editor ─────────────────────────────────────
+# IDE / Editor
 .idea/
 .vscode/
 *.suo
@@ -53,6 +53,15 @@ tmp/
 *.njsproj
 *.sln
 *.sw?
+
 # Planning notes
 FRONTEND_IMPLEMENTATION_PHASES.md
 FRONTEND_NEXTJS_PLAN.md
+.docs/
+ui-ux-redesign-plan.md
+ui-ux-post-redesign-review.md
+
+# Agent / Codex skill files
+.agents/
+skills-lock.json
+SKILL.md

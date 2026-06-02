@@ -1,4 +1,5 @@
 import type { Product } from "@/types/models";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ProductCard } from "./product-card";
 
 type ProductGridProps = {
@@ -14,15 +15,16 @@ export function ProductGrid({
 }: ProductGridProps) {
   if (!products.length) {
     return (
-      <div className="rounded-lg border border-dashed border-line bg-white p-8 text-center">
-        <h2 className="text-lg font-semibold text-ink">{emptyTitle}</h2>
-        <p className="mt-2 text-sm leading-6 text-muted">{emptyDescription}</p>
-      </div>
+      <EmptyState
+        title={emptyTitle}
+        description={emptyDescription}
+        className="bg-surface/60"
+      />
     );
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-2 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
       {products.map((product) => (
         <ProductCard key={product._id} product={product} />
       ))}

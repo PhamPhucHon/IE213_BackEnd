@@ -41,20 +41,25 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     <main className="container-page py-8 sm:py-10">
       <PageHeader
         eyebrow="Catalog"
-        title="Products"
-        description="Search, filter, sort, and browse the IE213 eyewear catalog."
+        title="Shop eyewear"
+        description="Compare sunglasses and optical frames with filters that keep price, rating, and product images easy to scan."
+        variant="storefront"
       />
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
         <ProductFiltersPanel categories={categories} query={query} />
 
         <section className="grid gap-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-muted">
-              {pagination.totalProducts || products.length} products
-              {query.keyword ? ` for "${query.keyword}"` : ""}
-            </p>
-            <p className="text-sm text-muted">Sorted by {query.sort ?? "newest"}</p>
+          <div className="rounded-lg border border-line bg-white p-4 shadow-subtle">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm font-medium text-ink">
+                {pagination.totalProducts || products.length} products
+                {query.keyword ? ` for "${query.keyword}"` : ""}
+              </p>
+              <p className="rounded-md bg-surface px-2.5 py-1 text-xs font-semibold text-muted">
+                Sorted by {query.sort ?? "newest"}
+              </p>
+            </div>
           </div>
 
           {errors.length ? <CatalogError message={errors[0]} /> : null}

@@ -11,6 +11,7 @@ import {
   FieldError,
   FormAlert,
   applyZodFieldErrors,
+  getFieldDescribedBy,
   inputClassName,
   primaryButtonClassName
 } from "./form-utils";
@@ -72,9 +73,11 @@ export function ResetPasswordForm() {
           className={inputClassName}
           placeholder="reset_token_from_email"
           autoComplete="one-time-code"
+          aria-invalid={errors.token ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(errors.token && "reset-password-token-error")}
           {...register("token")}
         />
-        <FieldError message={errors.token?.message} />
+        <FieldError id="reset-password-token-error" message={errors.token?.message} />
       </label>
 
       <label className="grid gap-1 text-sm font-medium text-ink">
@@ -84,16 +87,18 @@ export function ResetPasswordForm() {
           placeholder="Minimum 6 characters"
           type="password"
           autoComplete="new-password"
+          aria-invalid={errors.newPassword ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(errors.newPassword && "reset-password-new-password-error")}
           {...register("newPassword")}
         />
-        <FieldError message={errors.newPassword?.message} />
+        <FieldError id="reset-password-new-password-error" message={errors.newPassword?.message} />
       </label>
 
-      <button type="submit" className={primaryButtonClassName} disabled={isSubmitting}>
+      <button type="submit" className={primaryButtonClassName} disabled={isSubmitting} aria-busy={isSubmitting}>
         {isSubmitting ? "Resetting..." : "Reset password"}
       </button>
 
-      <Link href="/login" className="text-sm font-medium text-brand-600">
+      <Link href="/login" className="focus-ring rounded-sm text-sm font-medium text-brand-600 hover:text-brand-700">
         Back to login
       </Link>
     </form>

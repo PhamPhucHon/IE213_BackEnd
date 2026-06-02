@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { AdminUsersView } from "@/components/admin/admin-users-view";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminUsersPage() {
   return (
@@ -11,7 +12,7 @@ export default function AdminUsersPage() {
         description="Manage customer and admin accounts with status toggles, detail views, and pagination."
       />
       <div className="mt-8">
-        <Suspense fallback={<div className="h-72 rounded-lg bg-surface" />}>
+        <Suspense fallback={<Skeleton className="h-72 rounded-lg" />}>
           <AdminUsersView />
         </Suspense>
       </div>

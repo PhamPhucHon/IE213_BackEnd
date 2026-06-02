@@ -12,7 +12,7 @@ import {
   getProductImage,
   getProductPrice
 } from "@/lib/catalog/product-utils";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import {
   getLocalAdminCatalogErrorMessage,
   hideAdminProduct
@@ -67,9 +67,18 @@ function pageHref(searchParams: URLSearchParams, page: number) {
 }
 
 function ProductStatusBadge({ product }: { product: Product }) {
+  const isHidden = product.isActive === false;
+
   return (
-    <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-      {product.isActive === false ? "Hidden" : "Active"}
+    <span
+      className={cn(
+        "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
+        isHidden
+          ? "border-line bg-surface text-muted"
+          : "border-emerald-200 bg-emerald-50 text-emerald-700"
+      )}
+    >
+      {isHidden ? "Hidden" : "Active"}
     </span>
   );
 }
@@ -96,13 +105,13 @@ function ProductFilters({
       <input
         name="keyword"
         defaultValue={searchParams.get("keyword") ?? ""}
-        className="focus-ring rounded-md border border-line px-3 py-2 text-sm md:col-span-2"
+        className="focus-ring min-h-11 rounded-md border border-line px-3 text-sm md:col-span-2"
         placeholder="Search products"
       />
       <select
         name="categoryId"
         defaultValue={searchParams.get("categoryId") ?? ""}
-        className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+        className="focus-ring min-h-11 rounded-md border border-line bg-white px-3 text-sm"
       >
         <option value="">All categories</option>
         {categories.map((category) => (
@@ -114,7 +123,7 @@ function ProductFilters({
       <select
         name="type"
         defaultValue={searchParams.get("type") ?? ""}
-        className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+        className="focus-ring min-h-11 rounded-md border border-line bg-white px-3 text-sm"
       >
         <option value="">All types</option>
         <option value="Sunglasses">Sunglasses</option>
@@ -123,7 +132,7 @@ function ProductFilters({
       <select
         name="sort"
         defaultValue={searchParams.get("sort") ?? "newest"}
-        className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm"
+        className="focus-ring min-h-11 rounded-md border border-line bg-white px-3 text-sm"
       >
         <option value="newest">Newest</option>
         <option value="topRated">Top rated</option>
@@ -131,16 +140,16 @@ function ProductFilters({
         <option value="priceDesc">Price high to low</option>
       </select>
       <input type="hidden" name="page" value="1" />
-      <div className="flex gap-2 md:col-span-5">
+      <div className="grid gap-2 min-[390px]:flex md:col-span-5">
         <button
           type="submit"
-          className="focus-ring rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white"
+          className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
         >
           Apply
         </button>
         <Link
           href="/admin/products"
-          className="focus-ring rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-surface"
+          className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md border border-line bg-white px-4 text-sm font-semibold text-ink hover:bg-surface"
         >
           Clear
         </Link>
@@ -207,7 +216,7 @@ export function AdminProductsView() {
         <p className="text-sm text-muted">{pagination.totalProducts || products.length} active products</p>
         <Link
           href="/admin/products/new"
-          className="focus-ring rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white"
+          className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md bg-ink px-4 text-sm font-semibold text-white"
         >
           New product
         </Link>
@@ -222,7 +231,7 @@ export function AdminProductsView() {
         </div>
       ) : (
         <>
-          <div className="hidden overflow-x-auto rounded-lg border border-line bg-white lg:block">
+          <div className="hidden overflow-x-auto rounded-lg border border-line bg-white xl:block">
             <table className="min-w-full divide-y divide-line text-sm">
               <thead className="bg-surface text-left text-xs font-semibold uppercase tracking-wide text-muted">
                 <tr>
@@ -251,10 +260,10 @@ export function AdminProductsView() {
                           ) : null}
                         </div>
                         <div className="min-w-0">
-                          <Link href={`/admin/products/${product._id}/edit`} className="font-semibold text-ink">
+                          <Link href={`/admin/products/${product._id}/edit`} className="break-words font-semibold text-ink">
                             {product.name}
                           </Link>
-                          <p className="mt-1 text-muted">{product.brand}</p>
+                          <p className="mt-1 break-words text-muted">{product.brand}</p>
                           <p className="mt-1 text-xs text-muted">Updated {formatDate(product.updatedAt)}</p>
                         </div>
                       </div>
@@ -272,13 +281,13 @@ export function AdminProductsView() {
                       <div className="flex justify-end gap-2">
                         <Link
                           href={`/admin/products/${product._id}/edit`}
-                          className="focus-ring inline-flex h-9 items-center justify-center rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink hover:bg-surface"
+                          className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink hover:bg-surface"
                         >
                           Edit
                         </Link>
                         <button
                           type="button"
-                          className="focus-ring rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={hideMutation.isPending}
                           onClick={async () => {
                             const confirmed = await confirm({
@@ -303,7 +312,7 @@ export function AdminProductsView() {
             </table>
           </div>
 
-          <div className="grid gap-4 lg:hidden">
+          <div className="grid gap-4 xl:hidden">
             {products.map((product) => (
               <article key={product._id} className="rounded-lg border border-line bg-white p-4">
                 <div className="grid grid-cols-[84px_1fr] gap-3">
@@ -319,10 +328,10 @@ export function AdminProductsView() {
                     ) : null}
                   </div>
                   <div className="min-w-0">
-                    <Link href={`/admin/products/${product._id}/edit`} className="font-semibold text-ink">
+                    <Link href={`/admin/products/${product._id}/edit`} className="break-words font-semibold text-ink">
                       {product.name}
                     </Link>
-                    <p className="mt-1 text-sm text-muted">{product.brand}</p>
+                    <p className="mt-1 break-words text-sm text-muted">{product.brand}</p>
                     <p className="mt-2 font-semibold text-ink">{formatCurrency(getProductPrice(product))}</p>
                   </div>
                 </div>
@@ -331,16 +340,16 @@ export function AdminProductsView() {
                   <span>{product.type}</span>
                   <span>{product.variants.length} variants</span>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 grid gap-2 min-[390px]:flex min-[390px]:flex-wrap">
                   <Link
                     href={`/admin/products/${product._id}/edit`}
-                    className="focus-ring rounded-md bg-ink px-3 py-2 text-sm font-semibold text-white"
+                    className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md bg-ink px-3 text-sm font-semibold text-white"
                   >
                     Edit
                   </Link>
                   <button
                     type="button"
-                    className="focus-ring rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={hideMutation.isPending}
                     onClick={async () => {
                       const confirmed = await confirm({
@@ -365,22 +374,24 @@ export function AdminProductsView() {
       )}
 
       {pagination.totalPages > 1 ? (
-        <nav className="flex items-center justify-between border-t border-line pt-5">
+        <nav className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
           <p className="text-sm text-muted">
             Page {pagination.currentPage} of {pagination.totalPages}
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link
               href={pageHref(searchParams, Math.max(1, pagination.currentPage - 1))}
-              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
+              className="focus-ring inline-flex min-h-11 items-center rounded-md border border-line bg-white px-3 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
               aria-disabled={pagination.currentPage <= 1}
+              tabIndex={pagination.currentPage <= 1 ? -1 : undefined}
             >
               Previous
             </Link>
             <Link
               href={pageHref(searchParams, Math.min(pagination.totalPages, pagination.currentPage + 1))}
-              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
+              className="focus-ring inline-flex min-h-11 items-center rounded-md border border-line bg-white px-3 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
               aria-disabled={pagination.currentPage >= pagination.totalPages}
+              tabIndex={pagination.currentPage >= pagination.totalPages ? -1 : undefined}
             >
               Next
             </Link>

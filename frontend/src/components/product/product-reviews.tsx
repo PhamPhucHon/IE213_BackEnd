@@ -2,18 +2,24 @@
 
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Pencil, ShieldCheck, Star, ThumbsUp, Trash2 } from "lucide-react";
 import { z } from "zod";
 import {
   FieldError,
+  FieldHelp,
   FormAlert,
   applyZodFieldErrors,
+  getFieldDescribedBy,
   inputClassName,
   primaryButtonClassName
 } from "@/components/auth/form-utils";
+import {
+  getButtonClassName,
+  textareaClassName
+} from "@/components/ui/style-primitives";
 import {
   adminDeleteReview,
   createProductReview,
@@ -30,6 +36,8 @@ import { getReviewPagination } from "@/lib/reviews/review-utils";
 import { reviewSchema } from "@/lib/validators/product";
 import { cn, formatDate } from "@/lib/utils";
 import { useConfirm } from "@/components/ui/confirm-provider";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { ApiResponse } from "@/types/api";
 import type { Product, Review } from "@/types/models";
 
@@ -90,7 +98,12 @@ function ReviewForm({
       comment: initialReview?.comment ?? ""
     }
   });
+  const formId = useId();
   const selectedRating = Number(watch("rating") || 5);
+  const ratingErrorId = `${formId}-rating-error`;
+  const titleHelpId = `${formId}-title-help`;
+  const titleErrorId = `${formId}-title-error`;
+  const commentErrorId = `${formId}-comment-error`;
 
   useEffect(() => {
     reset({
@@ -131,14 +144,19 @@ function ReviewForm({
       <div className="grid gap-1">
         <span className="text-sm font-medium text-ink">Rating</span>
         <input type="hidden" {...register("rating", { valueAsNumber: true })} />
-        <div className="flex flex-wrap gap-1">
+        <div
+          className="flex flex-wrap gap-1"
+          role="group"
+          aria-describedby={getFieldDescribedBy(errors.rating && ratingErrorId)}
+        >
           {stars.map((star) => (
             <button
               key={star}
               type="button"
-              className="focus-ring rounded-md p-1"
+              className="focus-ring rounded-md border border-transparent p-1 transition hover:border-line hover:bg-white"
               onClick={() => setValue("rating", star, { shouldDirty: true, shouldValidate: true })}
               aria-label={`Set ${star} star rating`}
+              aria-pressed={star <= selectedRating}
             >
               <Star
                 className={cn(
@@ -149,33 +167,42 @@ function ReviewForm({
             </button>
           ))}
         </div>
-        <FieldError message={errors.rating?.message} />
+        <FieldError id={ratingErrorId} message={errors.rating?.message} />
       </div>
 
       <label className="grid gap-1 text-sm font-medium text-ink">
         Title
-        <input className={inputClassName} placeholder="Great fit and lens quality" {...register("title")} />
-        <FieldError message={errors.title?.message} />
+        <input
+          className={inputClassName}
+          placeholder="Great fit and lens quality"
+          aria-invalid={errors.title ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(titleHelpId, errors.title && titleErrorId)}
+          {...register("title")}
+        />
+        <FieldHelp id={titleHelpId}>Optional short summary for your review.</FieldHelp>
+        <FieldError id={titleErrorId} message={errors.title?.message} />
       </label>
 
       <label className="grid gap-1 text-sm font-medium text-ink">
         Comment
         <textarea
-          className={cn(inputClassName, "min-h-28 resize-y")}
+          className={textareaClassName}
           placeholder="Share how the product worked for you."
+          aria-invalid={errors.comment ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(errors.comment && commentErrorId)}
           {...register("comment")}
         />
-        <FieldError message={errors.comment?.message} />
+        <FieldError id={commentErrorId} message={errors.comment?.message} />
       </label>
 
       <div className="flex flex-wrap gap-2">
-        <button type="submit" className={primaryButtonClassName} disabled={isSubmitting}>
+        <button type="submit" className={primaryButtonClassName} disabled={isSubmitting} aria-busy={isSubmitting}>
           {isSubmitting ? "Saving..." : submitLabel}
         </button>
         {onCancel ? (
           <button
             type="button"
-            className="focus-ring h-10 rounded-md border border-line px-4 text-sm font-medium text-ink hover:bg-surface"
+            className={getButtonClassName("secondary")}
             onClick={onCancel}
           >
             Cancel
@@ -389,7 +416,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
   }
 
   return (
-    <section className="mt-10 rounded-lg border border-line bg-white p-5">
+    <section className="mt-12 rounded-lg border border-line bg-white p-5 shadow-subtle">
       <div className="flex flex-col gap-4 border-b border-line pb-5 md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-ink">Customer reviews</h2>
@@ -406,7 +433,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
               key={rating}
               type="button"
               className={cn(
-                "focus-ring rounded-md border px-3 py-2 text-sm font-medium",
+                "focus-ring h-10 rounded-md border px-3 text-sm font-medium transition",
                 ratingFilter === rating
                   ? "border-ink bg-ink text-white"
                   : "border-line bg-white text-ink hover:bg-surface"
@@ -424,7 +451,10 @@ export function ProductReviews({ product }: ProductReviewsProps) {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         <aside className="self-start rounded-lg border border-line bg-surface p-4">
-          <h3 className="font-semibold text-ink">Write a review</h3>
+          <h3 className="text-lg font-semibold text-ink">Write a review</h3>
+          <p className="mt-1 text-sm leading-6 text-muted">
+            Share fit, lens feel, and daily-use notes for other shoppers.
+          </p>
           {notice ? (
             <div className="mt-4">
               <FormAlert tone="success">{notice}</FormAlert>
@@ -432,7 +462,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
           ) : null}
 
           {isLoadingUser ? (
-            <div className="mt-4 h-40 rounded-md bg-white" />
+            <Skeleton className="mt-4 h-40" />
           ) : user ? (
             <div className="mt-4">
               <ReviewForm
@@ -448,7 +478,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
               </p>
               <button
                 type="button"
-                className={cn(primaryButtonClassName, "mt-3")}
+                  className={cn(primaryButtonClassName, "mt-3")}
                 onClick={redirectToLogin}
               >
                 Sign in
@@ -461,8 +491,8 @@ export function ProductReviews({ product }: ProductReviewsProps) {
           {error ? <FormAlert>{getLocalReviewErrorMessage(error)}</FormAlert> : null}
           {isLoading ? (
             <div className="grid gap-3">
-              <div className="h-36 rounded-lg bg-surface" />
-              <div className="h-36 rounded-lg bg-surface" />
+              <Skeleton className="h-36" />
+              <Skeleton className="h-36" />
             </div>
           ) : reviews.length ? (
             reviews.map((review) => {
@@ -471,9 +501,9 @@ export function ProductReviews({ product }: ProductReviewsProps) {
               const isEditing = editingId === review._id;
 
               return (
-                <article key={review._id} className="rounded-lg border border-line p-4">
+                <article key={review._id} className="rounded-lg border border-line bg-white p-4 shadow-subtle">
                   <div className="flex gap-3">
-                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-surface">
+                    <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-surface">
                       {review.userAvatar ? (
                         <Image
                           src={review.userAvatar}
@@ -497,7 +527,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                             <Stars rating={review.rating} compact />
                             {review.createdAt ? <span>{formatDate(review.createdAt)}</span> : null}
                             {review.isVerifiedPurchase ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 font-medium text-emerald-700">
+                              <span className="inline-flex items-center gap-1 rounded-md bg-success-50 px-2 py-0.5 font-medium text-success-700">
                                 <ShieldCheck className="h-3 w-3" />
                                 Verified purchase
                               </span>
@@ -508,7 +538,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                         <div className="flex flex-wrap gap-1">
                           <button
                             type="button"
-                            className="focus-ring inline-flex h-8 items-center gap-1 rounded-md border border-line px-2 text-xs font-medium text-ink hover:bg-surface disabled:opacity-60"
+                            className={getButtonClassName("secondary", "h-8 px-2 text-xs disabled:opacity-60")}
                             onClick={() => handleLike(review)}
                             disabled={pendingAction === `like-${review._id}`}
                           >
@@ -519,7 +549,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                           {isOwner ? (
                             <button
                               type="button"
-                              className="focus-ring inline-flex h-8 items-center gap-1 rounded-md border border-line px-2 text-xs font-medium text-ink hover:bg-surface"
+                              className={getButtonClassName("secondary", "h-8 px-2 text-xs")}
                               onClick={() => setEditingId(review._id)}
                             >
                               <Pencil className="h-3.5 w-3.5" />
@@ -530,7 +560,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                           {canDelete ? (
                             <button
                               type="button"
-                              className="focus-ring inline-flex h-8 items-center gap-1 rounded-md border border-red-200 px-2 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-60"
+                              className={getButtonClassName("danger", "h-8 px-2 text-xs disabled:opacity-60")}
                               onClick={() => handleDelete(review, isOwner)}
                               disabled={pendingAction === `delete-${review._id}`}
                             >
@@ -594,9 +624,11 @@ export function ProductReviews({ product }: ProductReviewsProps) {
               );
             })
           ) : (
-            <div className="rounded-lg border border-dashed border-line p-6 text-sm text-muted">
-              No reviews match this filter.
-            </div>
+            <EmptyState
+              title="No reviews match this filter"
+              description="Try another rating filter or check back after more customers leave feedback."
+              className="p-6"
+            />
           )}
 
           {pagination.totalPages > 1 ? (
@@ -608,16 +640,18 @@ export function ProductReviews({ product }: ProductReviewsProps) {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  className="focus-ring rounded-md border border-line px-3 py-2 text-sm font-medium text-ink hover:bg-surface disabled:pointer-events-none disabled:opacity-50"
+                  className={getButtonClassName("secondary", "h-9 px-3 disabled:pointer-events-none disabled:opacity-50")}
                   disabled={pagination.currentPage <= 1}
+                  aria-disabled={pagination.currentPage <= 1}
                   onClick={() => setPage((current) => Math.max(1, current - 1))}
                 >
                   Previous
                 </button>
                 <button
                   type="button"
-                  className="focus-ring rounded-md border border-line px-3 py-2 text-sm font-medium text-ink hover:bg-surface disabled:pointer-events-none disabled:opacity-50"
+                  className={getButtonClassName("secondary", "h-9 px-3 disabled:pointer-events-none disabled:opacity-50")}
                   disabled={pagination.currentPage >= pagination.totalPages}
+                  aria-disabled={pagination.currentPage >= pagination.totalPages}
                   onClick={() => setPage((current) => Math.min(pagination.totalPages, current + 1))}
                 >
                   Next

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { StatusAlert } from "@/components/ui/status-alert";
+import { getButtonClassName } from "@/components/ui/style-primitives";
 
 export default function AdminError({
   error,
@@ -16,23 +18,23 @@ export default function AdminError({
 
   return (
     <main className="container-page py-10">
-      <section className="rounded-lg border border-red-200 bg-red-50 p-6 text-center text-red-800">
-        <p className="text-sm font-semibold uppercase tracking-wide">Admin error</p>
-        <h1 className="mt-2 text-2xl font-semibold">Dashboard could not finish loading</h1>
-        <p className="mt-3 text-sm leading-6">
-          Retry the screen after checking that the backend is reachable and your admin session is valid.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+      <section className="mx-auto max-w-lg rounded-lg border border-line bg-white p-6 text-center shadow-soft">
+        <p className="text-sm font-semibold uppercase tracking-wide text-danger-700">Page error</p>
+        <h1 className="mt-2 text-2xl font-semibold text-ink">We could not load this admin page</h1>
+        <StatusAlert tone="error" className="mt-5 text-left">
+          Try again after confirming your admin session is still valid.
+        </StatusAlert>
+        <div className="mt-6 grid gap-2 min-[390px]:flex min-[390px]:justify-center">
           <button
             type="button"
-            className="focus-ring rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white"
+            className={getButtonClassName("primary", "w-full min-[390px]:w-auto")}
             onClick={reset}
           >
             Try again
           </button>
           <Link
             href="/admin"
-            className="focus-ring rounded-md border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+            className={getButtonClassName("secondary", "w-full min-[390px]:w-auto")}
           >
             Dashboard
           </Link>

@@ -7,7 +7,8 @@ export default function CheckoutPage() {
       <PageHeader
         eyebrow="Shopping"
         title="Checkout"
-        description="Confirm shipping details, choose a payment method, and create your order."
+        description="Confirm delivery details, choose a payment method, and place the order with confidence."
+        variant="storefront"
       />
       <div className="mt-8">
         <CheckoutView />

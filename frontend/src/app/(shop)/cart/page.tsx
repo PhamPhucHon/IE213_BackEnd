@@ -7,7 +7,8 @@ export default function CartPage() {
       <PageHeader
         eyebrow="Shopping"
         title="Cart"
-        description="Review items, update quantities with stock checks, and continue to checkout."
+        description="Review selected frames, adjust quantities, and keep the checkout path clear."
+        variant="storefront"
       />
       <div className="mt-8">
         <CartView />

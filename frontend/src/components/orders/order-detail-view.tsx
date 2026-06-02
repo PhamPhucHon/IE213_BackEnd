@@ -8,6 +8,10 @@ import { LocalOrderError, getLocalOrderErrorMessage } from "@/lib/api/local-orde
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 import { useOrder } from "@/lib/hooks/use-orders";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
+import { getButtonClassName } from "@/components/ui/style-primitives";
 import { CancelOrderButton } from "./cancel-order-button";
 import { OrderStatusBadge } from "./order-status-badge";
 import { OrderTimeline } from "./order-timeline";
@@ -19,8 +23,8 @@ type OrderDetailViewProps = {
 function OrderDetailSkeleton() {
   return (
     <div className="grid gap-6">
-      <div className="h-40 rounded-lg bg-surface" />
-      <div className="h-72 rounded-lg bg-surface" />
+      <Skeleton className="h-40" />
+      <Skeleton className="h-72" />
     </div>
   );
 }
@@ -55,43 +59,46 @@ export function OrderDetailView({ id }: OrderDetailViewProps) {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error">
         {getLocalOrderErrorMessage(error)}
-      </div>
+      </StatusAlert>
     );
   }
 
   if (!order) {
     return (
-      <div className="rounded-lg border border-line bg-white p-8 text-center">
-        <h2 className="text-xl font-semibold text-ink">Order not found</h2>
-        <Link href="/orders" className="mt-5 inline-flex text-sm font-medium text-brand-600">
-          Back to orders
-        </Link>
-      </div>
+      <EmptyState
+        title="Order not found"
+        description="The order may have been removed or the link may be invalid."
+        action={
+          <Link href="/orders" className={getButtonClassName("primary")}>
+            Back to orders
+          </Link>
+        }
+      />
     );
   }
 
   return (
     <div className="grid gap-6">
       {message ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <StatusAlert tone="success">
           {message}
-        </p>
+        </StatusAlert>
       ) : null}
       {actionError ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <StatusAlert tone="error">
           {actionError}
-        </p>
+        </StatusAlert>
       ) : null}
 
-      <section className="rounded-lg border border-line bg-white p-5">
+      <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <p className="text-sm text-muted">{formatDate(order.createdAt)}</p>
-            <h2 className="mt-1 text-2xl font-semibold text-ink">{order.orderNumber}</h2>
+            <h2 className="mt-1 break-all text-2xl font-semibold text-ink">{order.orderNumber}</h2>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
             <OrderStatusBadge status={order.status} />
             <CancelOrderButton
               order={order}
@@ -109,18 +116,19 @@ export function OrderDetailView({ id }: OrderDetailViewProps) {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <section className="rounded-lg border border-line bg-white p-5">
+        <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
           <h2 className="text-lg font-semibold text-ink">Items</h2>
           <div className="mt-5 grid gap-4">
             {order.items.map((item) => (
-              <article key={item.sku} className="grid grid-cols-[72px_1fr] gap-3">
+              <article key={item.sku} className="grid grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-md border border-line bg-surface p-3">
                 <div className="relative aspect-square overflow-hidden rounded-md bg-surface">
                   {item.image ? (
-                    <Image src={item.image} alt={item.name ?? "Order item"} fill sizes="72px" className="object-cover" />
+                    <Image src={item.image} alt={item.name ?? "Order item"} fill sizes="72px" className="object-contain p-1" />
                   ) : null}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-ink">{item.name ?? "Ordered item"}</h3>
+                  <h3 className="break-words font-medium text-ink">{item.name ?? "Ordered item"}</h3>
+                  <p className="mt-1 break-all text-xs text-muted">SKU {item.sku}</p>
                   <p className="mt-2 text-sm text-muted">
                     {item.quantity} x {formatCurrency(item.price)}
                   </p>
@@ -130,17 +138,17 @@ export function OrderDetailView({ id }: OrderDetailViewProps) {
           </div>
         </section>
 
-        <aside className="grid gap-6 self-start">
-          <section className="rounded-lg border border-line bg-white p-5">
+        <aside className="grid gap-6 self-start lg:sticky lg:top-24">
+          <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
             <h2 className="text-lg font-semibold text-ink">Shipping</h2>
             <div className="mt-4 grid gap-2 text-sm">
               <p className="font-medium text-ink">{order.shippingAddress.fullName}</p>
-              <p className="text-muted">{order.shippingAddress.phone}</p>
-              <p className="text-muted">{order.shippingAddress.address}</p>
+              <p className="break-words text-muted">{order.shippingAddress.phone}</p>
+              <p className="break-words text-muted">{order.shippingAddress.address}</p>
             </div>
           </section>
 
-          <section className="rounded-lg border border-line bg-white p-5">
+          <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
             <h2 className="text-lg font-semibold text-ink">Summary</h2>
             <div className="mt-4 grid gap-3 text-sm">
               <div className="flex justify-between gap-3">

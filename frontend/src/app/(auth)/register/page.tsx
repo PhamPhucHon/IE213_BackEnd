@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { RegisterForm } from "@/components/auth/register-form";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function RegisterPage() {
   return (
@@ -11,7 +12,7 @@ export default function RegisterPage() {
         </p>
       </div>
 
-      <Suspense fallback={<div className="h-56 rounded-md bg-surface" />}>
+      <Suspense fallback={<Skeleton className="h-56" />}>
         <RegisterForm />
       </Suspense>
     </div>

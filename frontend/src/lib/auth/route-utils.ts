@@ -16,7 +16,7 @@ const configuredBackendApiUrl =
 
 const backendApiUrl = configuredBackendApiUrl.replace(/\/+$/, "");
 const backendUnavailableMessage =
-  "Cannot reach server. Please make sure the backend is running and try again.";
+  "Cannot reach the service right now. Please try again in a moment.";
 
 type BackendResult<T> = {
   status: number;
@@ -85,7 +85,7 @@ export function jsonFromBackend<T>({ status, payload }: BackendResult<T>) {
   return NextResponse.json(
     payload ?? {
       success: false,
-      message: "Backend did not return JSON",
+      message: "The service returned an unexpected response.",
       data: null
     },
     { status }

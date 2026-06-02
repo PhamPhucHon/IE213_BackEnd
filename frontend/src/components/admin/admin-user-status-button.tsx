@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { adminUserQueryKey, adminUsersQueryKey } from "@/lib/hooks/use-admin";
 import { useConfirm } from "@/components/ui/confirm-provider";
 import { useToast } from "@/components/ui/toast-provider";
+import { getButtonClassName } from "@/components/ui/style-primitives";
 
 type AdminUserStatusButtonProps = {
   user: User;
@@ -48,10 +49,7 @@ export function AdminUserStatusButton({
     <button
       type="button"
       className={cn(
-        "focus-ring inline-flex h-9 items-center justify-center rounded-md px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
-        isActive
-          ? "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
-          : "border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100",
+        getButtonClassName(isActive ? "danger" : "success", "px-3"),
         className
       )}
       disabled={mutation.isPending}

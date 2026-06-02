@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
+import { cn } from "@/lib/utils";
 
 const adminNav = [
   { href: "/admin", label: "Dashboard", icon: BarChart3 },
@@ -17,6 +18,11 @@ const adminNav = [
   { href: "/admin/reviews", label: "Reviews", icon: Star }
 ];
 
+function isAdminNavActive(pathname: string, href: string) {
+  if (href === "/admin") return pathname === "/admin";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 function AdminAccessState({
   title,
   description
@@ -25,7 +31,7 @@ function AdminAccessState({
   description: string;
 }) {
   return (
-    <main className="container-page flex min-h-screen items-center justify-center py-10">
+    <main id="main-content" className="container-page flex min-h-[100dvh] items-center justify-center py-10" tabIndex={-1}>
       <div className="w-full max-w-md rounded-lg border border-line bg-white p-6 text-center shadow-soft">
         <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">Admin</p>
         <h1 className="mt-2 text-2xl font-semibold text-ink">{title}</h1>
@@ -71,7 +77,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     return (
       <AdminAccessState
         title="Could not verify session"
-        description="Please try again after the backend is reachable."
+        description="Please try again after the service is available."
       />
     );
   }
@@ -86,49 +92,81 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-surface lg:grid lg:grid-cols-[260px_1fr]">
-      <aside className="hidden border-r border-line bg-white lg:block">
-        <div className="border-b border-line p-5">
-          <Link href="/admin" className="text-lg font-bold text-ink">
+    <div className="min-h-[100dvh] bg-surface lg:grid lg:grid-cols-[260px_1fr]">
+      <aside className="hidden border-r border-line bg-white lg:sticky lg:top-0 lg:flex lg:h-[100dvh] lg:flex-col">
+        <div className="min-w-0 border-b border-line p-5">
+          <Link href="/admin" className="focus-ring rounded-md text-lg font-bold text-ink">
             IE213 Admin
           </Link>
-          <p className="mt-1 truncate text-sm text-muted">{user.email}</p>
+          <p className="mt-1 truncate text-sm text-muted" title={user.email}>{user.email}</p>
         </div>
-        <nav className="grid gap-1 p-3">
+        <nav className="grid gap-1 p-3" aria-label="Admin navigation">
           {adminNav.map((item) => {
             const Icon = item.icon;
+            const isActive = isAdminNavActive(pathname, item.href);
+
             return (
-              <Link key={item.href} href={item.href} className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted hover:bg-surface hover:text-ink">
-                <Icon className="h-4 w-4" />
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "focus-ring flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-semibold transition duration-200 ease-ui",
+                  isActive
+                    ? "bg-brand-50 text-brand-700"
+                    : "text-muted hover:bg-surface hover:text-ink"
+                )}
+              >
+                <Icon className="h-4 w-4" aria-hidden="true" />
                 {item.label}
               </Link>
             );
           })}
         </nav>
-        <div className="border-t border-line p-3">
+        <div className="mt-auto border-t border-line p-3">
+          <Link
+            href="/"
+            className="focus-ring mb-2 flex min-h-11 items-center rounded-md px-3 text-sm font-semibold text-muted transition hover:bg-surface hover:text-ink"
+          >
+            Storefront
+          </Link>
           <LogoutButton className="w-full justify-start" redirectTo="/login" />
         </div>
       </aside>
 
-      <div className="min-w-0">
-        <header className="sticky top-0 z-30 border-b border-line bg-white lg:hidden">
-          <div className="container-page flex h-14 items-center justify-between">
-            <Link href="/admin" className="font-bold text-ink">
+      <div id="main-content" className="min-w-0" tabIndex={-1}>
+        <header className="sticky top-0 z-30 border-b border-line bg-white/95 shadow-subtle backdrop-blur lg:hidden">
+          <div className="container-page flex h-16 items-center justify-between gap-3">
+            <Link href="/admin" className="focus-ring min-w-0 truncate rounded-md font-bold text-ink">
               IE213 Admin
             </Link>
-            <div className="flex items-center gap-2">
-              <Link href="/" className="text-sm font-medium text-muted">
+            <div className="flex shrink-0 items-center gap-2">
+              <Link href="/" className="focus-ring inline-flex min-h-10 items-center rounded-md px-2 text-sm font-semibold text-muted hover:bg-surface hover:text-ink">
                 Store
               </Link>
-              <LogoutButton className="h-9 px-2" redirectTo="/login" showIcon={false} />
+              <LogoutButton className="min-h-10 px-2" redirectTo="/login" showIcon={false} />
             </div>
           </div>
-          <nav className="flex gap-1 overflow-x-auto px-4 pb-3">
-            {adminNav.map((item) => (
-              <Link key={item.href} href={item.href} className="shrink-0 rounded-md border border-line bg-white px-3 py-1.5 text-sm text-ink">
-                {item.label}
-              </Link>
-            ))}
+          <nav className="container-page flex gap-2 overflow-x-auto pb-3" aria-label="Admin navigation">
+            {adminNav.map((item) => {
+              const isActive = isAdminNavActive(pathname, item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "focus-ring inline-flex min-h-11 shrink-0 items-center rounded-md border px-3 text-sm font-semibold transition",
+                    isActive
+                      ? "border-brand-100 bg-brand-50 text-brand-700"
+                      : "border-line bg-white text-ink hover:bg-surface"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
         </header>
         {children}

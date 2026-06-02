@@ -6,6 +6,10 @@ import { getLocalAdminErrorMessage } from "@/lib/api/local-admin";
 import { useAdminUser } from "@/lib/hooks/use-admin";
 import { formatDate } from "@/lib/utils";
 import { userRoleLabel, userStatusLabel } from "@/lib/admin/admin-utils";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
+import { getBadgeClassName, getButtonClassName } from "@/components/ui/style-primitives";
 import { AdminUserStatusButton } from "./admin-user-status-button";
 
 type AdminUserDetailViewProps = {
@@ -14,9 +18,9 @@ type AdminUserDetailViewProps = {
 
 function UserDetailSkeleton() {
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-      <div className="h-80 rounded-lg bg-surface" />
-      <div className="h-56 rounded-lg bg-surface" />
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <Skeleton className="h-80 rounded-lg" />
+      <Skeleton className="h-56 rounded-lg" />
     </div>
   );
 }
@@ -32,45 +36,48 @@ export function AdminUserDetailView({ id }: AdminUserDetailViewProps) {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error" className="p-5">
         {getLocalAdminErrorMessage(error)}
-      </div>
+      </StatusAlert>
     );
   }
 
   if (!user) {
     return (
-      <div className="rounded-lg border border-line bg-white p-8 text-center">
-        <h2 className="text-xl font-semibold text-ink">User not found</h2>
-        <Link href="/admin/users" className="mt-5 inline-flex text-sm font-semibold text-brand-600">
-          Back to users
-        </Link>
-      </div>
+      <EmptyState
+        title="User not found"
+        description="This account may have been removed or the user id may be invalid."
+        action={
+          <Link href="/admin/users" className={getButtonClassName("secondary")}>
+            Back to users
+          </Link>
+        }
+      />
     );
   }
 
   return (
     <div className="grid gap-6">
       {message ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <StatusAlert tone="success">
           {message}
-        </p>
+        </StatusAlert>
       ) : null}
       {actionError ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <StatusAlert tone="error">
           {actionError}
-        </p>
+        </StatusAlert>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <section className="rounded-lg border border-line bg-white p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
                 {userRoleLabel(user)}
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-ink">{user.name}</h2>
-              <p className="mt-1 break-words text-sm text-muted">{user.email}</p>
+              <h2 className="mt-2 break-words text-2xl font-semibold text-ink">{user.name}</h2>
+              <p className="mt-1 break-all text-sm text-muted">{user.email}</p>
             </div>
             <AdminUserStatusButton
               user={user}
@@ -102,7 +109,7 @@ export function AdminUserDetailView({ id }: AdminUserDetailViewProps) {
             {user.deletedAt ? (
               <div className="sm:col-span-2">
                 <dt className="text-muted">Disabled at</dt>
-                <dd className="mt-1 font-semibold text-red-700">{formatDate(user.deletedAt)}</dd>
+                <dd className="mt-1 font-semibold text-danger-700">{formatDate(user.deletedAt)}</dd>
               </div>
             ) : null}
           </dl>
@@ -140,7 +147,7 @@ export function AdminUserDetailView({ id }: AdminUserDetailViewProps) {
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="font-semibold text-ink">{address.label || "Address"}</h3>
                   {address.isDefault ? (
-                    <span className="rounded-full border border-brand-100 bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">
+                    <span className={getBadgeClassName("info", "px-2.5 py-1")}>
                       Default
                     </span>
                   ) : null}

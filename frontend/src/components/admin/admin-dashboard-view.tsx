@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { AlertCircle, Boxes, PackageCheck, TrendingUp, Users } from "lucide-react";
+import { Boxes, PackageCheck, TrendingUp, Users } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -15,6 +15,9 @@ import {
 import { getLocalAdminErrorMessage } from "@/lib/api/local-admin";
 import { useAdminOverview, useAdminTopProducts } from "@/lib/hooks/use-admin";
 import { formatCurrency } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("vi-VN").format(value);
@@ -32,10 +35,10 @@ function DashboardSkeleton() {
     <div className="grid gap-6">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="h-32 rounded-lg bg-surface" />
+          <Skeleton key={index} className="h-32 rounded-lg" />
         ))}
       </div>
-      <div className="h-96 rounded-lg bg-surface" />
+      <Skeleton className="h-96 rounded-lg" />
     </div>
   );
 }
@@ -52,9 +55,9 @@ export function AdminDashboardView() {
 
   if (overviewQuery.error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error" className="p-5">
         {getLocalAdminErrorMessage(overviewQuery.error)}
-      </div>
+      </StatusAlert>
     );
   }
 
@@ -115,7 +118,7 @@ export function AdminDashboardView() {
         })}
       </div>
 
-      <section className="rounded-lg border border-line bg-white p-5">
+      <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-ink">Top selling products</h2>
@@ -127,17 +130,17 @@ export function AdminDashboardView() {
         </div>
 
         {topProductsQuery.isLoading ? (
-          <div className="mt-6 h-72 rounded-md bg-surface" />
+          <Skeleton className="mt-6 h-72 rounded-md" />
         ) : topProductsQuery.error ? (
-          <div className="mt-6 flex items-start gap-3 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-            <p>{getLocalAdminErrorMessage(topProductsQuery.error)}</p>
-          </div>
+          <StatusAlert tone="error" className="mt-6">
+            {getLocalAdminErrorMessage(topProductsQuery.error)}
+          </StatusAlert>
         ) : !topProducts.length ? (
-          <div className="mt-6 flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-            <p>No delivered orders yet, so top products are not available.</p>
-          </div>
+          <EmptyState
+            title="No top products yet"
+            description="Delivered orders will appear here once enough sales data is available."
+            className="mt-6 p-6"
+          />
         ) : (
           <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_430px]">
             <div className="h-72 min-w-0">

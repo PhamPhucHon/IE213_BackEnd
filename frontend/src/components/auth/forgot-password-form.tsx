@@ -10,6 +10,7 @@ import {
   FieldError,
   FormAlert,
   applyZodFieldErrors,
+  getFieldDescribedBy,
   inputClassName,
   primaryButtonClassName
 } from "./form-utils";
@@ -62,16 +63,18 @@ export function ForgotPasswordForm() {
           placeholder="user@example.com"
           type="email"
           autoComplete="email"
+          aria-invalid={errors.email ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(errors.email && "forgot-password-email-error")}
           {...register("email")}
         />
-        <FieldError message={errors.email?.message} />
+        <FieldError id="forgot-password-email-error" message={errors.email?.message} />
       </label>
 
-      <button type="submit" className={primaryButtonClassName} disabled={isSubmitting}>
+      <button type="submit" className={primaryButtonClassName} disabled={isSubmitting} aria-busy={isSubmitting}>
         {isSubmitting ? "Sending..." : "Send reset email"}
       </button>
 
-      <Link href="/login" className="text-sm font-medium text-brand-600">
+      <Link href="/login" className="focus-ring rounded-sm text-sm font-medium text-brand-600 hover:text-brand-700">
         Back to login
       </Link>
     </form>

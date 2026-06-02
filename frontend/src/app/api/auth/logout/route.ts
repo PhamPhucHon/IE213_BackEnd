@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json(
       {
         success: false,
-        message: "Backend logout failed, local session cleared",
+        message: "Sign out could not finish on the service, but the local session was cleared.",
         data: null
       },
       { status: 502 }

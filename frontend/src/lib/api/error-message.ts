@@ -1,5 +1,5 @@
 export const NETWORK_ERROR_MESSAGE =
-  "Cannot reach server. Please make sure the backend is running and try again.";
+  "Cannot reach the service right now. Please try again in a moment.";
 
 export const GENERIC_ERROR_MESSAGE = "Something went wrong. Please try again.";
 

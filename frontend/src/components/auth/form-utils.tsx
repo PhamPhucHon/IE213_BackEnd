@@ -1,12 +1,17 @@
 import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
 import type { z } from "zod";
-import { cn } from "@/lib/utils";
+import {
+  fieldErrorClassName,
+  fieldHelpClassName,
+  fieldClassName,
+  getButtonClassName,
+  type AlertTone
+} from "@/components/ui/style-primitives";
+import { StatusAlert } from "@/components/ui/status-alert";
 
-export const inputClassName =
-  "focus-ring rounded-md border border-line px-3 py-2 text-sm text-ink placeholder:text-muted";
+export const inputClassName = fieldClassName;
 
-export const primaryButtonClassName =
-  "focus-ring inline-flex h-10 items-center justify-center rounded-md bg-ink px-4 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-60";
+export const primaryButtonClassName = getButtonClassName("primary");
 
 export function applyZodFieldErrors<T extends FieldValues>(
   error: z.ZodError,
@@ -24,9 +29,27 @@ export function applyZodFieldErrors<T extends FieldValues>(
   });
 }
 
-export function FieldError({ message }: { message?: string }) {
+export function getFieldDescribedBy(...ids: Array<string | false | null | undefined>) {
+  const describedBy = ids.filter(Boolean).join(" ");
+  return describedBy || undefined;
+}
+
+export function FieldError({ id, message }: { id?: string; message?: string }) {
   if (!message) return null;
-  return <p className="text-xs font-medium text-red-600">{message}</p>;
+  return (
+    <p id={id} className={fieldErrorClassName}>
+      {message}
+    </p>
+  );
+}
+
+export function FieldHelp({ id, children }: { id?: string; children?: React.ReactNode }) {
+  if (!children) return null;
+  return (
+    <p id={id} className={fieldHelpClassName}>
+      {children}
+    </p>
+  );
 }
 
 export function FormAlert({
@@ -34,18 +57,7 @@ export function FormAlert({
   tone = "error"
 }: {
   children: React.ReactNode;
-  tone?: "error" | "success";
+  tone?: AlertTone;
 }) {
-  return (
-    <div
-      className={cn(
-        "rounded-md border px-3 py-2 text-sm",
-        tone === "success"
-          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-          : "border-red-200 bg-red-50 text-red-700"
-      )}
-    >
-      {children}
-    </div>
-  );
+  return <StatusAlert tone={tone}>{children}</StatusAlert>;
 }

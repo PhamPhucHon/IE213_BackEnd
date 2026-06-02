@@ -5,7 +5,11 @@ import { useState } from "react";
 import { getInventoryProduct, isLowStock } from "@/lib/admin/catalog-utils";
 import { getLocalAdminCatalogErrorMessage } from "@/lib/api/local-admin-catalog";
 import { useAdminInventorySku } from "@/lib/hooks/use-admin-catalog";
-import { cn, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
+import { getBadgeClassName, getButtonClassName } from "@/components/ui/style-primitives";
 import { AdminInventoryStockButton } from "./admin-inventory-stock-button";
 
 type AdminInventoryDetailViewProps = {
@@ -14,9 +18,9 @@ type AdminInventoryDetailViewProps = {
 
 function InventoryDetailSkeleton() {
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <div className="h-72 rounded-lg bg-surface" />
-      <div className="h-56 rounded-lg bg-surface" />
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+      <Skeleton className="h-72 rounded-lg" />
+      <Skeleton className="h-56 rounded-lg" />
     </div>
   );
 }
@@ -32,20 +36,23 @@ export function AdminInventoryDetailView({ sku }: AdminInventoryDetailViewProps)
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error" className="p-5">
         {getLocalAdminCatalogErrorMessage(error)}
-      </div>
+      </StatusAlert>
     );
   }
 
   if (!inventory) {
     return (
-      <div className="rounded-lg border border-line bg-white p-8 text-center">
-        <h2 className="text-xl font-semibold text-ink">SKU not found</h2>
-        <Link href="/admin/inventory" className="mt-5 inline-flex text-sm font-semibold text-brand-600">
-          Back to inventory
-        </Link>
-      </div>
+      <EmptyState
+        title="SKU not found"
+        description="This inventory row may have been removed or the SKU may be invalid."
+        action={
+          <Link href="/admin/inventory" className={getButtonClassName("secondary")}>
+            Back to inventory
+          </Link>
+        }
+      />
     );
   }
 
@@ -54,31 +61,26 @@ export function AdminInventoryDetailView({ sku }: AdminInventoryDetailViewProps)
   return (
     <div className="grid gap-6">
       {message ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <StatusAlert tone="success">
           {message}
-        </p>
+        </StatusAlert>
       ) : null}
       {actionError ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <StatusAlert tone="error">
           {actionError}
-        </p>
+        </StatusAlert>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <section className="rounded-lg border border-line bg-white p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">SKU</p>
               <h2 className="mt-2 break-all text-2xl font-semibold text-ink">{inventory.sku}</h2>
               <p className="mt-2 text-sm text-muted">Warehouse: {inventory.warehouse || "Default"}</p>
             </div>
             <span
-              className={cn(
-                "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
-                isLowStock(inventory)
-                  ? "border-amber-200 bg-amber-50 text-amber-700"
-                  : "border-emerald-200 bg-emerald-50 text-emerald-700"
-              )}
+              className={getBadgeClassName(isLowStock(inventory) ? "warning" : "success", "px-2.5 py-1")}
             >
               {isLowStock(inventory) ? "Low stock" : "Healthy"}
             </span>
@@ -114,15 +116,15 @@ export function AdminInventoryDetailView({ sku }: AdminInventoryDetailViewProps)
           </div>
         </section>
 
-        <aside className="grid gap-6 self-start">
+        <aside className="grid gap-6 self-start md:grid-cols-2 xl:grid-cols-1">
           <section className="rounded-lg border border-line bg-white p-5">
             <h2 className="text-lg font-semibold text-ink">Product</h2>
             <div className="mt-4 grid gap-2 text-sm">
-              <Link href={`/admin/products/${product.id}/edit`} className="font-semibold text-ink">
+              <Link href={`/admin/products/${product.id}/edit`} className="break-words font-semibold text-ink">
                 {product.name}
               </Link>
               <p className="break-all text-muted">ID: {product.id}</p>
-              {product.slug ? <p className="text-muted">Slug: /{product.slug}</p> : null}
+              {product.slug ? <p className="break-all text-muted">Slug: /{product.slug}</p> : null}
             </div>
           </section>
 

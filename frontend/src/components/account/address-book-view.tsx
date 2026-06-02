@@ -7,8 +7,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import {
   FieldError,
+  FieldHelp,
   FormAlert,
   applyZodFieldErrors,
+  getFieldDescribedBy,
   inputClassName,
   primaryButtonClassName
 } from "@/components/auth/form-utils";
@@ -28,15 +30,24 @@ import {
 import { addressesQueryKey } from "@/lib/hooks/use-orders";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
 import type { Address } from "@/types/models";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useConfirm } from "@/components/ui/confirm-provider";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
+import {
+  badgeClassName,
+  checkboxClassName,
+  getButtonClassName,
+  textareaClassName
+} from "@/components/ui/style-primitives";
 
 type AddressFormValues = z.infer<typeof addressSchema>;
 
 function AddressSkeleton() {
   return (
     <div className="grid gap-4">
-      <div className="h-64 rounded-lg bg-surface" />
-      <div className="h-40 rounded-lg bg-surface" />
+      <Skeleton className="h-64" />
+      <Skeleton className="h-40" />
     </div>
   );
 }
@@ -112,9 +123,9 @@ export function AddressBookView() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error" className="p-5">
         {getLocalUserErrorMessage(error)}
-      </div>
+      </StatusAlert>
     );
   }
 
@@ -174,7 +185,7 @@ export function AddressBookView() {
 
   return (
     <div className="grid gap-6">
-      <form className="rounded-lg border border-line bg-white p-5" onSubmit={onSubmit}>
+      <form className="rounded-lg border border-line bg-white p-5 shadow-subtle" onSubmit={onSubmit}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-ink">
@@ -187,7 +198,7 @@ export function AddressBookView() {
           {editingAddress ? (
             <button
               type="button"
-              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink"
+              className={getButtonClassName("secondary", "h-9 px-3")}
               onClick={clearForm}
             >
               Cancel edit
@@ -201,56 +212,72 @@ export function AddressBookView() {
 
           <label className="grid gap-1 text-sm font-medium text-ink">
             Label
-            <input className={inputClassName} placeholder="Home, office..." {...register("label")} />
-            <FieldError message={errors.label?.message} />
+            <input
+              className={inputClassName}
+              placeholder="Home, office..."
+              aria-invalid={errors.label ? "true" : undefined}
+              aria-describedby={getFieldDescribedBy(
+                "address-label-help",
+                errors.label && "address-label-error"
+              )}
+              {...register("label")}
+            />
+            <FieldHelp id="address-label-help">Optional label shown in your saved address list.</FieldHelp>
+            <FieldError id="address-label-error" message={errors.label?.message} />
           </label>
 
           <label className="grid gap-1 text-sm font-medium text-ink">
             Address
             <textarea
-              className="focus-ring min-h-28 rounded-md border border-line px-3 py-2 text-sm text-ink placeholder:text-muted"
+              className={textareaClassName}
               placeholder="123 Nguyen Trai, Q1"
+              aria-invalid={errors.address ? "true" : undefined}
+              aria-describedby={getFieldDescribedBy(errors.address && "address-address-error")}
               {...register("address")}
             />
-            <FieldError message={errors.address?.message} />
+            <FieldError id="address-address-error" message={errors.address?.message} />
           </label>
 
-          <label className="flex items-center gap-2 text-sm font-medium text-ink">
+          <label className="flex items-center gap-2 rounded-md border border-line bg-surface px-3 py-2 text-sm font-medium text-ink">
             <input
               type="checkbox"
+              className={checkboxClassName}
               disabled={Boolean(editingAddress?.isDefault)}
+              aria-describedby={editingAddress?.isDefault ? "address-default-help" : undefined}
               {...register("isDefault")}
             />
             {editingAddress?.isDefault ? "Default address" : "Set as default"}
           </label>
           {editingAddress?.isDefault ? (
-            <p className="text-xs text-muted">
+            <p id="address-default-help" className="text-xs text-muted">
               Choose another address as default before removing this default state.
             </p>
           ) : null}
 
-          <button type="submit" className={primaryButtonClassName} disabled={isSubmitting}>
+          <button type="submit" className={primaryButtonClassName} disabled={isSubmitting} aria-busy={isSubmitting}>
             {isSubmitting ? "Saving..." : editingAddress ? "Save address" : "Add address"}
           </button>
         </div>
       </form>
 
-      <section className="rounded-lg border border-line bg-white p-5">
+      <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
         <h2 className="text-lg font-semibold text-ink">Saved addresses</h2>
         {!addresses.length ? (
-          <div className="mt-5 rounded-md border border-dashed border-line p-6 text-center">
-            <p className="text-sm text-muted">No saved addresses yet.</p>
-          </div>
+          <EmptyState
+            title="No saved addresses yet"
+            description="Add a delivery address so checkout can prefill it later."
+            className="mt-5 p-6"
+          />
         ) : (
           <div className="mt-5 grid gap-3">
             {addresses.map((address) => (
-              <article key={address._id} className="rounded-md border border-line p-4">
+              <article key={address._id} className="rounded-md border border-line bg-white p-4 shadow-subtle">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="font-semibold text-ink">{address.label || "Address"}</h3>
                       {address.isDefault ? (
-                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                        <span className={badgeClassName}>
                           Default
                         </span>
                       ) : null}
@@ -261,7 +288,7 @@ export function AddressBookView() {
                     {!address.isDefault ? (
                       <button
                         type="button"
-                        className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink"
+                        className={getButtonClassName("secondary", "h-9 px-3")}
                         disabled={setDefaultMutation.isPending}
                         onClick={() => setDefaultMutation.mutate(address._id)}
                       >
@@ -270,14 +297,14 @@ export function AddressBookView() {
                     ) : null}
                     <button
                       type="button"
-                      className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink"
+                      className={getButtonClassName("secondary", "h-9 px-3")}
                       onClick={() => startEdit(address)}
                     >
                       Edit
                     </button>
                     <button
                       type="button"
-                      className="focus-ring rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+                      className={getButtonClassName("danger", "h-9 px-3")}
                       disabled={removeMutation.isPending}
                       onClick={async () => {
                         const confirmed = await confirm({
