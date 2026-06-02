@@ -1,6 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { AlertTriangle } from "lucide-react";
+import { getButtonClassName, modalOverlayClassName, modalPanelClassName } from "./style-primitives";
 
 type ConfirmOptions = {
   title: string;
@@ -20,9 +23,46 @@ type ConfirmContextValue = {
 
 const ConfirmContext = createContext<ConfirmContextValue | null>(null);
 
+type InertElementState = {
+  element: HTMLElement;
+  ariaHidden: string | null;
+  inert: boolean;
+};
+
+function makeDialogBackgroundInert(overlay: HTMLElement) {
+  const backgroundElements = Array.from(document.body.children).filter(
+    (element): element is HTMLElement => element instanceof HTMLElement && element !== overlay
+  );
+  const previousStates: InertElementState[] = backgroundElements.map((element) => ({
+    element,
+    ariaHidden: element.getAttribute("aria-hidden"),
+    inert: Boolean((element as HTMLElement & { inert?: boolean }).inert)
+  }));
+
+  backgroundElements.forEach((element) => {
+    (element as HTMLElement & { inert?: boolean }).inert = true;
+    element.setAttribute("aria-hidden", "true");
+  });
+
+  return () => {
+    previousStates.forEach(({ element, ariaHidden, inert }) => {
+      (element as HTMLElement & { inert?: boolean }).inert = inert;
+
+      if (ariaHidden === null) {
+        element.removeAttribute("aria-hidden");
+      } else {
+        element.setAttribute("aria-hidden", ariaHidden);
+      }
+    });
+  };
+}
+
 export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   const [request, setRequest] = useState<ConfirmRequest | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const dialogRef = useRef<HTMLElement | null>(null);
   const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const close = useCallback(
     (value: boolean) => {
@@ -41,63 +81,119 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!request) return;
 
+    previousFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
     cancelButtonRef.current?.focus();
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         close(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialogRef.current) {
+        return;
+      }
+
+      const focusable = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     }
 
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      previousFocusRef.current?.focus();
+      previousFocusRef.current = null;
+    };
   }, [close, request]);
+
+  useEffect(() => {
+    if (!request || !overlayRef.current) return;
+    return makeDialogBackgroundInert(overlayRef.current);
+  }, [request]);
 
   const value = useMemo(() => ({ confirm }), [confirm]);
 
   return (
     <ConfirmContext.Provider value={value}>
       {children}
-      {request ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
+      {request && typeof document !== "undefined" ? createPortal(
+        <div
+          ref={overlayRef}
+          className={modalOverlayClassName}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              close(false);
+            }
+          }}
+        >
           <section
+            ref={dialogRef}
             aria-modal="true"
             role="dialog"
             aria-labelledby="confirm-dialog-title"
             aria-describedby={request.description ? "confirm-dialog-description" : undefined}
-            className="w-full max-w-md rounded-lg border border-line bg-white p-5 shadow-soft"
+            className={`${modalPanelClassName} max-w-md p-4 sm:p-5`}
           >
-            <h2 id="confirm-dialog-title" className="text-lg font-semibold text-ink">
-              {request.title}
-            </h2>
+            <div className="flex items-start gap-3">
+              {request.destructive ? (
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-danger-50 text-danger-700">
+                  <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+                </span>
+              ) : null}
+              <div className="min-w-0">
+                <h2 id="confirm-dialog-title" className="break-words text-lg font-semibold text-ink">
+                  {request.title}
+                </h2>
+                {request.description ? (
+                  <p id="confirm-dialog-description" className="mt-2 break-words text-sm leading-6 text-muted">
+                    {request.description}
+                  </p>
+                ) : null}
+              </div>
+            </div>
             {request.description ? (
-              <p id="confirm-dialog-description" className="mt-2 text-sm leading-6 text-muted">
-                {request.description}
+              <p className="mt-4 rounded-md border border-line bg-surface px-3 py-2 text-xs leading-5 text-muted">
+                Press Escape or choose {request.cancelLabel ?? "Cancel"} to keep the current state.
               </p>
             ) : null}
-            <div className="mt-5 flex flex-wrap justify-end gap-2">
+            <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap sm:justify-end">
               <button
                 ref={cancelButtonRef}
                 type="button"
-                className="focus-ring rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-surface"
+                className={getButtonClassName("secondary", "w-full sm:w-auto")}
                 onClick={() => close(false)}
               >
                 {request.cancelLabel ?? "Cancel"}
               </button>
               <button
                 type="button"
-                className={
-                  request.destructive
-                    ? "focus-ring rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
-                    : "focus-ring rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-black"
-                }
+                className={getButtonClassName(request.destructive ? "danger" : "primary", "w-full sm:w-auto")}
                 onClick={() => close(true)}
               >
                 {request.confirmLabel ?? "Confirm"}
               </button>
             </div>
           </section>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </ConfirmContext.Provider>
   );

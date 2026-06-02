@@ -14,6 +14,16 @@ import {
 import { adminCategoriesQueryKey, useAdminCategories } from "@/lib/hooks/use-admin-catalog";
 import { formatDate } from "@/lib/utils";
 import { useConfirm } from "@/components/ui/confirm-provider";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
+import {
+  badgeClassName,
+  fieldClassName,
+  formLabelClassName,
+  getButtonClassName,
+  textareaClassName
+} from "@/components/ui/style-primitives";
 import { useToast } from "@/components/ui/toast-provider";
 
 type CategoryFormState = {
@@ -57,7 +67,7 @@ function CategoryForm({
 
   return (
     <form
-      className="rounded-lg border border-line bg-white p-5"
+      className="rounded-lg border border-line bg-white p-5 shadow-subtle"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit();
@@ -73,60 +83,61 @@ function CategoryForm({
       </div>
 
       <div className="mt-5 grid gap-4">
-        <label className="grid gap-1 text-sm font-medium text-ink">
+        <label className={formLabelClassName}>
           Name
           <input
             value={form.name}
             onChange={(event) => onChange({ ...form, name: event.target.value })}
-            className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+            className={fieldClassName}
             required
           />
         </label>
 
-        <label className="grid gap-1 text-sm font-medium text-ink">
+        <label className={formLabelClassName}>
           Description
           <textarea
             value={form.description}
             onChange={(event) => onChange({ ...form, description: event.target.value })}
-            className="focus-ring min-h-24 rounded-md border border-line px-3 py-2 text-sm"
+            className={textareaClassName}
           />
         </label>
 
-        <label className="grid gap-1 text-sm font-medium text-ink">
+        <label className={formLabelClassName}>
           Image URL
           <input
             value={form.image}
             onChange={(event) => onChange({ ...form, image: event.target.value })}
-            className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+            className={fieldClassName}
             placeholder="https://..."
             type="url"
           />
         </label>
 
-        <label className="grid gap-1 text-sm font-medium text-ink">
+        <label className={formLabelClassName}>
           Display order
           <input
             value={form.order}
             onChange={(event) => onChange({ ...form, order: event.target.value })}
-            className="focus-ring rounded-md border border-line px-3 py-2 text-sm"
+            className={fieldClassName}
             min={0}
             type="number"
           />
         </label>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="mt-5 grid gap-2 min-[390px]:flex min-[390px]:flex-wrap">
         <button
           type="submit"
-          className="focus-ring rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className={getButtonClassName("primary", "w-full min-[390px]:w-auto")}
           disabled={isSaving}
+          aria-busy={isSaving}
         >
           {isSaving ? "Saving..." : isEditing ? "Save category" : "Create category"}
         </button>
         {isEditing ? (
           <button
             type="button"
-            className="focus-ring rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-surface"
+            className={getButtonClassName("secondary", "w-full min-[390px]:w-auto")}
             onClick={onCancel}
           >
             Cancel edit
@@ -141,7 +152,7 @@ function CategoriesSkeleton() {
   return (
     <div className="grid gap-4">
       {Array.from({ length: 5 }).map((_, index) => (
-        <div key={index} className="h-24 rounded-lg bg-surface" />
+        <Skeleton key={index} className="h-24" />
       ))}
     </div>
   );
@@ -211,8 +222,8 @@ export function AdminCategoriesView() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
-      <div className="lg:sticky lg:top-20 lg:self-start">
+    <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+      <div className="xl:sticky xl:top-20 xl:self-start">
         <CategoryForm
           form={form}
           isSaving={saveMutation.isPending}
@@ -230,14 +241,14 @@ export function AdminCategoriesView() {
 
       <section className="grid gap-5">
         {message ? (
-          <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <StatusAlert tone="success">
             {message}
-          </p>
+          </StatusAlert>
         ) : null}
         {actionError ? (
-          <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <StatusAlert tone="error">
             {actionError}
-          </p>
+          </StatusAlert>
         ) : null}
 
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -248,21 +259,21 @@ export function AdminCategoriesView() {
         {isLoading ? <CategoriesSkeleton /> : null}
 
         {error ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+          <StatusAlert tone="error" className="p-5">
             {getLocalAdminCatalogErrorMessage(error)}
-          </div>
+          </StatusAlert>
         ) : null}
 
         {!isLoading && !error && !categories.length ? (
-          <div className="rounded-lg border border-line bg-white p-8 text-center">
-            <h3 className="text-xl font-semibold text-ink">No categories yet</h3>
-            <p className="mt-2 text-sm text-muted">Create the first category to organize products.</p>
-          </div>
+          <EmptyState
+            title="No categories yet"
+            description="Create the first category to organize products."
+          />
         ) : null}
 
         <div className="grid gap-4">
           {categories.map((category) => (
-            <article key={category._id} className="rounded-lg border border-line bg-white p-4">
+            <article key={category._id} className="rounded-lg border border-line bg-white p-4 shadow-subtle">
               <div className="grid gap-4 sm:grid-cols-[96px_1fr]">
                 <div className="relative aspect-square overflow-hidden rounded-md bg-surface">
                   {category.image ? (
@@ -277,29 +288,29 @@ export function AdminCategoriesView() {
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-lg font-semibold text-ink">{category.name}</h3>
-                      <p className="mt-1 text-sm text-muted">/{category.slug}</p>
+                    <div className="min-w-0">
+                      <h3 className="break-words text-lg font-semibold text-ink">{category.name}</h3>
+                      <p className="mt-1 break-all text-sm text-muted">/{category.slug}</p>
                     </div>
-                    <span className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs font-semibold text-muted">
+                    <span className={badgeClassName}>
                       Order {category.order ?? 0}
                     </span>
                   </div>
                   {category.description ? (
-                    <p className="mt-3 text-sm leading-6 text-muted">{category.description}</p>
+                    <p className="mt-3 break-words text-sm leading-6 text-muted">{category.description}</p>
                   ) : null}
                   <p className="mt-3 text-xs text-muted">Updated {formatDate(category.updatedAt)}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-4 grid gap-2 min-[390px]:flex min-[390px]:flex-wrap">
                     <button
                       type="button"
-                      className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-semibold text-ink hover:bg-surface"
+                      className={getButtonClassName("secondary", "w-full px-3 min-[390px]:w-auto")}
                       onClick={() => editCategory(category)}
                     >
                       Edit
                     </button>
                     <button
                       type="button"
-                      className="focus-ring rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      className={getButtonClassName("danger", "w-full px-3 min-[390px]:w-auto")}
                       disabled={deleteMutation.isPending}
                       onClick={async () => {
                         const confirmed = await confirm({

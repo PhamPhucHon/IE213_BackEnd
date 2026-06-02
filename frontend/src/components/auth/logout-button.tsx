@@ -40,11 +40,12 @@ export function LogoutButton({
     <button
       type="button"
       className={cn(
-        "focus-ring inline-flex h-10 items-center justify-center rounded-md px-3 text-sm font-medium text-ink transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60",
+        "focus-ring inline-flex min-h-11 items-center justify-center rounded-md px-3 text-sm font-medium text-ink transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60",
         className
       )}
       onClick={handleLogout}
       disabled={isPending}
+      aria-busy={isPending}
     >
       {showIcon ? <LogOut className="mr-2 h-4 w-4" /> : null}
       {isPending ? "Logging out..." : "Logout"}

@@ -12,8 +12,10 @@ import { currentUserQueryKey } from "@/lib/hooks/use-current-user";
 import { removeUserScopedQueries } from "@/lib/query/session-cache";
 import {
   FieldError,
+  FieldHelp,
   FormAlert,
   applyZodFieldErrors,
+  getFieldDescribedBy,
   inputClassName,
   primaryButtonClassName
 } from "./form-utils";
@@ -79,9 +81,11 @@ export function LoginForm() {
           placeholder="user@example.com"
           type="email"
           autoComplete="email"
+          aria-invalid={errors.email ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(errors.email && "login-email-error")}
           {...registerField("email")}
         />
-        <FieldError message={errors.email?.message} />
+        <FieldError id="login-email-error" message={errors.email?.message} />
       </label>
 
       <label className="grid gap-1 text-sm font-medium text-ink">
@@ -91,20 +95,26 @@ export function LoginForm() {
           placeholder="******"
           type="password"
           autoComplete="current-password"
+          aria-invalid={errors.password ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(
+            "login-password-help",
+            errors.password && "login-password-error"
+          )}
           {...registerField("password")}
         />
-        <FieldError message={errors.password?.message} />
+        <FieldHelp id="login-password-help">Use the password connected to your IE213 account.</FieldHelp>
+        <FieldError id="login-password-error" message={errors.password?.message} />
       </label>
 
-      <button type="submit" className={primaryButtonClassName} disabled={isSubmitting}>
-        {isSubmitting ? "Logging in..." : "Login"}
+      <button type="submit" className={primaryButtonClassName} disabled={isSubmitting} aria-busy={isSubmitting}>
+        {isSubmitting ? "Signing in..." : "Sign in"}
       </button>
 
       <div className="flex justify-between text-sm">
-        <Link href={registerHref} className="font-medium text-brand-600">
+        <Link href={registerHref} className="focus-ring rounded-sm font-medium text-brand-600 hover:text-brand-700">
           Create account
         </Link>
-        <Link href="/forgot-password" className="font-medium text-brand-600">
+        <Link href="/forgot-password" className="focus-ring rounded-sm font-medium text-brand-600 hover:text-brand-700">
           Forgot password
         </Link>
       </div>

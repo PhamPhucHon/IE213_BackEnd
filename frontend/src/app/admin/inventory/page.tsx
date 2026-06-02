@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { AdminInventoryView } from "@/components/admin/catalog/admin-inventory-view";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminInventoryPage() {
   return (
@@ -11,7 +12,7 @@ export default function AdminInventoryPage() {
         description="Track stock, reserved quantity, available quantity, low-stock filters, and SKU update actions."
       />
       <div className="mt-8">
-        <Suspense fallback={<div className="h-72 rounded-lg bg-surface" />}>
+        <Suspense fallback={<Skeleton className="h-72 rounded-lg" />}>
           <AdminInventoryView />
         </Suspense>
       </div>

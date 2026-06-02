@@ -11,8 +11,10 @@ import { currentUserQueryKey } from "@/lib/hooks/use-current-user";
 import { removeUserScopedQueries } from "@/lib/query/session-cache";
 import {
   FieldError,
+  FieldHelp,
   FormAlert,
   applyZodFieldErrors,
+  getFieldDescribedBy,
   inputClassName,
   primaryButtonClassName
 } from "./form-utils";
@@ -87,9 +89,11 @@ export function RegisterForm() {
           className={inputClassName}
           placeholder="Nguyen Van A"
           autoComplete="name"
+          aria-invalid={errors.name ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(errors.name && "register-name-error")}
           {...registerField("name")}
         />
-        <FieldError message={errors.name?.message} />
+        <FieldError id="register-name-error" message={errors.name?.message} />
       </label>
 
       <label className="grid gap-1 text-sm font-medium text-ink">
@@ -99,9 +103,11 @@ export function RegisterForm() {
           placeholder="user@example.com"
           type="email"
           autoComplete="email"
+          aria-invalid={errors.email ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(errors.email && "register-email-error")}
           {...registerField("email")}
         />
-        <FieldError message={errors.email?.message} />
+        <FieldError id="register-email-error" message={errors.email?.message} />
       </label>
 
       <label className="grid gap-1 text-sm font-medium text-ink">
@@ -111,9 +117,15 @@ export function RegisterForm() {
           placeholder="0901234567"
           type="tel"
           autoComplete="tel"
+          aria-invalid={errors.phone ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(
+            "register-phone-help",
+            errors.phone && "register-phone-error"
+          )}
           {...registerField("phone")}
         />
-        <FieldError message={errors.phone?.message} />
+        <FieldHelp id="register-phone-help">Optional, but useful for delivery updates.</FieldHelp>
+        <FieldError id="register-phone-error" message={errors.phone?.message} />
       </label>
 
       <label className="grid gap-1 text-sm font-medium text-ink">
@@ -123,19 +135,21 @@ export function RegisterForm() {
           placeholder="Minimum 6 characters"
           type="password"
           autoComplete="new-password"
+          aria-invalid={errors.password ? "true" : undefined}
+          aria-describedby={getFieldDescribedBy(errors.password && "register-password-error")}
           {...registerField("password")}
         />
-        <FieldError message={errors.password?.message} />
+        <FieldError id="register-password-error" message={errors.password?.message} />
       </label>
 
-      <button type="submit" className={primaryButtonClassName} disabled={isSubmitting}>
+      <button type="submit" className={primaryButtonClassName} disabled={isSubmitting} aria-busy={isSubmitting}>
         {isSubmitting ? "Creating account..." : "Create account"}
       </button>
 
       <p className="text-sm text-muted">
         Already have an account?{" "}
-        <Link href={loginHref} className="font-medium text-brand-600">
-          Login
+        <Link href={loginHref} className="focus-ring rounded-sm font-medium text-brand-600 hover:text-brand-700">
+          Sign in
         </Link>
       </p>
     </form>

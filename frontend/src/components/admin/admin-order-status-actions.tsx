@@ -8,6 +8,7 @@ import { adminOrderQueryKey, adminOrdersQueryKey } from "@/lib/hooks/use-admin";
 import { cn } from "@/lib/utils";
 import { useConfirm } from "@/components/ui/confirm-provider";
 import { useToast } from "@/components/ui/toast-provider";
+import { getButtonClassName, type ButtonVariant } from "@/components/ui/style-primitives";
 
 type AdminOrderStatusActionsProps = {
   order: Order;
@@ -23,16 +24,16 @@ function actionLabel(status: OrderStatus) {
   return `Mark ${status.toLowerCase()}`;
 }
 
-function actionClassName(status: OrderStatus) {
+function actionButtonVariant(status: OrderStatus): ButtonVariant {
   if (status === "Cancelled") {
-    return "border-red-200 bg-red-50 text-red-700 hover:bg-red-100";
+    return "danger";
   }
 
   if (status === "Delivered") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100";
+    return "success";
   }
 
-  return "border-line bg-white text-ink hover:bg-surface";
+  return "secondary";
 }
 
 export function AdminOrderStatusActions({
@@ -75,10 +76,7 @@ export function AdminOrderStatusActions({
         <button
           key={status}
           type="button"
-          className={cn(
-            "focus-ring inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60",
-            actionClassName(status)
-          )}
+          className={getButtonClassName(actionButtonVariant(status), "px-3")}
           disabled={mutation.isPending}
           onClick={async () => {
             const confirmed = await confirm({

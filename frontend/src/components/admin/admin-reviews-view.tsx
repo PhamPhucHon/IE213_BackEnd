@@ -121,8 +121,13 @@ export function AdminReviewsView() {
       <div className="flex gap-2 overflow-x-auto pb-1">
         <Link
           href={filterHref(searchParams)}
-          className="focus-ring shrink-0 rounded-md border border-line bg-white px-3 py-2 text-sm font-semibold text-ink aria-selected:border-ink aria-selected:bg-ink aria-selected:text-white"
-          aria-selected={!rating}
+          className={cn(
+            "focus-ring inline-flex min-h-11 shrink-0 items-center rounded-md border px-3 text-sm font-semibold",
+            !rating
+              ? "border-ink bg-ink text-white"
+              : "border-line bg-white text-ink hover:bg-surface"
+          )}
+          aria-current={!rating ? "page" : undefined}
         >
           All
         </Link>
@@ -130,8 +135,13 @@ export function AdminReviewsView() {
           <Link
             key={item}
             href={filterHref(searchParams, item)}
-            className="focus-ring shrink-0 rounded-md border border-line bg-white px-3 py-2 text-sm font-semibold text-ink aria-selected:border-ink aria-selected:bg-ink aria-selected:text-white"
-            aria-selected={rating === item}
+            className={cn(
+              "focus-ring inline-flex min-h-11 shrink-0 items-center rounded-md border px-3 text-sm font-semibold",
+              rating === item
+                ? "border-ink bg-ink text-white"
+                : "border-line bg-white text-ink hover:bg-surface"
+            )}
+            aria-current={rating === item ? "page" : undefined}
           >
             {item} star
           </Link>
@@ -174,17 +184,17 @@ export function AdminReviewsView() {
                       ) : null}
                       <span>{formatDate(review.createdAt)}</span>
                     </div>
-                    <h2 className="mt-2 text-lg font-semibold text-ink">
+                    <h2 className="mt-2 break-words text-lg font-semibold text-ink">
                       {review.title || "Untitled review"}
                     </h2>
-                    <p className="mt-1 text-sm text-muted">
+                    <p className="mt-1 break-words text-sm text-muted">
                       By <span className="font-medium text-ink">{review.userName}</span>
                     </p>
                   </div>
 
                   <button
                     type="button"
-                    className="focus-ring inline-flex h-9 items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 text-sm font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={deleteMutation.isPending}
                     onClick={async () => {
                       const confirmed = await confirm({
@@ -204,13 +214,13 @@ export function AdminReviewsView() {
                   </button>
                 </div>
 
-                <p className="mt-4 text-sm leading-6 text-muted">{review.comment}</p>
+                <p className="mt-4 break-words text-sm leading-6 text-muted">{review.comment}</p>
 
                 <div className="mt-4 grid gap-2 rounded-md bg-surface p-3 text-sm sm:grid-cols-3">
                   <div>
                     <p className="text-muted">Product</p>
                     {product.editHref ? (
-                      <Link href={product.editHref} className="font-semibold text-ink">
+                      <Link href={product.editHref} className="break-words font-semibold text-ink">
                         {product.name}
                       </Link>
                     ) : (
@@ -250,15 +260,17 @@ export function AdminReviewsView() {
           <div className="flex gap-2">
             <Link
               href={pageHref(searchParams, Math.max(1, pagination.currentPage - 1))}
-              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
+              className="focus-ring inline-flex min-h-11 items-center rounded-md border border-line bg-white px-3 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
               aria-disabled={pagination.currentPage <= 1}
+              tabIndex={pagination.currentPage <= 1 ? -1 : undefined}
             >
               Previous
             </Link>
             <Link
               href={pageHref(searchParams, Math.min(pagination.totalPages, pagination.currentPage + 1))}
-              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
+              className="focus-ring inline-flex min-h-11 items-center rounded-md border border-line bg-white px-3 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
               aria-disabled={pagination.currentPage >= pagination.totalPages}
+              tabIndex={pagination.currentPage >= pagination.totalPages ? -1 : undefined}
             >
               Next
             </Link>

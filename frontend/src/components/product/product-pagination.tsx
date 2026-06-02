@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { CatalogPagination } from "@/lib/catalog/product-utils";
 import type { CatalogSearchState } from "@/lib/catalog/query";
 import { buildCatalogHref } from "@/lib/catalog/query";
@@ -37,15 +38,17 @@ export function ProductPagination({ basePath, pagination, query }: ProductPagina
       <p className="text-sm text-muted">
         Page {currentPage} of {totalPages}
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Link
           href={pageHref(basePath, query, Math.max(1, currentPage - 1))}
           aria-disabled={currentPage === 1}
+          tabIndex={currentPage === 1 ? -1 : undefined}
           className={cn(
-            "focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink",
+            "focus-ring inline-flex min-h-11 items-center gap-1 rounded-md border border-line bg-white px-3 text-sm font-medium text-ink transition hover:bg-surface",
             currentPage === 1 && "pointer-events-none opacity-50"
           )}
         >
+          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           Previous
         </Link>
         {pages.map((page, index) => {
@@ -57,8 +60,9 @@ export function ProductPagination({ basePath, pagination, query }: ProductPagina
               {needsGap ? <span className="px-1 text-sm text-muted">...</span> : null}
               <Link
                 href={pageHref(basePath, query, page)}
+                aria-current={page === currentPage ? "page" : undefined}
                 className={cn(
-                  "focus-ring rounded-md border border-line px-3 py-2 text-sm font-medium",
+                  "focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-line px-3 text-sm font-medium transition",
                   page === currentPage
                     ? "bg-ink text-white"
                     : "bg-white text-ink hover:bg-surface"
@@ -72,12 +76,14 @@ export function ProductPagination({ basePath, pagination, query }: ProductPagina
         <Link
           href={pageHref(basePath, query, Math.min(totalPages, currentPage + 1))}
           aria-disabled={currentPage === totalPages}
+          tabIndex={currentPage === totalPages ? -1 : undefined}
           className={cn(
-            "focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink",
+            "focus-ring inline-flex min-h-11 items-center gap-1 rounded-md border border-line bg-white px-3 text-sm font-medium text-ink transition hover:bg-surface",
             currentPage === totalPages && "pointer-events-none opacity-50"
           )}
         >
           Next
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       </div>
     </nav>

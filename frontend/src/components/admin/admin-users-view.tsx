@@ -119,7 +119,7 @@ export function AdminUsersView() {
         </div>
       ) : (
         <>
-          <div className="hidden overflow-x-auto rounded-lg border border-line bg-white md:block">
+          <div className="hidden overflow-x-auto rounded-lg border border-line bg-white xl:block">
             <table className="min-w-full divide-y divide-line text-sm">
               <thead className="bg-surface text-left text-xs font-semibold uppercase tracking-wide text-muted">
                 <tr>
@@ -134,10 +134,10 @@ export function AdminUsersView() {
                 {users.map((user) => (
                   <tr key={user._id}>
                     <td className="px-4 py-4">
-                      <Link href={`/admin/users/${user._id}`} className="font-semibold text-ink">
+                      <Link href={`/admin/users/${user._id}`} className="break-words font-semibold text-ink">
                         {user.name}
                       </Link>
-                      <p className="mt-1 text-muted">{user.email}</p>
+                      <p className="mt-1 break-all text-muted">{user.email}</p>
                     </td>
                     <td className="px-4 py-4">
                       <RoleBadge user={user} />
@@ -153,7 +153,7 @@ export function AdminUsersView() {
                       <div className="flex justify-end gap-2">
                         <Link
                           href={`/admin/users/${user._id}`}
-                          className="focus-ring inline-flex h-9 items-center justify-center rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink hover:bg-surface"
+                          className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink hover:bg-surface"
                         >
                           Detail
                         </Link>
@@ -173,15 +173,15 @@ export function AdminUsersView() {
             </table>
           </div>
 
-          <div className="grid gap-4 md:hidden">
+          <div className="grid gap-4 xl:hidden">
             {users.map((user) => (
               <article key={user._id} className="rounded-lg border border-line bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <Link href={`/admin/users/${user._id}`} className="font-semibold text-ink">
+                    <Link href={`/admin/users/${user._id}`} className="break-words font-semibold text-ink">
                       {user.name}
                     </Link>
-                    <p className="mt-1 break-words text-sm text-muted">{user.email}</p>
+                    <p className="mt-1 break-all text-sm text-muted">{user.email}</p>
                   </div>
                   <UserStatusBadge user={user} />
                 </div>
@@ -189,10 +189,10 @@ export function AdminUsersView() {
                   <RoleBadge user={user} />
                   <span className="text-xs text-muted">Joined {formatDate(user.createdAt)}</span>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 grid gap-2 min-[390px]:flex min-[390px]:flex-wrap">
                   <Link
                     href={`/admin/users/${user._id}`}
-                    className="focus-ring inline-flex h-9 items-center justify-center rounded-md bg-ink px-3 text-sm font-semibold text-white"
+                    className="focus-ring inline-flex min-h-11 items-center justify-center rounded-md bg-ink px-3 text-sm font-semibold text-white"
                   >
                     Detail
                   </Link>
@@ -212,22 +212,24 @@ export function AdminUsersView() {
       )}
 
       {pagination.totalPages > 1 ? (
-        <nav className="flex items-center justify-between border-t border-line pt-5">
+        <nav className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
           <p className="text-sm text-muted">
             Page {pagination.currentPage} of {pagination.totalPages}
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link
               href={pageHref(Math.max(1, pagination.currentPage - 1))}
-              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
+              className="focus-ring inline-flex min-h-11 items-center rounded-md border border-line bg-white px-3 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
               aria-disabled={pagination.currentPage <= 1}
+              tabIndex={pagination.currentPage <= 1 ? -1 : undefined}
             >
               Previous
             </Link>
             <Link
               href={pageHref(Math.min(pagination.totalPages, pagination.currentPage + 1))}
-              className="focus-ring rounded-md border border-line bg-white px-3 py-2 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
+              className="focus-ring inline-flex min-h-11 items-center rounded-md border border-line bg-white px-3 text-sm font-medium text-ink aria-disabled:pointer-events-none aria-disabled:opacity-50"
               aria-disabled={pagination.currentPage >= pagination.totalPages}
+              tabIndex={pagination.currentPage >= pagination.totalPages ? -1 : undefined}
             >
               Next
             </Link>

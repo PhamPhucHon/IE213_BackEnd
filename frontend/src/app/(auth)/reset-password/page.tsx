@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ResetPasswordPage() {
   return (
@@ -11,7 +12,7 @@ export default function ResetPasswordPage() {
         </p>
       </div>
 
-      <Suspense fallback={<div className="h-44 rounded-md bg-surface" />}>
+      <Suspense fallback={<Skeleton className="h-44" />}>
         <ResetPasswordForm />
       </Suspense>
     </div>

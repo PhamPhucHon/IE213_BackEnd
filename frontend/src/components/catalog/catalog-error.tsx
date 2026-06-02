@@ -1,3 +1,5 @@
+import { StatusAlert } from "@/components/ui/status-alert";
+
 type CatalogErrorProps = {
   title?: string;
   message: string;
@@ -5,9 +7,8 @@ type CatalogErrorProps = {
 
 export function CatalogError({ title = "Cannot load catalog", message }: CatalogErrorProps) {
   return (
-    <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-red-700">
-      <h2 className="text-base font-semibold">{title}</h2>
-      <p className="mt-2 text-sm leading-6">{message}</p>
-    </div>
+    <StatusAlert tone="error" title={title} className="p-5">
+      <p>{message}</p>
+    </StatusAlert>
   );
 }

@@ -9,6 +9,10 @@ import { getOrderCustomer } from "@/lib/admin/admin-utils";
 import { getLocalAdminErrorMessage } from "@/lib/api/local-admin";
 import { useAdminOrder } from "@/lib/hooks/use-admin";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
+import { getButtonClassName } from "@/components/ui/style-primitives";
 import { AdminOrderStatusActions } from "./admin-order-status-actions";
 
 type AdminOrderDetailViewProps = {
@@ -18,10 +22,10 @@ type AdminOrderDetailViewProps = {
 function OrderDetailSkeleton() {
   return (
     <div className="grid gap-6">
-      <div className="h-44 rounded-lg bg-surface" />
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="h-80 rounded-lg bg-surface" />
-        <div className="h-80 rounded-lg bg-surface" />
+      <Skeleton className="h-44 rounded-lg" />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <Skeleton className="h-80 rounded-lg" />
+        <Skeleton className="h-80 rounded-lg" />
       </div>
     </div>
   );
@@ -38,20 +42,23 @@ export function AdminOrderDetailView({ id }: AdminOrderDetailViewProps) {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error" className="p-5">
         {getLocalAdminErrorMessage(error)}
-      </div>
+      </StatusAlert>
     );
   }
 
   if (!order) {
     return (
-      <div className="rounded-lg border border-line bg-white p-8 text-center">
-        <h2 className="text-xl font-semibold text-ink">Order not found</h2>
-        <Link href="/admin/orders" className="mt-5 inline-flex text-sm font-semibold text-brand-600">
-          Back to orders
-        </Link>
-      </div>
+      <EmptyState
+        title="Order not found"
+        description="This order may have been removed or the order id may be invalid."
+        action={
+          <Link href="/admin/orders" className={getButtonClassName("secondary")}>
+            Back to orders
+          </Link>
+        }
+      />
     );
   }
 
@@ -60,23 +67,23 @@ export function AdminOrderDetailView({ id }: AdminOrderDetailViewProps) {
   return (
     <div className="grid gap-6">
       {message ? (
-        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <StatusAlert tone="success">
           {message}
-        </p>
+        </StatusAlert>
       ) : null}
       {actionError ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <StatusAlert tone="error">
           {actionError}
-        </p>
+        </StatusAlert>
       ) : null}
 
       <section className="rounded-lg border border-line bg-white p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <p className="text-sm text-muted">{formatDate(order.createdAt)}</p>
-            <h2 className="mt-1 text-2xl font-semibold text-ink">{order.orderNumber}</h2>
+            <h2 className="mt-1 break-all text-2xl font-semibold text-ink">{order.orderNumber}</h2>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
             <OrderStatusBadge status={order.status} />
             <AdminOrderStatusActions
               order={order}
@@ -96,7 +103,7 @@ export function AdminOrderDetailView({ id }: AdminOrderDetailViewProps) {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <section className="rounded-lg border border-line bg-white p-5">
           <h2 className="text-lg font-semibold text-ink">Items</h2>
           <div className="mt-5 grid gap-4">
@@ -108,8 +115,8 @@ export function AdminOrderDetailView({ id }: AdminOrderDetailViewProps) {
                   ) : null}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-medium text-ink">{item.name ?? item.sku}</h3>
-                  <p className="mt-1 text-xs text-muted">SKU: {item.sku}</p>
+                  <h3 className="break-words font-medium text-ink">{item.name ?? item.sku}</h3>
+                  <p className="mt-1 break-all text-xs text-muted">SKU: {item.sku}</p>
                   <p className="mt-2 text-sm text-muted">
                     {item.quantity} x {formatCurrency(item.price)}
                   </p>
@@ -119,12 +126,12 @@ export function AdminOrderDetailView({ id }: AdminOrderDetailViewProps) {
           </div>
         </section>
 
-        <aside className="grid gap-6 self-start">
+        <aside className="grid gap-6 self-start md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-1">
           <section className="rounded-lg border border-line bg-white p-5">
             <h2 className="text-lg font-semibold text-ink">Customer</h2>
             <div className="mt-4 grid gap-2 text-sm">
-              <p className="font-medium text-ink">{customer.name}</p>
-              <p className="break-words text-muted">{customer.email}</p>
+              <p className="break-words font-medium text-ink">{customer.name}</p>
+              <p className="break-all text-muted">{customer.email}</p>
               {customer.phone ? <p className="text-muted">{customer.phone}</p> : null}
             </div>
           </section>
@@ -132,9 +139,9 @@ export function AdminOrderDetailView({ id }: AdminOrderDetailViewProps) {
           <section className="rounded-lg border border-line bg-white p-5">
             <h2 className="text-lg font-semibold text-ink">Shipping</h2>
             <div className="mt-4 grid gap-2 text-sm">
-              <p className="font-medium text-ink">{order.shippingAddress.fullName}</p>
+              <p className="break-words font-medium text-ink">{order.shippingAddress.fullName}</p>
               <p className="text-muted">{order.shippingAddress.phone}</p>
-              <p className="text-muted">{order.shippingAddress.address}</p>
+              <p className="break-words text-muted">{order.shippingAddress.address}</p>
             </div>
           </section>
 

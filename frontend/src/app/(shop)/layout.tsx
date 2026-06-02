@@ -16,9 +16,11 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   const categories = await loadHeaderCategories();
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-[100dvh] flex-col">
       <SiteHeader categories={categories} />
-      <div className="flex-1">{children}</div>
+      <div id="main-content" className="flex-1" tabIndex={-1}>
+        {children}
+      </div>
       <SiteFooter />
     </div>
   );

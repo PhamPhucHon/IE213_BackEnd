@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useId, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Pencil, Save, X } from "lucide-react";
 import type { Inventory } from "@/types/models";
@@ -13,6 +14,13 @@ import {
   adminInventorySkuQueryKey
 } from "@/lib/hooks/use-admin-catalog";
 import { cn } from "@/lib/utils";
+import { StatusAlert } from "@/components/ui/status-alert";
+import {
+  getButtonClassName,
+  getFieldClassName,
+  modalOverlayClassName,
+  modalPanelClassName
+} from "@/components/ui/style-primitives";
 import { useToast } from "@/components/ui/toast-provider";
 
 type AdminInventoryStockButtonProps = {
@@ -21,6 +29,40 @@ type AdminInventoryStockButtonProps = {
   onError?: (message: string) => void;
   onSuccess?: (inventory: Inventory) => void;
 };
+
+type InertElementState = {
+  element: HTMLElement;
+  ariaHidden: string | null;
+  inert: boolean;
+};
+
+function makeDialogBackgroundInert(overlay: HTMLElement) {
+  const backgroundElements = Array.from(document.body.children).filter(
+    (element): element is HTMLElement => element instanceof HTMLElement && element !== overlay
+  );
+  const previousStates: InertElementState[] = backgroundElements.map((element) => ({
+    element,
+    ariaHidden: element.getAttribute("aria-hidden"),
+    inert: Boolean((element as HTMLElement & { inert?: boolean }).inert)
+  }));
+
+  backgroundElements.forEach((element) => {
+    (element as HTMLElement & { inert?: boolean }).inert = true;
+    element.setAttribute("aria-hidden", "true");
+  });
+
+  return () => {
+    previousStates.forEach(({ element, ariaHidden, inert }) => {
+      (element as HTMLElement & { inert?: boolean }).inert = inert;
+
+      if (ariaHidden === null) {
+        element.removeAttribute("aria-hidden");
+      } else {
+        element.setAttribute("aria-hidden", ariaHidden);
+      }
+    });
+  };
+}
 
 function formatSignedNumber(value: number) {
   if (value > 0) return `+${value}`;
@@ -37,7 +79,11 @@ export function AdminInventoryStockButton({
   const { showToast } = useToast();
   const titleId = useId();
   const descriptionId = useId();
+  const validationId = useId();
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const dialogRef = useRef<HTMLElement | null>(null);
   const stockInputRef = useRef<HTMLInputElement | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [draft, setDraft] = useState(String(inventory.stock));
 
@@ -86,18 +132,54 @@ export function AdminInventoryStockButton({
   useEffect(() => {
     if (!isOpen) return;
 
+    previousFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
     stockInputRef.current?.focus();
     stockInputRef.current?.select();
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape" && !mutation.isPending) {
         setIsOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialogRef.current) {
+        return;
+      }
+
+      const focusable = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     }
 
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      previousFocusRef.current?.focus();
+      previousFocusRef.current = null;
+    };
   }, [isOpen, mutation.isPending]);
+
+  useEffect(() => {
+    if (!isOpen || !overlayRef.current) return;
+    return makeDialogBackgroundInert(overlayRef.current);
+  }, [isOpen]);
 
   function closeModal() {
     if (!mutation.isPending) {
@@ -116,7 +198,7 @@ export function AdminInventoryStockButton({
       <button
         type="button"
         className={cn(
-          "focus-ring inline-flex h-9 items-center justify-center gap-2 rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60",
+          getButtonClassName("secondary", "px-3"),
           className
         )}
         disabled={mutation.isPending}
@@ -129,14 +211,23 @@ export function AdminInventoryStockButton({
         <span>{mutation.isPending ? "Saving..." : "Update stock"}</span>
       </button>
 
-      {isOpen ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
+      {isOpen && typeof document !== "undefined" ? createPortal(
+        <div
+          ref={overlayRef}
+          className={modalOverlayClassName}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeModal();
+            }
+          }}
+        >
           <section
+            ref={dialogRef}
             aria-modal="true"
             role="dialog"
             aria-labelledby={titleId}
             aria-describedby={descriptionId}
-            className="w-full max-w-lg rounded-lg border border-line bg-white p-5 shadow-soft"
+            className={`${modalPanelClassName} max-w-lg p-4 sm:p-5`}
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
@@ -144,14 +235,14 @@ export function AdminInventoryStockButton({
                 <h2 id={titleId} className="mt-1 break-all text-lg font-semibold text-ink">
                   {inventory.sku}
                 </h2>
-                <p id={descriptionId} className="mt-1 text-sm text-muted">
+                <p id={descriptionId} className="mt-1 break-words text-sm text-muted">
                   Warehouse: {inventory.warehouse || "Default"}
                 </p>
               </div>
               <button
                 type="button"
                 aria-label="Close stock editor"
-                className="focus-ring rounded-md border border-line bg-white p-2 text-ink hover:bg-surface"
+                className={getButtonClassName("ghost", "h-11 w-11 px-0")}
                 disabled={mutation.isPending}
                 onClick={closeModal}
               >
@@ -159,7 +250,7 @@ export function AdminInventoryStockButton({
               </button>
             </div>
 
-            <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
+            <div className="mt-5 grid grid-cols-1 gap-3 text-sm min-[390px]:grid-cols-3">
               <div className="rounded-md bg-surface p-3">
                 <p className="text-muted">Current</p>
                 <p className="mt-1 text-xl font-semibold text-ink">{inventory.stock}</p>
@@ -184,10 +275,9 @@ export function AdminInventoryStockButton({
                   min={0}
                   step={1}
                   value={draft}
-                  className={cn(
-                    "focus-ring h-11 rounded-md border px-3 text-base font-semibold text-ink",
-                    validationMessage ? "border-red-300 bg-red-50" : "border-line bg-white"
-                  )}
+                  className={getFieldClassName(Boolean(validationMessage), "h-11 text-base font-semibold")}
+                  aria-invalid={validationMessage ? "true" : undefined}
+                  aria-describedby={validationMessage ? validationId : undefined}
                   disabled={mutation.isPending}
                   onChange={(event) => setDraft(event.target.value)}
                 />
@@ -209,15 +299,15 @@ export function AdminInventoryStockButton({
               </div>
 
               {validationMessage ? (
-                <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                <StatusAlert id={validationId} tone="error">
                   {validationMessage}
-                </p>
+                </StatusAlert>
               ) : null}
 
-              <div className="flex flex-wrap justify-end gap-2">
+              <div className="grid gap-2 sm:flex sm:flex-wrap sm:justify-end">
                 <button
                   type="button"
-                  className="focus-ring rounded-md border border-line bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
+                  className={getButtonClassName("secondary", "w-full sm:w-auto")}
                   disabled={mutation.isPending}
                   onClick={closeModal}
                 >
@@ -225,7 +315,7 @@ export function AdminInventoryStockButton({
                 </button>
                 <button
                   type="submit"
-                  className="focus-ring inline-flex items-center gap-2 rounded-md bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
+                  className={getButtonClassName("primary", "w-full sm:w-auto")}
                   disabled={!canSubmit || mutation.isPending}
                 >
                   <Save className="h-4 w-4" />
@@ -234,7 +324,8 @@ export function AdminInventoryStockButton({
               </div>
             </form>
           </section>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </>
   );

@@ -51,7 +51,7 @@ export function CancelOrderButton({ order, onError, onSuccess }: CancelOrderButt
   return (
     <button
       type="button"
-      className="focus-ring rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+      className="focus-ring min-h-11 w-full rounded-md border border-danger-200 bg-danger-50 px-3 text-sm font-semibold text-danger-700 transition hover:bg-danger-100 disabled:cursor-not-allowed disabled:opacity-60 min-[390px]:w-auto"
       disabled={mutation.isPending}
       onClick={async () => {
         const confirmed = await confirm({

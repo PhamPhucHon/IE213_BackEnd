@@ -17,8 +17,15 @@ import {
 } from "@/lib/api/local-cart";
 import { cartQueryKey, useCart } from "@/lib/hooks/use-cart";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { useConfirm } from "@/components/ui/confirm-provider";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusAlert } from "@/components/ui/status-alert";
+import {
+  fieldClassName,
+  getButtonClassName
+} from "@/components/ui/style-primitives";
 
 type QuantityInput = {
   sku: string;
@@ -41,10 +48,13 @@ function copyCart(cart: Cart) {
 
 function CartSkeleton() {
   return (
-    <div className="grid gap-4">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="h-32 rounded-lg bg-surface" />
-      ))}
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid gap-4">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Skeleton key={index} className="h-32" />
+        ))}
+      </div>
+      <Skeleton className="hidden h-72 lg:block" />
     </div>
   );
 }
@@ -206,39 +216,40 @@ export function CartView() {
 
   if (!user) {
     return (
-      <div className="rounded-lg border border-line bg-white p-8 text-center">
-        <h2 className="text-xl font-semibold text-ink">Login required</h2>
-        <p className="mt-2 text-sm leading-6 text-muted">Please login before viewing your cart.</p>
-        <Link
-          href={`/login?next=${encodeURIComponent(pathname)}`}
-          className="focus-ring mt-5 inline-flex rounded-md bg-ink px-4 py-2 text-sm font-medium text-white"
-        >
-          Login
-        </Link>
-      </div>
+      <EmptyState
+        title="Sign in to view your cart"
+        description="Your saved frames and quantities are available after signing in."
+        action={
+          <Link
+            href={`/login?next=${encodeURIComponent(pathname)}`}
+            className={getButtonClassName("primary")}
+          >
+            Sign in
+          </Link>
+        }
+      />
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm text-red-700">
+      <StatusAlert tone="error">
         {getLocalCartErrorMessage(error)}
-      </div>
+      </StatusAlert>
     );
   }
 
   if (!items.length) {
     return (
-      <div className="rounded-lg border border-line bg-white p-8 text-center">
-        <h2 className="text-xl font-semibold text-ink">Your cart is empty</h2>
-        <p className="mt-2 text-sm leading-6 text-muted">Add a frame from the catalog to start checkout.</p>
-        <Link
-          href="/products"
-          className="focus-ring mt-5 inline-flex rounded-md bg-ink px-4 py-2 text-sm font-medium text-white"
-        >
-          Browse products
-        </Link>
-      </div>
+      <EmptyState
+        title="Your cart is empty"
+        description="Add a frame from the catalog to start checkout."
+        action={
+          <Link href="/products" className={getButtonClassName("primary")}>
+            Browse products
+          </Link>
+        }
+      />
     );
   }
 
@@ -249,21 +260,21 @@ export function CartView() {
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
       <section className="grid gap-4">
         {message ? (
-          <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <StatusAlert tone="success">
             {message}
-          </p>
+          </StatusAlert>
         ) : null}
         {mutationError ? (
-          <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <StatusAlert tone="error">
             {mutationError}
-          </p>
+          </StatusAlert>
         ) : null}
 
         {items.map((item) => (
-          <article key={item.sku} className="grid gap-4 rounded-lg border border-line bg-white p-4 sm:grid-cols-[112px_1fr]">
+          <article key={item.sku} className="grid grid-cols-[88px_minmax(0,1fr)] gap-4 rounded-lg border border-line bg-white p-4 shadow-subtle min-[390px]:grid-cols-[104px_minmax(0,1fr)] sm:grid-cols-[112px_1fr]">
             <div className="relative aspect-square overflow-hidden rounded-md bg-surface">
               {item.image ? (
-                <Image src={item.image} alt={item.name ?? "Cart item"} fill sizes="112px" className="object-cover" />
+                <Image src={item.image} alt={item.name ?? "Cart item"} fill sizes="112px" className="object-contain p-2" />
               ) : (
                 <div className="flex h-full items-center justify-center px-3 text-center text-xs text-muted">
                   No image
@@ -271,17 +282,18 @@ export function CartView() {
               )}
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-              <div>
-                <h2 className="font-semibold text-ink">{item.name ?? "Selected item"}</h2>
-                <p className="mt-3 text-sm font-semibold text-ink">{formatCurrency(item.price)}</p>
+            <div className="grid min-w-0 gap-4 sm:grid-cols-[1fr_auto]">
+              <div className="min-w-0">
+                <h2 className="break-words font-semibold text-ink">{item.name ?? "Selected item"}</h2>
+                <p className="mt-1 break-all text-xs text-muted">SKU {item.sku}</p>
+                <p className="mt-3 text-base font-semibold text-ink">{formatCurrency(item.price)}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                 <button
                   type="button"
                   aria-label={`Decrease ${item.name ?? "item"}`}
-                  className="focus-ring inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-white text-ink"
+                  className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-md border border-line bg-white text-ink transition hover:bg-surface active:translate-y-px"
                   disabled={isMutating}
                   onClick={() => updateMutation.mutate({ sku: item.sku, quantity: item.quantity - 1 })}
                 >
@@ -289,7 +301,7 @@ export function CartView() {
                 </button>
                 <input
                   aria-label={`Quantity for ${item.name ?? "item"}`}
-                  className="focus-ring h-9 w-16 rounded-md border border-line text-center text-sm"
+                  className={cn(fieldClassName, "h-11 w-20 px-2 text-center")}
                   type="number"
                   min={1}
                   value={draftQuantities[item.sku] ?? String(item.quantity)}
@@ -311,7 +323,7 @@ export function CartView() {
                 <button
                   type="button"
                   aria-label={`Increase ${item.name ?? "item"}`}
-                  className="focus-ring inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-white text-ink"
+                  className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-md border border-line bg-white text-ink transition hover:bg-surface active:translate-y-px"
                   disabled={isMutating}
                   onClick={() => updateMutation.mutate({ sku: item.sku, quantity: item.quantity + 1 })}
                 >
@@ -319,7 +331,7 @@ export function CartView() {
                 </button>
                 <button
                   type="button"
-                  className="focus-ring inline-flex h-9 items-center gap-2 rounded-md border border-line bg-white px-3 text-sm font-medium text-ink"
+                  className="focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border border-danger-200 bg-danger-50 px-3 text-sm font-medium text-danger-700 hover:bg-danger-100"
                   disabled={isMutating}
                   onClick={() => removeMutation.mutate(item.sku)}
                 >
@@ -332,7 +344,7 @@ export function CartView() {
         ))}
       </section>
 
-      <aside className="self-start rounded-lg border border-line bg-white p-5">
+      <aside className="self-start rounded-lg border border-line bg-white p-5 shadow-subtle lg:sticky lg:top-24">
         <h2 className="text-lg font-semibold text-ink">Order summary</h2>
         <div className="mt-5 grid gap-3 border-b border-line pb-5 text-sm">
           <div className="flex justify-between gap-3">
@@ -347,13 +359,13 @@ export function CartView() {
         <div className="mt-5 grid gap-3">
           <Link
             href="/checkout"
-            className="focus-ring rounded-md bg-ink px-4 py-2 text-center text-sm font-semibold text-white"
+            className={getButtonClassName("primary", "w-full")}
           >
             Checkout
           </Link>
           <button
             type="button"
-            className="focus-ring rounded-md border border-line bg-white px-4 py-2 text-sm font-medium text-ink"
+            className={getButtonClassName("secondary", "w-full")}
             disabled={isMutating}
             onClick={async () => {
               const confirmed = await confirm({

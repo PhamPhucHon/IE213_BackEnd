@@ -13,7 +13,8 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
       <PageHeader
         eyebrow="Account"
         title="Order detail"
-        description="Review shipping information, items, totals, status timeline, and cancellation options."
+        description="Review shipment details, ordered items, totals, and the current status timeline."
+        variant="storefront"
       />
       <div className="mt-8">
         <OrderDetailView id={id} />
