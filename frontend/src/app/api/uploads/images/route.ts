@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
   const result = await authenticatedBackendJson<{ imageUrl: string; publicId?: string }>(
     request,
-    "/admin/uploads/images",
+    "/uploads/images",
     {
       method: "POST",
       body: formData

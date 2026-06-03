@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
-import { LogoutButton } from "@/components/auth/logout-button";
 import {
   FieldError,
   FormAlert,
@@ -156,14 +155,6 @@ export function AccountSecurityView() {
           </button>
         </div>
       </form>
-
-      <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
-        <h2 className="text-lg font-semibold text-ink">Session</h2>
-        <p className="mt-2 text-sm leading-6 text-muted">Logout clears the local HttpOnly auth cookies.</p>
-        <div className="mt-4">
-          <LogoutButton className="border border-line" />
-        </div>
-      </section>
 
       <section className="rounded-lg border border-danger-200 bg-danger-50 p-5 shadow-subtle">
         <h2 className="text-lg font-semibold text-danger-700">Delete account</h2>

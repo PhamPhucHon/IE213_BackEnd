@@ -75,7 +75,6 @@ export function CartView() {
   const { data: cart, error, isLoading } = useCart(Boolean(user));
   const items = useMemo(() => cart?.items ?? [], [cart?.items]);
   const [message, setMessage] = useState<string | null>(null);
-  const [mutationError, setMutationError] = useState<string | null>(null);
   const [draftQuantities, setDraftQuantities] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -98,7 +97,13 @@ export function CartView() {
       return;
     }
 
-    setMutationError(getLocalCartErrorMessage(error));
+    void confirm({
+      title: "Could not update cart",
+      description: getLocalCartErrorMessage(error),
+      confirmLabel: "OK",
+      cancelLabel: null,
+      destructive: true
+    });
   }
 
   const updateMutation = useMutation({
@@ -117,7 +122,6 @@ export function CartView() {
     },
     onMutate: async ({ sku, quantity }) => {
       setMessage(null);
-      setMutationError(null);
       await queryClient.cancelQueries({ queryKey: cartQueryKey });
       const previousCart = queryClient.getQueryData<Cart>(cartQueryKey);
 
@@ -134,7 +138,6 @@ export function CartView() {
     onError: (error, _variables, context) => handleMutationError(error, context?.previousCart),
     onSuccess: (nextCart) => {
       queryClient.setQueryData(cartQueryKey, nextCart);
-      setMessage("Cart updated.");
     }
   });
 
@@ -142,7 +145,6 @@ export function CartView() {
     mutationFn: removeCartItem,
     onMutate: async (sku) => {
       setMessage(null);
-      setMutationError(null);
       await queryClient.cancelQueries({ queryKey: cartQueryKey });
       const previousCart = queryClient.getQueryData<Cart>(cartQueryKey);
 
@@ -165,7 +167,6 @@ export function CartView() {
     mutationFn: clearCart,
     onMutate: async () => {
       setMessage(null);
-      setMutationError(null);
       await queryClient.cancelQueries({ queryKey: cartQueryKey });
       const previousCart = queryClient.getQueryData<Cart>(cartQueryKey);
 
@@ -263,12 +264,6 @@ export function CartView() {
             {message}
           </StatusAlert>
         ) : null}
-        {mutationError ? (
-          <StatusAlert tone="error">
-            {mutationError}
-          </StatusAlert>
-        ) : null}
-
         {items.map((item) => (
           <article key={item.sku} className="grid grid-cols-[88px_minmax(0,1fr)] gap-4 rounded-lg border border-line bg-white p-4 shadow-subtle min-[390px]:grid-cols-[104px_minmax(0,1fr)] sm:grid-cols-[112px_1fr]">
             <div className="relative aspect-square overflow-hidden rounded-md bg-surface">

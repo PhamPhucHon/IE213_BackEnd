@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 const accountNav = [
   { href: "/account", label: "Profile" },
+  { href: "/account/orders", label: "Orders" },
   { href: "/account/addresses", label: "Addresses" },
   { href: "/account/security", label: "Security" }
 ];
@@ -18,7 +19,9 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
       <aside className="self-start rounded-lg border border-line bg-white p-2 shadow-subtle lg:sticky lg:top-20">
         <nav className="flex gap-1 overflow-x-auto lg:grid" aria-label="Account navigation">
           {accountNav.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = item.href === "/account"
+              ? pathname === item.href
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <Link

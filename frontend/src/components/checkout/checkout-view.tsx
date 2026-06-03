@@ -170,7 +170,7 @@ export function CheckoutView() {
       queryClient.setQueryData(cartQueryKey, emptyCartLike(cart));
       await queryClient.invalidateQueries({ queryKey: cartQueryKey });
       await queryClient.invalidateQueries({ queryKey: ["orders"] });
-      router.push(`/orders/${order._id}`);
+      router.push(`/account/orders/${order._id}`);
     } catch (error) {
       if (error instanceof LocalOrderError && error.status === 401) {
         router.replace(`/login?next=${encodeURIComponent(pathname)}`);

@@ -14,6 +14,13 @@ export class LocalUserError<T = unknown> extends LocalApiError<T> {
   }
 }
 
+export type UploadImageResult = {
+  imageUrl: string;
+  publicId?: string;
+  format?: string;
+  optimized?: boolean;
+};
+
 function createUserError<T>(
   message: string,
   status: number,
@@ -34,6 +41,21 @@ export async function getProfile() {
 export async function updateProfile(payload: ProfilePayload) {
   const response = await jsonRequest<User>("/api/users/profile", payload, "PUT", createUserError);
   return response.data as User;
+}
+
+export async function uploadProfileAvatar(file: File) {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await localEnvelope<UploadImageResult>(
+    "/api/uploads/images",
+    {
+      method: "POST",
+      body: formData
+    },
+    createUserError
+  );
+  return response.data as UploadImageResult;
 }
 
 export async function changePassword(currentPassword: string, newPassword: string) {

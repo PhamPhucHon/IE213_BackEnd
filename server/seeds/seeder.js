@@ -331,8 +331,42 @@ const seedReviews = async (userEmailMap, productSlugMap) => {
 
 	if (!docs.length) return [];
 
-	// Dùng create để chạy middleware tính rating và verified purchase
 	return Review.create(docs);
+};
+
+const syncProductRatings = async () => {
+	await Product.updateMany({}, { $set: { rating: { avg: 0, count: 0 } } });
+
+	const stats = await Review.aggregate([
+		{ $match: { isApproved: true } },
+		{
+			$group: {
+				_id: '$productId',
+				avgRating: { $avg: '$rating' },
+				totalReviews: { $sum: 1 },
+			},
+		},
+	]);
+
+	if (!stats.length) return { updatedProducts: 0 };
+
+	const ops = stats.map((row) => ({
+		updateOne: {
+			filter: { _id: row._id },
+			update: {
+				$set: {
+					rating: {
+						avg: Math.round(row.avgRating * 10) / 10,
+						count: row.totalReviews,
+					},
+				},
+			},
+		},
+	}));
+
+	await Product.bulkWrite(ops);
+
+	return { updatedProducts: stats.length };
 };
 
 const seedLoginLogs = async (userEmailMap) => {
@@ -387,6 +421,9 @@ const run = async () => {
 
 		const reviewDocs = await seedReviews(userEmailMap, productSlugMap);
 		console.log(`✅ Seeded reviews: ${reviewDocs.length}`);
+
+		const { updatedProducts } = await syncProductRatings();
+		console.log(`🔄 Synced product rating stats: ${updatedProducts}`);
 
 		const loginLogDocs = await seedLoginLogs(userEmailMap);
 		console.log(`✅ Seeded login logs: ${loginLogDocs.length}`);

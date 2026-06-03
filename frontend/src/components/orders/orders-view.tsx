@@ -25,13 +25,17 @@ function OrdersSkeleton() {
   return (
     <div className="grid gap-4">
       {Array.from({ length: 4 }).map((_, index) => (
-        <Skeleton key={index} className="h-32" />
+        <Skeleton key={index} className="h-44" />
       ))}
     </div>
   );
 }
 
-export function OrdersView() {
+type OrdersViewProps = {
+  basePath?: string;
+};
+
+export function OrdersView({ basePath = "/account/orders" }: OrdersViewProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -95,7 +99,7 @@ export function OrdersView() {
     }
 
     const query = params.toString();
-    return query ? `/orders?${query}` : "/orders";
+    return query ? `${basePath}?${query}` : basePath;
   }
 
   return (
@@ -117,19 +121,28 @@ export function OrdersView() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-sm text-muted">{formatDate(order.createdAt)}</p>
-                <Link href={`/orders/${order._id}`} className="mt-1 block break-all text-lg font-semibold text-ink">
+                <Link href={`${basePath}/${order._id}`} className="mt-1 block break-all text-lg font-semibold text-ink">
                   {order.orderNumber}
                 </Link>
               </div>
               <OrderStatusBadge status={order.status} />
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-5 flex flex-wrap gap-3">
               {order.items.slice(0, 4).map((item) => (
-                <div key={item.sku} className="relative h-12 w-12 overflow-hidden rounded-md border border-line bg-surface">
+                <div
+                  key={item.sku}
+                  className="relative aspect-[4/3] w-32 overflow-hidden rounded-md border border-line bg-white sm:w-44"
+                >
                   {item.image ? (
-                    <Image src={item.image} alt={item.name ?? "Order item"} fill sizes="48px" className="object-contain p-1" />
+                    <Image
+                      src={item.image}
+                      alt={item.name ?? "Order item"}
+                      fill
+                      sizes="(min-width: 640px) 176px, 128px"
+                      className="object-cover"
+                    />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-[10px] font-medium text-muted">
+                    <div className="flex h-full items-center justify-center text-xs font-medium text-muted">
                       Item
                     </div>
                   )}
@@ -152,7 +165,7 @@ export function OrdersView() {
             </div>
             <div className="mt-4 grid gap-2 min-[390px]:flex min-[390px]:flex-wrap">
               <Link
-                href={`/orders/${order._id}`}
+                href={`${basePath}/${order._id}`}
                 className={getButtonClassName("primary", "w-full px-3 min-[390px]:w-auto")}
               >
                 View detail

@@ -18,6 +18,7 @@ import { OrderTimeline } from "./order-timeline";
 
 type OrderDetailViewProps = {
   id: string;
+  ordersPath?: string;
 };
 
 function OrderDetailSkeleton() {
@@ -29,7 +30,7 @@ function OrderDetailSkeleton() {
   );
 }
 
-export function OrderDetailView({ id }: OrderDetailViewProps) {
+export function OrderDetailView({ id, ordersPath = "/account/orders" }: OrderDetailViewProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [actionError, setActionError] = useState<string | null>(null);
@@ -71,7 +72,7 @@ export function OrderDetailView({ id }: OrderDetailViewProps) {
         title="Order not found"
         description="The order may have been removed or the link may be invalid."
         action={
-          <Link href="/orders" className={getButtonClassName("primary")}>
+          <Link href={ordersPath} className={getButtonClassName("primary")}>
             Back to orders
           </Link>
         }
@@ -120,13 +121,26 @@ export function OrderDetailView({ id }: OrderDetailViewProps) {
           <h2 className="text-lg font-semibold text-ink">Items</h2>
           <div className="mt-5 grid gap-4">
             {order.items.map((item) => (
-              <article key={item.sku} className="grid grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-md border border-line bg-surface p-3">
-                <div className="relative aspect-square overflow-hidden rounded-md bg-surface">
+              <article
+                key={item.sku}
+                className="grid grid-cols-[132px_minmax(0,1fr)] gap-4 rounded-md border border-line bg-surface p-4 sm:grid-cols-[168px_minmax(0,1fr)]"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-white">
                   {item.image ? (
-                    <Image src={item.image} alt={item.name ?? "Order item"} fill sizes="72px" className="object-contain p-1" />
-                  ) : null}
+                    <Image
+                      src={item.image}
+                      alt={item.name ?? "Order item"}
+                      fill
+                      sizes="(min-width: 640px) 168px, 132px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-xs font-medium text-muted">
+                      Item
+                    </div>
+                  )}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 self-center">
                   <h3 className="break-words font-medium text-ink">{item.name ?? "Ordered item"}</h3>
                   <p className="mt-1 break-all text-xs text-muted">SKU {item.sku}</p>
                   <p className="mt-2 text-sm text-muted">

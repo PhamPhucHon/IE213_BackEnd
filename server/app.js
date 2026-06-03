@@ -24,6 +24,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const inventoryAdminRoutes = require('./routes/inventoryAdminRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 const { successResponse } = require('./utils/apiResponse');
 const { HTTP_STATUS } = require('./config/constants');
 
@@ -73,6 +74,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/uploads', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/admin/inventory', inventoryAdminRoutes);

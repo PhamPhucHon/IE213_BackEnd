@@ -9,7 +9,7 @@ type ConfirmOptions = {
   title: string;
   description?: string;
   confirmLabel?: string;
-  cancelLabel?: string;
+  cancelLabel?: string | null;
   destructive?: boolean;
 };
 
@@ -62,6 +62,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const dialogRef = useRef<HTMLElement | null>(null);
   const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
+  const confirmButtonRef = useRef<HTMLButtonElement | null>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const close = useCallback(
@@ -84,7 +85,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     previousFocusRef.current = document.activeElement instanceof HTMLElement
       ? document.activeElement
       : null;
-    cancelButtonRef.current?.focus();
+    (cancelButtonRef.current ?? confirmButtonRef.current)?.focus();
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -169,21 +170,19 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 ) : null}
               </div>
             </div>
-            {request.description ? (
-              <p className="mt-4 rounded-md border border-line bg-surface px-3 py-2 text-xs leading-5 text-muted">
-                Press Escape or choose {request.cancelLabel ?? "Cancel"} to keep the current state.
-              </p>
-            ) : null}
             <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap sm:justify-end">
+              {request.cancelLabel !== null ? (
+                <button
+                  ref={cancelButtonRef}
+                  type="button"
+                  className={getButtonClassName("secondary", "w-full sm:w-auto")}
+                  onClick={() => close(false)}
+                >
+                  {request.cancelLabel ?? "Cancel"}
+                </button>
+              ) : null}
               <button
-                ref={cancelButtonRef}
-                type="button"
-                className={getButtonClassName("secondary", "w-full sm:w-auto")}
-                onClick={() => close(false)}
-              >
-                {request.cancelLabel ?? "Cancel"}
-              </button>
-              <button
+                ref={confirmButtonRef}
                 type="button"
                 className={getButtonClassName(request.destructive ? "danger" : "primary", "w-full sm:w-auto")}
                 onClick={() => close(true)}

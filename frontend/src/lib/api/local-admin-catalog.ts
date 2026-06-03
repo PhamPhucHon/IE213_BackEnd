@@ -130,7 +130,7 @@ export async function uploadAdminProductImage(file: File) {
   formData.append("image", file);
 
   const response = await localEnvelope<UploadImageResult>(
-    "/api/admin/uploads/images",
+    "/api/uploads/images",
     {
       method: "POST",
       body: formData

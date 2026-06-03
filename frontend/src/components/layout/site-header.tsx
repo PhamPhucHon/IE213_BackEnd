@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, Menu, PackageCheck, Search, ShieldCheck, ShoppingBag, User, X } from "lucide-react";
+import { ChevronDown, Menu, Search, ShieldCheck, ShoppingBag, User as UserIcon, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -55,6 +55,39 @@ function navLinkClassName(isActive: boolean) {
     isActive
       ? "bg-brand-50 text-brand-700"
       : "text-muted hover:bg-surface hover:text-ink"
+  );
+}
+
+function mobileNavLinkClassName(isActive: boolean) {
+  return cn(
+    "inline-flex min-h-11 items-center rounded-md px-3 text-sm font-semibold transition",
+    isActive ? "bg-brand-50 text-brand-700" : "text-ink hover:bg-surface"
+  );
+}
+
+function HeaderAvatar({
+  avatar,
+  name,
+  className = "mr-2 h-7 w-7"
+}: {
+  avatar?: string;
+  name?: string;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface bg-cover bg-center text-muted",
+        className
+      )}
+      style={avatar ? { backgroundImage: `url(${avatar})` } : undefined}
+    >
+      {avatar ? (
+        <span className="sr-only">{name ? `${name} avatar` : "Account avatar"}</span>
+      ) : (
+        <UserIcon className="h-4 w-4" aria-hidden="true" />
+      )}
+    </span>
   );
 }
 
@@ -270,19 +303,6 @@ export function SiteHeader({ categories = [] }: { categories?: Category[] }) {
               </div>
             </div>
           ) : null}
-          <Link
-            href="/orders"
-            aria-current={pathname.startsWith("/orders") ? "page" : undefined}
-            className={cn(
-              "focus-ring inline-flex min-h-11 items-center gap-2 rounded-md border px-3 text-sm font-semibold transition duration-200 ease-ui",
-              pathname.startsWith("/orders")
-                ? "border-brand-100 bg-brand-50 text-brand-700"
-                : "border-line bg-white text-ink hover:border-brand-100 hover:bg-brand-50 hover:text-brand-700"
-            )}
-          >
-            <PackageCheck className="h-4 w-4" />
-            Orders
-          </Link>
         </nav>
 
         <div className="hidden min-w-0 items-center gap-2 md:flex">
@@ -307,7 +327,7 @@ export function SiteHeader({ categories = [] }: { categories?: Category[] }) {
                 variant="ghost"
                 className={cn(pathname.startsWith("/account") && "bg-brand-50 text-brand-700")}
               >
-                <User className="mr-2 h-4 w-4" />
+                <HeaderAvatar avatar={user.avatar} name={user.name} />
                 <span className="max-w-20 truncate xl:max-w-28">{user.name || "Account"}</span>
               </ButtonLink>
               <LogoutButton className="hidden md:inline-flex" />
@@ -318,7 +338,7 @@ export function SiteHeader({ categories = [] }: { categories?: Category[] }) {
               variant="ghost"
               className={cn(pathname === "/login" && "bg-brand-50 text-brand-700")}
             >
-              <User className="mr-2 h-4 w-4" />
+              <UserIcon className="mr-2 h-4 w-4" />
               {isLoading ? "Checking..." : "Sign in"}
             </ButtonLink>
           )}
@@ -390,39 +410,41 @@ export function SiteHeader({ categories = [] }: { categories?: Category[] }) {
                 </div>
               </details>
             ) : null}
-            <Link
-              href="/orders"
-              aria-current={pathname.startsWith("/orders") ? "page" : undefined}
-              className={cn(
-                "mt-1 inline-flex min-h-11 items-center gap-2 rounded-md px-3 text-sm font-semibold transition",
-                pathname.startsWith("/orders")
-                  ? "bg-brand-50 text-brand-700"
-                  : "text-ink hover:bg-surface"
-              )}
-              onClick={() => setOpen(false)}
-            >
-              <PackageCheck className="h-4 w-4" />
-              Orders
-            </Link>
-            {[
-              ...(user?.isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
-              { href: user ? "/account" : "/login", label: user ? "Account" : "Sign in" },
-              { href: "/cart", label: cartCount ? `Cart (${cartCount})` : "Cart" }
-            ].map((item) => (
+            {user?.isAdmin ? (
               <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "inline-flex min-h-11 items-center rounded-md px-3 text-sm font-semibold transition",
-                  isPathActive(pathname, item.href)
-                    ? "bg-brand-50 text-brand-700"
-                    : "text-ink hover:bg-surface"
-                )}
+                href="/admin"
+                className={mobileNavLinkClassName(isPathActive(pathname, "/admin"))}
                 onClick={() => setOpen(false)}
               >
-                {item.label}
+                <ShieldCheck className="mr-2 h-4 w-4" aria-hidden="true" />
+                Admin
               </Link>
-            ))}
+            ) : null}
+            <Link
+              href={user ? "/account" : "/login"}
+              className={mobileNavLinkClassName(user ? pathname.startsWith("/account") : pathname === "/login")}
+              onClick={() => setOpen(false)}
+            >
+              {user ? (
+                <>
+                  <HeaderAvatar avatar={user.avatar} name={user.name} />
+                  <span className="min-w-0 truncate">{user.name || "Account"}</span>
+                </>
+              ) : (
+                <>
+                  <UserIcon className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Sign in
+                </>
+              )}
+            </Link>
+            <Link
+              href="/cart"
+              className={mobileNavLinkClassName(pathname === "/cart")}
+              onClick={() => setOpen(false)}
+            >
+              <ShoppingBag className="mr-2 h-4 w-4" aria-hidden="true" />
+              {cartCount ? `Cart (${cartCount})` : "Cart"}
+            </Link>
             {user ? (
               <LogoutButton className="justify-start px-3" redirectTo="/login" />
             ) : null}
