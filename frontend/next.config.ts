@@ -3,10 +3,13 @@ import path from "node:path";
 
 const imageHostnames = Array.from(
   new Set(
-    (process.env.NEXT_PUBLIC_IMAGE_HOSTS ?? "res.cloudinary.com")
-      .split(",")
-      .map((hostname) => hostname.trim())
-      .filter(Boolean)
+    [
+      ...(process.env.NEXT_PUBLIC_IMAGE_HOSTS ?? "res.cloudinary.com")
+        .split(",")
+        .map((hostname) => hostname.trim())
+        .filter(Boolean),
+      "ui-avatars.com"
+    ]
   )
 );
 

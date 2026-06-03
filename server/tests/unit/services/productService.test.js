@@ -157,6 +157,11 @@ describe('productService', () => {
 
     await productService.updateRatingStats('507f1f77bcf86cd799439011');
 
+    expect(Review.aggregate).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({
+        $match: expect.objectContaining({ isApproved: true }),
+      }),
+    ]));
     expect(Product.findByIdAndUpdate).toHaveBeenCalledWith('507f1f77bcf86cd799439011', {
       rating: { avg: 0, count: 0 },
     });

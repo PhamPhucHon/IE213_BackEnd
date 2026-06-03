@@ -11,7 +11,7 @@ const shopLinks = [
 
 const accountLinks = [
   { href: "/account", label: "Profile" },
-  { href: "/orders", label: "Orders" },
+  { href: "/account/orders", label: "Orders" },
   { href: "/account/addresses", label: "Addresses" },
   { href: "/account/security", label: "Security" }
 ];

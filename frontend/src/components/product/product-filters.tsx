@@ -18,7 +18,10 @@ import {
 type ProductFiltersProps = {
   categories: Category[];
   query: CatalogSearchState;
+  basePath?: string;
+  clearHref?: string;
   compact?: boolean;
+  lockedCategoryId?: string;
 };
 
 function formValue(formData: FormData, key: string) {
@@ -26,7 +29,7 @@ function formValue(formData: FormData, key: string) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function buildCleanProductQuery(formData: FormData) {
+function buildCleanProductQuery(formData: FormData, omittedCategoryId?: string) {
   const params = new URLSearchParams();
 
   [
@@ -38,6 +41,10 @@ function buildCleanProductQuery(formData: FormData) {
     "maxPrice"
   ].forEach((key) => {
     const value = formValue(formData, key);
+
+    if (key === "categoryId" && value === omittedCategoryId) {
+      return;
+    }
 
     if (value) {
       params.set(key, value);
@@ -57,29 +64,7 @@ function buildCleanProductQuery(formData: FormData) {
   return params.toString();
 }
 
-const sortLabels = {
-  newest: "Newest",
-  topRated: "Top rated",
-  priceAsc: "Price low to high",
-  priceDesc: "Price high to low"
-} as const;
-
-function activeFilterLabels(categories: Category[], query: CatalogSearchState) {
-  const activeCategories = getActiveCategories(categories);
-  const selectedCategory = activeCategories.find((category) => category._id === query.categoryId);
-
-  return [
-    query.keyword ? `Search: ${query.keyword}` : null,
-    selectedCategory ? `Category: ${selectedCategory.name}` : null,
-    query.type ? `Type: ${query.type}` : null,
-    query.brand ? `Brand: ${query.brand}` : null,
-    query.minPrice !== undefined ? `Min: ${query.minPrice}` : null,
-    query.maxPrice !== undefined ? `Max: ${query.maxPrice}` : null,
-    query.sort && query.sort !== "newest" ? `Sort: ${sortLabels[query.sort]}` : null
-  ].filter((item): item is string => Boolean(item));
-}
-
-function FilterFields({ categories, query }: ProductFiltersProps) {
+function FilterFields({ categories, query, lockedCategoryId }: ProductFiltersProps) {
   const activeCategories = getActiveCategories(categories);
 
   return (
@@ -88,18 +73,35 @@ function FilterFields({ categories, query }: ProductFiltersProps) {
 
       <label className={formLabelClassName}>
         Category
-        <select
-          name="categoryId"
-          defaultValue={query.categoryId ?? ""}
-          className={selectClassName}
-        >
-          <option value="">All categories</option>
-          {activeCategories.map((category) => (
-            <option key={category._id} value={category._id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
+        {lockedCategoryId ? (
+          <>
+            <input type="hidden" name="categoryId" value={lockedCategoryId} />
+            <select
+              defaultValue={lockedCategoryId}
+              className={cn(selectClassName, "cursor-not-allowed bg-surface text-muted")}
+              disabled
+            >
+              {activeCategories.map((category) => (
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </>
+        ) : (
+          <select
+            name="categoryId"
+            defaultValue={query.categoryId ?? ""}
+            className={selectClassName}
+          >
+            <option value="">All categories</option>
+            {activeCategories.map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        )}
       </label>
 
       <label className={formLabelClassName}>
@@ -171,34 +173,24 @@ function FilterFields({ categories, query }: ProductFiltersProps) {
   );
 }
 
-export function ProductFilters({ categories, query }: ProductFiltersProps) {
+export function ProductFilters({
+  categories,
+  query,
+  basePath = "/products",
+  clearHref = "/products",
+  lockedCategoryId
+}: ProductFiltersProps) {
   const router = useRouter();
-  const activeLabels = activeFilterLabels(categories, query);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const queryString = buildCleanProductQuery(new FormData(event.currentTarget));
-    router.push(queryString ? `/products?${queryString}` : "/products");
+    const queryString = buildCleanProductQuery(new FormData(event.currentTarget), lockedCategoryId);
+    router.push(queryString ? `${basePath}?${queryString}` : basePath);
   }
 
   return (
     <form className="grid gap-5" onSubmit={handleSubmit}>
-      {activeLabels.length ? (
-        <div className="grid gap-2 overflow-hidden rounded-md border border-line bg-surface p-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted">Applied</p>
-          <div className="flex flex-wrap gap-2">
-            {activeLabels.map((label) => (
-              <span
-                key={label}
-                className="max-w-full break-words rounded-md bg-white px-2.5 py-1 text-xs font-medium text-ink shadow-subtle"
-              >
-                {label}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
-      <FilterFields categories={categories} query={query} />
+      <FilterFields categories={categories} query={query} lockedCategoryId={lockedCategoryId} />
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
         <button
           type="submit"
@@ -207,7 +199,7 @@ export function ProductFilters({ categories, query }: ProductFiltersProps) {
           Apply filters
         </button>
         <Link
-          href="/products"
+          href={clearHref}
           className={getButtonClassName("secondary", "w-full")}
         >
           Clear
@@ -217,26 +209,23 @@ export function ProductFilters({ categories, query }: ProductFiltersProps) {
   );
 }
 
-export function ProductFiltersPanel({ categories, query }: ProductFiltersProps) {
-  const activeLabels = activeFilterLabels(categories, query);
-
+export function ProductFiltersPanel({
+  categories,
+  query,
+  basePath = "/products",
+  clearHref,
+  lockedCategoryId
+}: ProductFiltersProps) {
   return (
     <>
       <aside className="hidden self-start rounded-lg border border-line bg-white p-5 shadow-subtle lg:block">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold text-ink">Filters</h2>
-            <p className="mt-1 text-sm leading-6 text-muted">Narrow the catalog without losing your current search.</p>
-          </div>
-          {activeLabels.length ? (
-            <span className="rounded-md bg-brand-50 px-2 py-1 text-xs font-semibold text-brand-700">
-              {activeLabels.length}
-            </span>
-          ) : null}
-        </div>
-        <div className="mt-5">
-          <ProductFilters categories={categories} query={query} />
-        </div>
+        <ProductFilters
+          categories={categories}
+          query={query}
+          basePath={basePath}
+          clearHref={clearHref ?? basePath}
+          lockedCategoryId={lockedCategoryId}
+        />
       </aside>
 
       <details className="group overflow-hidden rounded-lg border border-line bg-white shadow-subtle lg:hidden">
@@ -247,17 +236,19 @@ export function ProductFiltersPanel({ categories, query }: ProductFiltersProps) 
             </span>
             <span className="min-w-0">
               <span className="block">Filter and sort</span>
-              {activeLabels.length ? (
-                <span className="mt-0.5 block text-xs font-medium text-muted">
-                  {activeLabels.length} active filter{activeLabels.length === 1 ? "" : "s"}
-                </span>
-              ) : null}
             </span>
           </span>
           <ChevronDown className="h-4 w-4 shrink-0 text-muted transition group-open:rotate-180" aria-hidden="true" />
         </summary>
         <div className="border-t border-line p-4">
-          <ProductFilters categories={categories} query={query} compact />
+          <ProductFilters
+            categories={categories}
+            query={query}
+            basePath={basePath}
+            clearHref={clearHref ?? basePath}
+            compact
+            lockedCategoryId={lockedCategoryId}
+          />
         </div>
       </details>
     </>

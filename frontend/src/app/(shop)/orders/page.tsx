@@ -1,22 +1,14 @@
-import { Suspense } from "react";
-import { PageHeader } from "@/components/layout/page-header";
-import { OrdersView } from "@/components/orders/orders-view";
-import { Skeleton } from "@/components/ui/skeleton";
+import { redirect } from "next/navigation";
 
-export default function OrdersPage() {
-  return (
-    <main className="container-page py-8 sm:py-10">
-      <PageHeader
-        eyebrow="Account"
-        title="Order history"
-        description="Track order status, payment state, totals, and available actions from one place."
-        variant="storefront"
-      />
-      <div className="mt-8">
-        <Suspense fallback={<Skeleton className="h-72 rounded-lg" />}>
-          <OrdersView />
-        </Suspense>
-      </div>
-    </main>
-  );
+type OrdersPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function firstValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function OrdersPage({ searchParams }: OrdersPageProps) {
+  const page = firstValue((await searchParams).page);
+  redirect(page ? `/account/orders?page=${encodeURIComponent(page)}` : "/account/orders");
 }

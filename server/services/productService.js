@@ -283,9 +283,9 @@ exports.deleteProduct = async (id) => {
 
 // Cập nhật lại thống kê đánh giá (Dùng sau khi có thay đổi về review)
 exports.updateRatingStats = async (productId, session = null) => {
-  // Dùng Aggregation để gom tất cả review của sản phẩm này lại
+  // Dùng Aggregation để gom các review đã duyệt của sản phẩm này lại
   const aggregation = Review.aggregate([
-    { $match: { productId: new mongoose.Types.ObjectId(productId) } },
+    { $match: { productId: new mongoose.Types.ObjectId(productId), isApproved: true } },
     {
       $group: {
         _id: '$productId',

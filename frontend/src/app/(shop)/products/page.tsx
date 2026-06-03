@@ -49,7 +49,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <div className="mt-8 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
         <ProductFiltersPanel categories={categories} query={query} />
 
-        <section className="grid gap-5">
+        <section className="grid content-start gap-5 self-start">
           <div className="rounded-lg border border-line bg-white p-4 shadow-subtle">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm font-medium text-ink">

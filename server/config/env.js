@@ -17,9 +17,9 @@ const requiredEnv = [
   'EMAIL_HOST',
   'EMAIL_USER',
   'EMAIL_PASS',
-  'CLOUDINARY_CLOUD_NAME',   
-  'CLOUDINARY_API_KEY',      
-  'CLOUDINARY_API_SECRET',   
+  'CLOUDINARY_CLOUD_NAME',
+  'CLOUDINARY_API_KEY',
+  'CLOUDINARY_API_SECRET',
 ];
 
 // Kiểm tra các biến bắt buộc
@@ -65,6 +65,9 @@ module.exports = {
   },
   clientUrl: process.env.CLIENT_URL || 'http://localhost:3001',
   trustProxy: parseTrustProxy(process.env.TRUST_PROXY),
+  upload: {
+    cloudinaryTimeoutMs: parseInt(process.env.CLOUDINARY_UPLOAD_TIMEOUT_MS || '4000', 10),
+  },
   dnsServers: (process.env.DNS_SERVERS || '')
     .split(',')
     .map((server) => server.trim())

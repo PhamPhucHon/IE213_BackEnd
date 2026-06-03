@@ -1,6 +1,7 @@
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { categoriesApi } from "@/lib/api/categories";
+import { fallbackHeaderCategories } from "@/lib/catalog/header-categories";
 import { getActiveCategories } from "@/lib/catalog/product-utils";
 
 export const revalidate = 60;
@@ -8,8 +9,11 @@ export const revalidate = 60;
 async function loadHeaderCategories() {
   return categoriesApi
     .list()
-    .then((categories) => getActiveCategories(categories))
-    .catch(() => []);
+    .then((categories) => {
+      const activeCategories = getActiveCategories(categories);
+      return activeCategories.length ? activeCategories : fallbackHeaderCategories;
+    })
+    .catch(() => fallbackHeaderCategories);
 }
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {

@@ -2,17 +2,14 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CatalogError } from "@/components/catalog/catalog-error";
+import { ProductFiltersPanel } from "@/components/product/product-filters";
 import { ProductGrid } from "@/components/product/product-grid";
 import { ProductPagination } from "@/components/product/product-pagination";
-import {
-  getButtonClassName,
-  selectClassName
-} from "@/components/ui/style-primitives";
 import { ApiError } from "@/lib/api/http";
 import { categoriesApi } from "@/lib/api/categories";
 import { productsApi } from "@/lib/api/products";
 import { getCatalogErrorMessage, getPagination } from "@/lib/catalog/product-utils";
-import { parseCatalogSearchParams, type SearchParamsInput } from "@/lib/catalog/query";
+import { parseCatalogSearchParams, toProductListQuery, type SearchParamsInput } from "@/lib/catalog/query";
 
 export const revalidate = 60;
 
@@ -54,23 +51,25 @@ export async function generateMetadata({
 export default async function CategoryDetailPage({ params, searchParams }: CategoryDetailPageProps) {
   const { slug } = await params;
   const query = parseCatalogSearchParams(await searchParams, { limit: 12 });
-  const categoryQuery = {
-    page: query.page,
-    limit: query.limit,
-    sort: query.sort
-  };
 
   try {
     const category = await categoriesApi.getBySlug(slug);
-    const productsResult = await productsApi
-      .listByCategory(category._id, categoryQuery)
-      .then((result) => ({ result, error: null }))
-      .catch((error: unknown) => ({ result: null, error }));
-
-    const products = productsResult.result?.data ?? [];
-    const pagination = productsResult.result
-      ? getPagination(productsResult.result.meta)
-      : { totalProducts: 0, currentPage: query.page, totalPages: 1, limit: query.limit };
+    const categoryQuery = { ...query, categoryId: category._id };
+    const [categoriesResult, productsResult] = await Promise.allSettled([
+      categoriesApi.list(),
+      productsApi.list(toProductListQuery(categoryQuery))
+    ]);
+    const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [category];
+    const products = productsResult.status === "fulfilled" ? productsResult.value.data ?? [] : [];
+    const didLoadProducts = productsResult.status === "fulfilled";
+    const pagination =
+      productsResult.status === "fulfilled"
+        ? getPagination(productsResult.value.meta)
+        : { totalProducts: 0, currentPage: query.page, totalPages: 1, limit: query.limit };
+    const errors = [categoriesResult, productsResult]
+      .flatMap((result) =>
+        result.status === "rejected" ? [getCatalogErrorMessage(result.reason)] : []
+      );
 
     return (
       <main>
@@ -95,49 +94,37 @@ export default async function CategoryDetailPage({ params, searchParams }: Categ
           </div>
         </section>
 
-        <section className="container-page grid gap-5 py-8 sm:py-10">
-          <div className="rounded-lg border border-line bg-white p-4 shadow-subtle">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-medium text-ink">
-                  {pagination.totalProducts || products.length} products in {category.name}
-                </p>
-                <p className="mt-1 text-xs text-muted">Explore frames in this collection with price, rating, and image details close at hand.</p>
-              </div>
-              <form className="flex flex-wrap items-center gap-2" action={`/categories/${slug}`}>
-                <input type="hidden" name="page" value="1" />
-                <input type="hidden" name="limit" value={query.limit} />
-                <label className="text-sm font-medium text-ink" htmlFor="category-sort">
-                  Sort
-                </label>
-                <select
-                  id="category-sort"
-                  name="sort"
-                  defaultValue={query.sort ?? "newest"}
-                  className={selectClassName}
-                >
-                  <option value="newest">Newest</option>
-                  <option value="topRated">Top rated</option>
-                  <option value="priceAsc">Price low to high</option>
-                  <option value="priceDesc">Price high to low</option>
-                </select>
-                <button
-                  type="submit"
-                  className={getButtonClassName("primary", "h-10")}
-                >
-                  Apply
-                </button>
-              </form>
-            </div>
-          </div>
+        <section className="container-page py-8 sm:py-10">
+          <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+            <ProductFiltersPanel
+              categories={categories}
+              query={categoryQuery}
+              basePath={`/categories/${slug}`}
+              clearHref={`/categories/${slug}`}
+              lockedCategoryId={category._id}
+            />
 
-          {productsResult.error ? <CatalogError message={getCatalogErrorMessage(productsResult.error)} /> : null}
-          {productsResult.result ? (
-            <>
-              <ProductGrid products={products} emptyDescription="No active products are currently assigned to this category." />
-              <ProductPagination basePath={`/categories/${slug}`} pagination={pagination} query={categoryQuery} />
-            </>
-          ) : null}
+            <section className="grid content-start gap-5 self-start">
+              <div className="rounded-lg border border-line bg-white p-4 shadow-subtle">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-ink">
+                    {pagination.totalProducts || products.length} products in {category.name}
+                  </p>
+                  <p className="rounded-md bg-surface px-2.5 py-1 text-xs font-semibold text-muted">
+                    Sorted by {query.sort ?? "newest"}
+                  </p>
+                </div>
+              </div>
+
+              {errors.length ? <CatalogError message={errors[0]} /> : null}
+              {didLoadProducts ? (
+                <>
+                  <ProductGrid products={products} emptyDescription="No active products are currently assigned to this category." />
+                  <ProductPagination basePath={`/categories/${slug}`} pagination={pagination} query={categoryQuery} />
+                </>
+              ) : null}
+            </section>
+          </div>
         </section>
       </main>
     );
