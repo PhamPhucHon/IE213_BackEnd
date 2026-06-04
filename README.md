@@ -39,7 +39,7 @@ Dự án full-stack e-commerce cho cửa hàng kính mắt IE213 Eyewear. Repo g
 - Node.js `>=20.19.0`
 - npm `>=10`
 - MongoDB Atlas hoặc MongoDB local có thể ghi dữ liệu
-- Cloudinary account nếu dùng upload ảnh sản phẩm
+- Cloudinary account nếu dùng upload ảnh qua `/api/uploads/images`
 - SMTP account nếu dùng forgot/reset password
 
 ## Chạy Local

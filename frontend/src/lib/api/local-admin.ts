@@ -1,5 +1,14 @@
 import type { ApiResponse } from "@/types/api";
-import type { Order, OrderStatus, Review, StatsOverview, TopProduct, User } from "@/types/models";
+import type {
+  Order,
+  OrderStatus,
+  RevenuePeriod,
+  RevenueSeriesPoint,
+  Review,
+  StatsOverview,
+  TopProduct,
+  User
+} from "@/types/models";
 import {
   getLocalErrorMessage,
   jsonRequest,
@@ -38,6 +47,16 @@ export async function getAdminTopProducts(limit = 8) {
   const params = new URLSearchParams({ limit: String(limit) });
   const response = await localEnvelope<TopProduct[]>(
     `/api/admin/stats/top-products?${params}`,
+    {},
+    createAdminError
+  );
+  return response.data ?? [];
+}
+
+export async function getAdminRevenueSeries(period: RevenuePeriod = "quarter") {
+  const params = new URLSearchParams({ period });
+  const response = await localEnvelope<RevenueSeriesPoint[]>(
+    `/api/admin/stats/revenue?${params}`,
     {},
     createAdminError
   );

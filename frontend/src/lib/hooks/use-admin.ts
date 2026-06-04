@@ -4,16 +4,18 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getAdminOrder,
   getAdminOverview,
+  getAdminRevenueSeries,
   getAdminTopProducts,
   getAdminUser,
   listAdminReviews,
   listAdminOrders,
   listAdminUsers
 } from "@/lib/api/local-admin";
-import type { OrderStatus } from "@/types/models";
+import type { OrderStatus, RevenuePeriod } from "@/types/models";
 
 export const adminOverviewQueryKey = ["admin", "overview"] as const;
 export const adminTopProductsQueryKey = ["admin", "top-products"] as const;
+export const adminRevenueQueryKey = ["admin", "revenue"] as const;
 export const adminUsersQueryKey = ["admin", "users"] as const;
 export const adminOrdersQueryKey = ["admin", "orders"] as const;
 export const adminReviewsQueryKey = ["admin", "reviews"] as const;
@@ -39,6 +41,15 @@ export function useAdminTopProducts(limit = 8) {
   return useQuery({
     queryKey: [...adminTopProductsQueryKey, limit],
     queryFn: () => getAdminTopProducts(limit),
+    retry: false,
+    staleTime: 30_000
+  });
+}
+
+export function useAdminRevenueSeries(period: RevenuePeriod = "quarter") {
+  return useQuery({
+    queryKey: [...adminRevenueQueryKey, period],
+    queryFn: () => getAdminRevenueSeries(period),
     retry: false,
     staleTime: 30_000
   });

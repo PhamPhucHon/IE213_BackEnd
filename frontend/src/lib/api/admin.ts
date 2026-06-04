@@ -1,6 +1,14 @@
 import { apiEnvelope, apiRequest } from "./http";
 import type { PageQuery } from "@/types/api";
-import type { Order, OrderStatus, StatsOverview, TopProduct, User } from "@/types/models";
+import type {
+  Order,
+  OrderStatus,
+  RevenuePeriod,
+  RevenueSeriesPoint,
+  StatsOverview,
+  TopProduct,
+  User
+} from "@/types/models";
 
 export const adminApi = {
   overview(token?: string) {
@@ -14,6 +22,13 @@ export const adminApi = {
       method: "GET",
       token,
       query: { limit }
+    });
+  },
+  revenue(period: RevenuePeriod = "quarter", token?: string) {
+    return apiRequest<RevenueSeriesPoint[]>("/admin/stats/revenue", {
+      method: "GET",
+      token,
+      query: { period }
     });
   },
   users(query: PageQuery = {}, token?: string) {

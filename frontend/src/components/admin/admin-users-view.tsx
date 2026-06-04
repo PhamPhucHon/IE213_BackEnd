@@ -6,7 +6,6 @@ import { useState } from "react";
 import type { User } from "@/types/models";
 import {
   getAdminUsersPagination,
-  userRoleLabel,
   userStatusLabel
 } from "@/lib/admin/admin-utils";
 import { useAdminUsers } from "@/lib/hooks/use-admin";
@@ -31,21 +30,6 @@ function UserStatusBadge({ user }: { user: User }) {
       )}
     >
       {userStatusLabel(user)}
-    </span>
-  );
-}
-
-function RoleBadge({ user }: { user: User }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold",
-        user.isAdmin
-          ? "border-brand-100 bg-brand-50 text-brand-700"
-          : "border-line bg-surface text-muted"
-      )}
-    >
-      {userRoleLabel(user)}
     </span>
   );
 }
@@ -108,14 +92,14 @@ export function AdminUsersView() {
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted">{pagination.total} users</p>
+        <p className="text-sm text-muted">{pagination.total} customers</p>
         <p className="text-sm text-muted">Page {pagination.currentPage} of {pagination.totalPages}</p>
       </div>
 
       {!users.length ? (
         <div className="rounded-lg border border-line bg-white p-8 text-center">
-          <h2 className="text-xl font-semibold text-ink">No users found</h2>
-          <p className="mt-2 text-sm text-muted">User accounts will appear here after registration.</p>
+          <h2 className="text-xl font-semibold text-ink">No customers found</h2>
+          <p className="mt-2 text-sm text-muted">Customer accounts will appear here after registration.</p>
         </div>
       ) : (
         <>
@@ -124,7 +108,6 @@ export function AdminUsersView() {
               <thead className="bg-surface text-left text-xs font-semibold uppercase tracking-wide text-muted">
                 <tr>
                   <th className="px-4 py-3">User</th>
-                  <th className="px-4 py-3">Role</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Created</th>
                   <th className="px-4 py-3 text-right">Actions</th>
@@ -138,9 +121,6 @@ export function AdminUsersView() {
                         {user.name}
                       </Link>
                       <p className="mt-1 break-all text-muted">{user.email}</p>
-                    </td>
-                    <td className="px-4 py-4">
-                      <RoleBadge user={user} />
                     </td>
                     <td className="px-4 py-4">
                       <UserStatusBadge user={user} />
@@ -186,7 +166,6 @@ export function AdminUsersView() {
                   <UserStatusBadge user={user} />
                 </div>
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <RoleBadge user={user} />
                   <span className="text-xs text-muted">Joined {formatDate(user.createdAt)}</span>
                 </div>
                 <div className="mt-4 grid gap-2 min-[390px]:flex min-[390px]:flex-wrap">

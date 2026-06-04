@@ -52,12 +52,20 @@ describe('categoryService', () => {
     });
   });
 
-  it('creates a category when its name is unique', async () => {
-    Category.findOne.mockResolvedValue(null);
-    Category.create.mockResolvedValue({ _id: 'cat-3', name: 'Accessories' });
+  it('creates a category with the next display order when its name is unique', async () => {
+    const latestOrderQuery = createQueryMock({ order: 7 });
+    Category.findOne
+      .mockResolvedValueOnce(null)
+      .mockReturnValueOnce(latestOrderQuery);
+    Category.create.mockResolvedValue({ _id: 'cat-3', name: 'Accessories', order: 8 });
 
-    const result = await categoryService.createCategory({ name: 'Accessories' });
+    const result = await categoryService.createCategory({ name: 'Accessories', order: 99 });
 
+    expect(Category.findOne).toHaveBeenNthCalledWith(1, { name: 'Accessories' });
+    expect(Category.findOne).toHaveBeenNthCalledWith(2, {});
+    expect(latestOrderQuery.sort).toHaveBeenCalledWith({ order: -1 });
+    expect(latestOrderQuery.select).toHaveBeenCalledWith('order');
+    expect(Category.create).toHaveBeenCalledWith({ name: 'Accessories', order: 8 });
     expect(result).toEqual({ _id: 'cat-3', name: 'Accessories' });
   });
 

@@ -2,17 +2,19 @@
 
 import Image from "next/image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { ImagePlus, Trash2, Upload } from "lucide-react";
+import { useEffect, useId, useState } from "react";
 import type { Category } from "@/types/models";
 import {
   createAdminCategory,
   deleteAdminCategory,
   getLocalAdminCatalogErrorMessage,
   updateAdminCategory,
+  uploadAdminCatalogImage,
   type AdminCategoryPayload
 } from "@/lib/api/local-admin-catalog";
 import { adminCategoriesQueryKey, useAdminCategories } from "@/lib/hooks/use-admin-catalog";
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { useConfirm } from "@/components/ui/confirm-provider";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,36 +33,103 @@ type CategoryFormState = {
   name: string;
   description: string;
   image: string;
-  order: string;
 };
 
 const emptyForm: CategoryFormState = {
   name: "",
   description: "",
-  image: "",
-  order: "0"
+  image: ""
 };
 
 function toPayload(form: CategoryFormState): AdminCategoryPayload {
   return {
     name: form.name.trim(),
     description: form.description.trim() || undefined,
-    image: form.image.trim() || undefined,
-    order: Number(form.order || 0)
+    image: form.image.trim() || undefined
   };
+}
+
+function CategoryImageField({
+  image,
+  isUploading = false,
+  onUpload,
+  onRemove
+}: {
+  image: string;
+  isUploading?: boolean;
+  onUpload: (file: File) => void;
+  onRemove: () => void;
+}) {
+  const inputId = useId();
+
+  return (
+    <div className="grid gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm font-medium text-ink">Category image</p>
+        <input
+          id={inputId}
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+          className="sr-only"
+          disabled={isUploading}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.currentTarget.value = "";
+            if (file) onUpload(file);
+          }}
+        />
+        <label
+          htmlFor={inputId}
+          className={cn(
+            getButtonClassName("secondary", "h-9 cursor-pointer px-3"),
+            isUploading && "pointer-events-none opacity-60"
+          )}
+          aria-disabled={isUploading}
+        >
+          <Upload className="h-4 w-4" />
+          <span>{isUploading ? "Uploading..." : image ? "Replace image" : "Upload image"}</span>
+        </label>
+      </div>
+
+      {image ? (
+        <div className="group relative aspect-[4/3] overflow-hidden rounded-md bg-surface">
+          <Image src={image} alt="Category preview" fill sizes="360px" className="object-cover" />
+          <button
+            type="button"
+            aria-label="Remove category image"
+            className={getButtonClassName("danger", "absolute right-2 top-2 h-11 w-11 px-0 shadow-soft")}
+            onClick={onRemove}
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      ) : (
+        <div className="grid min-h-32 place-items-center rounded-md border border-dashed border-line bg-surface p-5 text-center text-sm text-muted">
+          <div>
+            <ImagePlus className="mx-auto h-6 w-6" />
+            <p className="mt-2">No image yet</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function CategoryForm({
   form,
   isSaving,
+  isUploadingImage,
   onChange,
   onCancel,
+  onImageUpload,
   onSubmit
 }: {
   form: CategoryFormState;
   isSaving: boolean;
+  isUploadingImage: boolean;
   onChange: (form: CategoryFormState) => void;
   onCancel: () => void;
+  onImageUpload: (file: File) => void;
   onSubmit: () => void;
 }) {
   const isEditing = Boolean(form.id);
@@ -102,35 +171,20 @@ function CategoryForm({
           />
         </label>
 
-        <label className={formLabelClassName}>
-          Image URL
-          <input
-            value={form.image}
-            onChange={(event) => onChange({ ...form, image: event.target.value })}
-            className={fieldClassName}
-            placeholder="https://..."
-            type="url"
-          />
-        </label>
-
-        <label className={formLabelClassName}>
-          Display order
-          <input
-            value={form.order}
-            onChange={(event) => onChange({ ...form, order: event.target.value })}
-            className={fieldClassName}
-            min={0}
-            type="number"
-          />
-        </label>
+        <CategoryImageField
+          image={form.image}
+          isUploading={isUploadingImage}
+          onUpload={onImageUpload}
+          onRemove={() => onChange({ ...form, image: "" })}
+        />
       </div>
 
       <div className="mt-5 grid gap-2 min-[390px]:flex min-[390px]:flex-wrap">
         <button
           type="submit"
           className={getButtonClassName("primary", "w-full min-[390px]:w-auto")}
-          disabled={isSaving}
-          aria-busy={isSaving}
+          disabled={isSaving || isUploadingImage}
+          aria-busy={isSaving || isUploadingImage}
         >
           {isSaving ? "Saving..." : isEditing ? "Save category" : "Create category"}
         </button>
@@ -190,6 +244,21 @@ export function AdminCategoriesView() {
     }
   });
 
+  const uploadMutation = useMutation({
+    mutationFn: uploadAdminCatalogImage,
+    onSuccess: ({ imageUrl }) => {
+      setForm((current) => ({ ...current, image: imageUrl }));
+      setActionError(null);
+      setMessage("Image uploaded.");
+      showToast({ title: "Image uploaded", variant: "success" });
+    },
+    onError: (mutationError) => {
+      const message = getLocalAdminCatalogErrorMessage(mutationError);
+      setActionError(message);
+      showToast({ title: "Could not upload image", description: message, variant: "error" });
+    }
+  });
+
   const deleteMutation = useMutation({
     mutationFn: deleteAdminCategory,
     onSuccess: () => {
@@ -216,8 +285,7 @@ export function AdminCategoriesView() {
       id: category._id,
       name: category.name,
       description: category.description ?? "",
-      image: category.image ?? "",
-      order: String(category.order ?? 0)
+      image: category.image ?? ""
     });
   }
 
@@ -227,8 +295,10 @@ export function AdminCategoriesView() {
         <CategoryForm
           form={form}
           isSaving={saveMutation.isPending}
+          isUploadingImage={uploadMutation.isPending}
           onChange={setForm}
           onCancel={() => setForm(emptyForm)}
+          onImageUpload={(file) => uploadMutation.mutate(file)}
           onSubmit={() => {
             if (!form.name.trim()) {
               setActionError("Category name is required.");

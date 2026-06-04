@@ -3,7 +3,7 @@ const app = require('../../../app');
 const User = require('../../../models/User');
 
 const getAdminToken = async () => {
-  await User.create({
+  const admin = await User.create({
     name: 'Admin',
     email: 'admin-users@test.com',
     password: 'adminpass',
@@ -14,12 +14,12 @@ const getAdminToken = async () => {
     .post('/api/auth/login')
     .send({ email: 'admin-users@test.com', password: 'adminpass' });
 
-  return res.body.data.token;
+  return { token: res.body.data.token, adminId: admin._id };
 };
 
 describe('GET /api/admin/users', () => {
-  it('returns inactive users and counts them in pagination', async () => {
-    const adminToken = await getAdminToken();
+  it('returns inactive customer users and excludes admin accounts from pagination', async () => {
+    const adminSession = await getAdminToken();
     await User.create({
       name: 'Active User',
       email: 'active-admin-list@test.com',
@@ -36,16 +36,30 @@ describe('GET /api/admin/users', () => {
 
     const res = await request(app)
       .get('/api/admin/users?limit=10')
-      .set('Authorization', `Bearer ${adminToken}`);
+      .set('Authorization', `Bearer ${adminSession.token}`);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.meta.totalUsers).toBe(3);
+    expect(res.body.meta.totalUsers).toBe(2);
     expect(res.body.data.map((user) => user.email)).toEqual(
       expect.arrayContaining([
-        'admin-users@test.com',
         'active-admin-list@test.com',
         'inactive-admin-list@test.com',
       ])
     );
+    expect(res.body.data.map((user) => user.email)).not.toContain('admin-users@test.com');
+  });
+
+  it('blocks direct admin account detail and status changes', async () => {
+    const adminSession = await getAdminToken();
+
+    const detailRes = await request(app)
+      .get(`/api/admin/users/${adminSession.adminId}`)
+      .set('Authorization', `Bearer ${adminSession.token}`);
+    const toggleRes = await request(app)
+      .put(`/api/admin/users/${adminSession.adminId}/toggle-status`)
+      .set('Authorization', `Bearer ${adminSession.token}`);
+
+    expect(detailRes.statusCode).toBe(403);
+    expect(toggleRes.statusCode).toBe(403);
   });
 });

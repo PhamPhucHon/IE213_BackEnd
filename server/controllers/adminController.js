@@ -10,6 +10,154 @@ const { HTTP_STATUS, MESSAGES, PAGINATION } = require('../config/constants');
 const { asyncHandler } = require('../utils/asyncHandler');
 const ApiError = require('../utils/apiError');
 
+const REVENUE_PERIODS = {
+  week: {
+    bucketCount: 7,
+    aggregateFormat: '%Y-%m-%d',
+  },
+  month: {
+    bucketCount: 6,
+    aggregateFormat: '%Y-%m',
+  },
+  quarter: {
+    bucketCount: 13,
+    aggregateFormat: '%Y-%m-%d',
+  },
+};
+
+const padDatePart = (value) => String(value).padStart(2, '0');
+
+const startOfUtcDay = (date) => new Date(Date.UTC(
+  date.getUTCFullYear(),
+  date.getUTCMonth(),
+  date.getUTCDate()
+));
+
+const startOfUtcMonth = (date) => new Date(Date.UTC(
+  date.getUTCFullYear(),
+  date.getUTCMonth(),
+  1
+));
+
+const addUtcDays = (date, days) => new Date(Date.UTC(
+  date.getUTCFullYear(),
+  date.getUTCMonth(),
+  date.getUTCDate() + days
+));
+
+const addUtcWeeks = (date, weeks) => addUtcDays(date, weeks * 7);
+
+const addUtcMonths = (date, months) => new Date(Date.UTC(
+  date.getUTCFullYear(),
+  date.getUTCMonth() + months,
+  1
+));
+
+const startOfUtcWeek = (date) => {
+  const day = startOfUtcDay(date);
+  const weekday = day.getUTCDay();
+  const offset = weekday === 0 ? -6 : 1 - weekday;
+
+  return addUtcDays(day, offset);
+};
+
+const getRevenueBucketKey = (date, period) => {
+  const year = date.getUTCFullYear();
+  const month = padDatePart(date.getUTCMonth() + 1);
+
+  if (period === 'month') return `${year}-${month}`;
+  return `${year}-${month}-${padDatePart(date.getUTCDate())}`;
+};
+
+const getRevenueBucketLabel = (date, period) => {
+  const month = padDatePart(date.getUTCMonth() + 1);
+
+  if (period === 'month') return `${month}/${date.getUTCFullYear()}`;
+  return `${padDatePart(date.getUTCDate())}/${month}`;
+};
+
+const getWeeklyRevenueBucketLabel = (startDate, endDate) => {
+  const endDay = addUtcDays(endDate, -1);
+  return `${getRevenueBucketLabel(startDate, 'week')} - ${getRevenueBucketLabel(endDay, 'week')}`;
+};
+
+const buildRevenueBuckets = (period, now = new Date()) => {
+  if (period === 'month') {
+    const currentMonth = startOfUtcMonth(now);
+    const firstMonth = addUtcMonths(currentMonth, -(REVENUE_PERIODS.month.bucketCount - 1));
+
+    return Array.from({ length: REVENUE_PERIODS.month.bucketCount }, (_, index) => {
+      const startDate = addUtcMonths(firstMonth, index);
+      const endDate = addUtcMonths(startDate, 1);
+
+      return {
+        key: getRevenueBucketKey(startDate, period),
+        label: getRevenueBucketLabel(startDate, period),
+        startDate,
+        endDate,
+      };
+    });
+  }
+
+  if (period === 'quarter') {
+    const currentWeek = startOfUtcWeek(now);
+    const firstWeek = addUtcWeeks(currentWeek, -(REVENUE_PERIODS.quarter.bucketCount - 1));
+
+    return Array.from({ length: REVENUE_PERIODS.quarter.bucketCount }, (_, index) => {
+      const startDate = addUtcWeeks(firstWeek, index);
+      const endDate = addUtcWeeks(startDate, 1);
+
+      return {
+        key: getRevenueBucketKey(startDate, period),
+        label: getWeeklyRevenueBucketLabel(startDate, endDate),
+        startDate,
+        endDate,
+      };
+    });
+  }
+
+  const today = startOfUtcDay(now);
+  const firstDay = addUtcDays(today, -(REVENUE_PERIODS.week.bucketCount - 1));
+
+  return Array.from({ length: REVENUE_PERIODS.week.bucketCount }, (_, index) => {
+    const startDate = addUtcDays(firstDay, index);
+    const endDate = addUtcDays(startDate, 1);
+
+    return {
+      key: getRevenueBucketKey(startDate, period),
+      label: getRevenueBucketLabel(startDate, period),
+      startDate,
+      endDate,
+    };
+  });
+};
+
+const getRevenuePeriod = (value) => {
+  if (value === 'week' || value === 'month' || value === 'quarter') return value;
+  return 'quarter';
+};
+
+const getQuarterBucketTotals = (bucket, revenueResult) => revenueResult.reduce((totals, item) => {
+  const itemDate = new Date(`${item._id}T00:00:00.000Z`);
+  if (itemDate >= bucket.startDate && itemDate < bucket.endDate) {
+    return {
+      revenue: totals.revenue + item.revenue,
+      orders: totals.orders + item.orders,
+    };
+  }
+
+  return totals;
+}, { revenue: 0, orders: 0 });
+
+const assertCustomerAccount = (user) => {
+  if (user?.isAdmin) {
+    throw new ApiError(
+      'Không thể quản lý tài khoản admin trong khu vực quản lý khách hàng.',
+      HTTP_STATUS.FORBIDDEN
+    );
+  }
+};
+
 // ==================== THỐNG KÊ TỔNG QUAN ====================
 
 // GET /api/admin/stats/overview
@@ -131,7 +279,7 @@ exports.getTopProducts = asyncHandler(async (req, res) => {
         as: 'product',
       },
     },
-    { $unwind: { path: '$product', preserveNullAndEmpty: true } },
+    { $unwind: { path: '$product', preserveNullAndEmptyArrays: true } },
     {
       $project: {
         _id: 1,
@@ -149,6 +297,65 @@ exports.getTopProducts = asyncHandler(async (req, res) => {
   return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, topProducts);
 });
 
+// GET /api/admin/stats/revenue
+exports.getRevenueSeries = asyncHandler(async (req, res) => {
+  const period = getRevenuePeriod(req.query.period);
+  const buckets = buildRevenueBuckets(period);
+  const startDate = buckets[0].startDate;
+  const endDate = buckets[buckets.length - 1].endDate;
+
+  const revenueResult = await Order.aggregate([
+    { $match: { status: 'Delivered', createdAt: { $gte: startDate, $lt: endDate } } },
+    {
+      $group: {
+        _id: {
+          $dateToString: {
+            format: REVENUE_PERIODS[period].aggregateFormat,
+            date: '$createdAt',
+            timezone: 'UTC',
+          },
+        },
+        revenue: {
+          $sum: {
+            $convert: {
+              input: '$totalPrice',
+              to: 'double',
+              onError: 0,
+              onNull: 0,
+            },
+          },
+        },
+        orders: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const totalsByKey = new Map(revenueResult.map((item) => [
+    item._id,
+    {
+      revenue: item.revenue,
+      orders: item.orders,
+    },
+  ]));
+
+  const revenueSeries = buckets.map((bucket) => {
+    const totals = period === 'quarter'
+      ? getQuarterBucketTotals(bucket, revenueResult)
+      : totalsByKey.get(bucket.key);
+
+    return {
+      key: bucket.key,
+      label: bucket.label,
+      revenue: totals?.revenue ?? 0,
+      orders: totals?.orders ?? 0,
+      startDate: bucket.startDate.toISOString(),
+      endDate: bucket.endDate.toISOString(),
+    };
+  });
+
+  return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, revenueSeries);
+});
+
 // ==================== QUẢN LÝ NGƯỜI DÙNG ====================
 
 // GET /api/admin/users
@@ -164,6 +371,7 @@ exports.getAllUsers = asyncHandler(async (req, res) => {
 exports.getUserById = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).setOptions({ includeInactive: true });
   if (!user) throw new ApiError(MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  assertCustomerAccount(user);
   return successResponse(res, HTTP_STATUS.OK, MESSAGES.SUCCESS, user);
 });
 
@@ -171,6 +379,7 @@ exports.getUserById = asyncHandler(async (req, res) => {
 exports.toggleUserStatus = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).setOptions({ includeInactive: true });
   if (!user) throw new ApiError(MESSAGES.NOT_FOUND, HTTP_STATUS.NOT_FOUND);
+  assertCustomerAccount(user);
 
   user.isActive = !user.isActive;
   user.deletedAt = user.isActive ? null : new Date();

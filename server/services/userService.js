@@ -13,8 +13,11 @@ const applyQueryOptions = (query, options = {}) => {
 // Lấy danh sách người dùng (phân trang) cho Admin
 exports.getAllUsers = async (page = 1, limit = 10, options = {}) => {
   const skip = (page - 1) * limit;
-  const countFilter = options.includeInactive ? {} : { isActive: { $ne: false } };
-  let usersQuery = User.find()
+  const customerFilter = { isAdmin: { $ne: true } };
+  const countFilter = options.includeInactive
+    ? customerFilter
+    : { ...customerFilter, isActive: { $ne: false } };
+  let usersQuery = User.find(countFilter)
     .select('-password')
     .sort({ createdAt: -1 })
     .skip(skip)

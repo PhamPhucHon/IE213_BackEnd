@@ -176,6 +176,17 @@ export type StatsOverview = {
   lowStockCount: number;
 };
 
+export type RevenuePeriod = "week" | "month" | "quarter";
+
+export type RevenueSeriesPoint = {
+  key: string;
+  label: string;
+  revenue: number;
+  orders: number;
+  startDate: string;
+  endDate: string;
+};
+
 export type TopProduct = {
   _id: ObjectId;
   name: string;
