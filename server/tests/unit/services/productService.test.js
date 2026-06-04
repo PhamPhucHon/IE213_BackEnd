@@ -58,7 +58,7 @@ describe('productService', () => {
     expect(Product.find).toHaveBeenCalledWith(expect.objectContaining({
       isActive: true,
       name: { $regex: 'store', $options: 'i' },
-      type: { $in: ['Sunglasses', 'All'] },
+      type: 'Sunglasses',
     }));
     expect(result.pagination.totalProducts).toBe(1);
   });
