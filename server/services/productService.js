@@ -25,8 +25,7 @@ exports.getProducts = async (filters = {}, page = 1, limit = 12, sort = 'newest'
   if (filters.categoryId) query.categoryId = filters.categoryId;
   if (filters.brand) query.brand = filters.brand;
   if (filters.type) {
-    // Nếu lọc theo type (Sunglasses hoặc Eyeglasses), tự động include products có type='All'
-    query.type = { $in: [filters.type, 'All'] };
+    query.type = filters.type;
   }
 
   // 3. Lọc theo khoảng giá (Tìm trong mảng variants)
