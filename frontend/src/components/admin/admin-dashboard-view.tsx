@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Boxes, PackageCheck, TrendingUp, Users } from "lucide-react";
+import { Boxes, ChevronDown, ChevronUp, PackageCheck, TrendingUp, Users } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -13,7 +14,11 @@ import {
   YAxis
 } from "recharts";
 import { getLocalAdminErrorMessage } from "@/lib/api/local-admin";
-import { useAdminOverview, useAdminTopProducts } from "@/lib/hooks/use-admin";
+import {
+  useAdminOverview,
+  useAdminRevenueSeries,
+  useAdminTopProducts
+} from "@/lib/hooks/use-admin";
 import { formatCurrency } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,6 +35,13 @@ function compactNumber(value: number) {
   }).format(value);
 }
 
+function compactCurrency(value: number) {
+  return new Intl.NumberFormat("vi-VN", {
+    notation: "compact",
+    maximumFractionDigits: 1
+  }).format(value);
+}
+
 function DashboardSkeleton() {
   return (
     <div className="grid gap-6">
@@ -39,15 +51,32 @@ function DashboardSkeleton() {
         ))}
       </div>
       <Skeleton className="h-96 rounded-lg" />
+      <Skeleton className="h-96 rounded-lg" />
     </div>
   );
 }
 
 export function AdminDashboardView() {
+  const [showAllTopProducts, setShowAllTopProducts] = useState(false);
   const overviewQuery = useAdminOverview();
-  const topProductsQuery = useAdminTopProducts(8);
+  const topProductsQuery = useAdminTopProducts(10);
+  const revenueQuery = useAdminRevenueSeries("quarter");
   const overview = overviewQuery.data;
   const topProducts = topProductsQuery.data ?? [];
+  const revenueSeries = revenueQuery.data ?? [];
+  const topProductChartData = topProducts.map((product, index) => ({
+    ...product,
+    rankLabel: `#${index + 1}`
+  }));
+  const visibleTopProducts = showAllTopProducts ? topProducts : topProducts.slice(0, 3);
+  const canToggleTopProducts = topProducts.length > 3;
+  const revenueChartData = revenueSeries.map((point, index) => ({
+    ...point,
+    weekLabel: `W${index + 1}`
+  }));
+  const hasRevenueData = revenueSeries.some((point) => point.revenue > 0 || point.orders > 0);
+  const totalRevenue = revenueSeries.reduce((sum, point) => sum + point.revenue, 0);
+  const totalOrders = revenueSeries.reduce((sum, point) => sum + point.orders, 0);
 
   if (overviewQuery.isLoading) {
     return <DashboardSkeleton />;
@@ -122,11 +151,27 @@ export function AdminDashboardView() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-ink">Top selling products</h2>
-            <p className="mt-1 text-sm text-muted">Delivered orders ranked by quantity sold.</p>
+            <p className="mt-1 text-sm text-muted">Top 10 delivered products ranked by revenue.</p>
           </div>
-          <Link href="/admin/products" className="text-sm font-semibold text-brand-600">
-            Manage products
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            {canToggleTopProducts ? (
+              <button
+                type="button"
+                onClick={() => setShowAllTopProducts((current) => !current)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-sm font-semibold text-ink transition hover:border-brand-100 hover:text-brand-600"
+              >
+                {showAllTopProducts ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+                {showAllTopProducts ? "Show top 3" : "View all"}
+              </button>
+            ) : null}
+            <Link href="/admin/products" className="text-sm font-semibold text-brand-600">
+              Manage products
+            </Link>
+          </div>
         </div>
 
         {topProductsQuery.isLoading ? (
@@ -145,15 +190,14 @@ export function AdminDashboardView() {
           <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_430px]">
             <div className="h-72 min-w-0">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topProducts} margin={{ left: 8, right: 8 }}>
+                <BarChart data={topProductChartData} margin={{ left: 8, right: 8, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
-                    dataKey="name"
+                    dataKey="rankLabel"
                     tickLine={false}
                     axisLine={false}
                     interval={0}
-                    tick={{ fontSize: 12 }}
-                    tickFormatter={(value) => String(value).slice(0, 14)}
+                    tick={{ fontSize: 12, fontWeight: 600 }}
                   />
                   <YAxis
                     tickLine={false}
@@ -161,14 +205,20 @@ export function AdminDashboardView() {
                     tick={{ fontSize: 12 }}
                     tickFormatter={(value) => compactNumber(Number(value))}
                   />
-                  <Tooltip />
+                  <Tooltip
+                    formatter={(value) => [formatCurrency(Number(value)), "Revenue"]}
+                    labelFormatter={(label) => {
+                      const product = topProductChartData.find((item) => item.rankLabel === label);
+                      return product?.name ?? label;
+                    }}
+                  />
                   <Bar dataKey="totalRevenue" fill="#2563eb" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
             <div className="grid gap-3">
-              {topProducts.map((product, index) => (
+              {visibleTopProducts.map((product, index) => (
                 <article
                   key={`${product._id}-${index}`}
                   className="grid grid-cols-[56px_1fr] gap-3 rounded-lg border border-line p-3"
@@ -200,6 +250,96 @@ export function AdminDashboardView() {
                   </div>
                 </article>
               ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-lg border border-line bg-white p-5 shadow-subtle">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-semibold text-ink">Quarterly revenue</h2>
+            <p className="mt-1 text-sm text-muted">Last 13 weeks of delivered revenue, grouped by week.</p>
+          </div>
+        </div>
+
+        {revenueQuery.isLoading ? (
+          <Skeleton className="mt-6 h-80 rounded-md" />
+        ) : revenueQuery.error ? (
+          <StatusAlert tone="error" className="mt-6">
+            {getLocalAdminErrorMessage(revenueQuery.error)}
+          </StatusAlert>
+        ) : !hasRevenueData ? (
+          <EmptyState
+            title="No delivered revenue yet"
+            description="Delivered orders will populate this chart and table."
+            className="mt-6 p-6"
+          />
+        ) : (
+          <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="h-80 min-w-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={revenueChartData} margin={{ top: 10, right: 12, left: 8, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="weekLabel"
+                    tickLine={false}
+                    axisLine={false}
+                    interval={0}
+                    tick={{ fontSize: 12, fontWeight: 600 }}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 12 }}
+                    tickFormatter={(value) => compactCurrency(Number(value))}
+                  />
+                  <Tooltip
+                    formatter={(value) => [formatCurrency(Number(value)), "Revenue"]}
+                    labelFormatter={(label) => {
+                      const point = revenueChartData.find((item) => item.weekLabel === label);
+                      return point?.label ?? label;
+                    }}
+                  />
+                  <Bar dataKey="revenue" fill="#2563eb" radius={[6, 6, 0, 0]} maxBarSize={42} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="min-w-0">
+              <div className="grid grid-cols-2 gap-4 border-b border-line pb-4">
+                <div>
+                  <p className="text-xs font-medium uppercase text-muted">Revenue</p>
+                  <p className="mt-2 text-lg font-semibold text-ink">{formatCurrency(totalRevenue)}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase text-muted">Orders</p>
+                  <p className="mt-2 text-lg font-semibold text-ink">{formatNumber(totalOrders)}</p>
+                </div>
+              </div>
+
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-line text-left text-xs font-semibold uppercase text-muted">
+                      <th className="py-2 pr-3">Period</th>
+                      <th className="px-3 py-2 text-right">Orders</th>
+                      <th className="py-2 pl-3 text-right">Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {revenueSeries.map((point) => (
+                      <tr key={point.key} className="border-b border-line last:border-0">
+                        <td className="py-2 pr-3 font-medium text-ink">{point.label}</td>
+                        <td className="px-3 py-2 text-right text-muted">{formatNumber(point.orders)}</td>
+                        <td className="py-2 pl-3 text-right font-semibold text-ink">
+                          {formatCurrency(point.revenue)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

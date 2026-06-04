@@ -125,7 +125,7 @@ export async function getAdminProduct(id: string) {
   return response.data as Product;
 }
 
-export async function uploadAdminProductImage(file: File) {
+export async function uploadAdminCatalogImage(file: File) {
   const formData = new FormData();
   formData.append("image", file);
 
@@ -139,6 +139,8 @@ export async function uploadAdminProductImage(file: File) {
   );
   return response.data as UploadImageResult;
 }
+
+export const uploadAdminProductImage = uploadAdminCatalogImage;
 
 export async function createAdminProduct(payload: AdminProductPayload) {
   const response = await jsonRequest<Product>(

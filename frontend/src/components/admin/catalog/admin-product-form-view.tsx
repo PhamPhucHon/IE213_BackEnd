@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ImagePlus, Trash2, Upload } from "lucide-react";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type DragEvent } from "react";
 import type { Product, ProductSpecifications } from "@/types/models";
 import {
   createAdminProduct,
@@ -68,6 +68,21 @@ type ProductFormState = {
 };
 
 type ImageUploadTarget = { type: "product" } | { type: "variant"; index: number };
+type ImageUploadProgress = {
+  target: ImageUploadTarget;
+  current: number;
+  total: number;
+};
+
+const MAX_UPLOAD_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/avif"
+]);
+const ACCEPTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".avif"];
 
 const emptyVariant: VariantForm = {
   sku: "",
@@ -116,6 +131,50 @@ function splitLines(value: string) {
         .filter(Boolean)
     )
   );
+}
+
+function isSameUploadTarget(left?: ImageUploadTarget | null, right?: ImageUploadTarget | null) {
+  if (!left || !right || left.type !== right.type) return false;
+  if (left.type === "product") return true;
+  return right.type === "variant" && left.index === right.index;
+}
+
+function acceptsImageFile(file: File) {
+  const lowerName = file.name.toLowerCase();
+  return (
+    ACCEPTED_IMAGE_TYPES.has(file.type) ||
+    ACCEPTED_IMAGE_EXTENSIONS.some((extension) => lowerName.endsWith(extension))
+  );
+}
+
+function validateImageFiles(files: File[]) {
+  const accepted: File[] = [];
+  const rejected: string[] = [];
+
+  files.forEach((file) => {
+    if (!acceptsImageFile(file)) {
+      rejected.push(`${file.name}: only JPG, PNG, WEBP, or AVIF images are allowed.`);
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_IMAGE_SIZE_BYTES) {
+      rejected.push(`${file.name}: image must be 5MB or smaller.`);
+      return;
+    }
+
+    accepted.push(file);
+  });
+
+  return { accepted, rejected };
+}
+
+function summarizeUploadMessages(messages: string[]) {
+  if (messages.length <= 2) return messages.join(" ");
+  return `${messages.slice(0, 2).join(" ")} ${messages.length - 2} more not processed.`;
+}
+
+function pluralizeImages(count: number) {
+  return `${count} image${count === 1 ? "" : "s"}`;
 }
 
 function optionalNumber(value: string) {
@@ -269,17 +328,59 @@ function FormField({
 function ImageGalleryField({
   label,
   images,
+  isDisabled = false,
   isUploading = false,
+  progressLabel,
   onUpload,
   onRemove
 }: {
   label: string;
   images: string[];
+  isDisabled?: boolean;
   isUploading?: boolean;
-  onUpload: (file: File) => void;
+  progressLabel?: string;
+  onUpload: (files: File[]) => void;
   onRemove: (image: string) => void;
 }) {
   const inputId = useId();
+  const [isDragActive, setIsDragActive] = useState(false);
+  const uploadLabel = isUploading ? progressLabel ?? "Uploading..." : images.length ? "Add images" : "Upload images";
+
+  function handleFiles(files: FileList | File[]) {
+    const nextFiles = Array.from(files);
+    if (nextFiles.length) onUpload(nextFiles);
+  }
+
+  function handleDragEnter(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    if (isDisabled) {
+      event.dataTransfer.dropEffect = "none";
+      return;
+    }
+
+    event.dataTransfer.dropEffect = "copy";
+    setIsDragActive(true);
+  }
+
+  function handleDragOver(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = isDisabled ? "none" : "copy";
+    if (!isDisabled) setIsDragActive(true);
+  }
+
+  function handleDragLeave(event: DragEvent<HTMLDivElement>) {
+    const nextTarget = event.relatedTarget;
+    if (!nextTarget || !(nextTarget instanceof Node) || !event.currentTarget.contains(nextTarget)) {
+      setIsDragActive(false);
+    }
+  }
+
+  function handleDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setIsDragActive(false);
+    if (isDisabled) return;
+    handleFiles(event.dataTransfer.files);
+  }
 
   return (
     <div className="grid gap-3">
@@ -290,50 +391,72 @@ function ImageGalleryField({
           type="file"
           accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
           className="sr-only"
-          disabled={isUploading}
+          disabled={isDisabled}
+          multiple
           onChange={(event) => {
-            const file = event.target.files?.[0];
+            const files = event.target.files;
             event.currentTarget.value = "";
-            if (file) onUpload(file);
+            if (files) handleFiles(files);
           }}
         />
         <label
           htmlFor={inputId}
           className={cn(
             getButtonClassName("secondary", "h-9 cursor-pointer px-3"),
-            isUploading && "pointer-events-none opacity-60"
+            isDisabled && "pointer-events-none opacity-60"
           )}
-          aria-disabled={isUploading}
+          aria-disabled={isDisabled}
         >
           <Upload className="h-4 w-4" />
-          <span>{isUploading ? "Uploading..." : "Upload image"}</span>
+          <span>{uploadLabel}</span>
         </label>
       </div>
 
-      {images.length ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {images.map((image, index) => (
-            <div key={`${image}-${index}`} className="group relative aspect-square overflow-hidden rounded-md bg-surface">
-              <Image src={image} alt={`${label} ${index + 1}`} fill sizes="180px" className="object-cover" />
-              <button
-                type="button"
-                aria-label="Remove image"
-                className={getButtonClassName("danger", "absolute right-2 top-2 h-11 w-11 px-0 shadow-soft")}
-                onClick={() => onRemove(image)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid min-h-32 place-items-center rounded-md border border-dashed border-line bg-surface p-5 text-center text-sm text-muted">
-          <div>
-            <ImagePlus className="mx-auto h-6 w-6" />
-            <p className="mt-2">No images yet</p>
+      <div
+        className={cn(
+          "rounded-md border border-dashed border-line bg-surface p-3 transition duration-200 ease-ui",
+          isDragActive && "border-brand-200 bg-brand-50 shadow-soft",
+          isDisabled && "cursor-not-allowed opacity-70"
+        )}
+        aria-label={`${label} drop zone`}
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        {isDragActive ? (
+          <div className="grid min-h-32 place-items-center text-center text-sm font-semibold text-brand-700">
+            Drop images here
           </div>
-        </div>
-      )}
+        ) : images.length ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {images.map((image, index) => (
+              <div key={`${image}-${index}`} className="group relative aspect-square overflow-hidden rounded-md bg-white">
+                <Image src={image} alt={`${label} ${index + 1}`} fill sizes="180px" className="object-cover" />
+                <button
+                  type="button"
+                  aria-label="Remove image"
+                  className={cn(
+                    getButtonClassName("danger", "absolute right-2 top-2 h-11 w-11 px-0 shadow-soft"),
+                    isDisabled && "pointer-events-none opacity-60"
+                  )}
+                  disabled={isDisabled}
+                  onClick={() => onRemove(image)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid min-h-32 place-items-center p-5 text-center text-sm text-muted">
+            <div>
+              <ImagePlus className="mx-auto h-6 w-6" />
+              <p className="mt-2">No images yet</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -357,6 +480,7 @@ export function AdminProductFormView({ id }: { id?: string }) {
   const [form, setForm] = useState<ProductFormState>(emptyForm);
   const [message, setMessage] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<ImageUploadProgress | null>(null);
   const hydratedProductId = useRef<string | null>(null);
 
   useEffect(() => {
@@ -395,43 +519,18 @@ export function AdminProductFormView({ id }: { id?: string }) {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: ({ file }: { file: File; target: ImageUploadTarget }) => uploadAdminProductImage(file),
-    onSuccess: ({ imageUrl }, { target }) => {
-      setForm((current) => {
-        if (target.type === "product") {
-          return {
-            ...current,
-            images: [...splitLines(current.images), imageUrl].join("\n")
-          };
-        }
-
-        return {
-          ...current,
-          variants: current.variants.map((variant, index) =>
-            index === target.index
-              ? { ...variant, images: [...splitLines(variant.images), imageUrl].join("\n") }
-              : variant
-          )
-        };
-      });
-      setActionError(null);
-      setMessage("Image uploaded.");
-      showToast({ title: "Image uploaded", variant: "success" });
-    },
-    onError: (mutationError) => {
-      const message = getLocalAdminCatalogErrorMessage(mutationError);
-      setActionError(message);
-      showToast({ title: "Could not upload image", description: message, variant: "error" });
-    }
+    mutationFn: ({ file }: { file: File; target: ImageUploadTarget }) => uploadAdminProductImage(file)
   });
 
   const previewImages = useMemo(() => splitLines(form.images).slice(0, 4), [form.images]);
-  const activeUploadTarget = uploadMutation.variables?.target;
+  const activeUploadTarget = uploadProgress?.target ?? uploadMutation.variables?.target;
+  const isUploadingAny = Boolean(uploadProgress) || uploadMutation.isPending;
   const isUploadingTarget = (target: ImageUploadTarget) =>
-    uploadMutation.isPending &&
-    activeUploadTarget?.type === target.type &&
-    (target.type === "product" ||
-      (activeUploadTarget.type === "variant" && activeUploadTarget.index === target.index));
+    isUploadingAny && isSameUploadTarget(activeUploadTarget, target);
+  const uploadProgressLabel = (target: ImageUploadTarget) =>
+    uploadProgress && isSameUploadTarget(uploadProgress.target, target)
+      ? `Uploading ${uploadProgress.current}/${uploadProgress.total}...`
+      : undefined;
 
   if (productQuery.isLoading || categoriesQuery.isLoading) {
     return <ProductFormSkeleton />;
@@ -470,6 +569,93 @@ export function AdminProductFormView({ id }: { id?: string }) {
         isDefault: variantIndex === index
       }))
     }));
+  }
+
+  function appendImageToTarget(target: ImageUploadTarget, imageUrl: string) {
+    setForm((current) => {
+      if (target.type === "product") {
+        return {
+          ...current,
+          images: [...splitLines(current.images), imageUrl].join("\n")
+        };
+      }
+
+      return {
+        ...current,
+        variants: current.variants.map((variant, variantIndex) =>
+          variantIndex === target.index
+            ? { ...variant, images: [...splitLines(variant.images), imageUrl].join("\n") }
+            : variant
+        )
+      };
+    });
+  }
+
+  async function uploadImages(files: File[], target: ImageUploadTarget) {
+    if (isUploadingAny) {
+      showToast({
+        title: "Upload already running",
+        description: "Please wait for the current image upload to finish.",
+        variant: "info"
+      });
+      return;
+    }
+
+    const { accepted, rejected } = validateImageFiles(files);
+    const skippedMessage = rejected.length ? summarizeUploadMessages(rejected) : null;
+
+    if (skippedMessage) {
+      setActionError(skippedMessage);
+      showToast({
+        title: accepted.length ? "Some images skipped" : "Images skipped",
+        description: skippedMessage,
+        variant: accepted.length ? "info" : "error"
+      });
+    }
+
+    if (!accepted.length) return;
+
+    let uploadedCount = 0;
+    const failures: string[] = [];
+
+    setMessage(null);
+    setUploadProgress({ target, current: 0, total: accepted.length });
+
+    try {
+      for (const [index, file] of accepted.entries()) {
+        setUploadProgress({ target, current: index + 1, total: accepted.length });
+
+        try {
+          const { imageUrl } = await uploadMutation.mutateAsync({ file, target });
+          appendImageToTarget(target, imageUrl);
+          uploadedCount += 1;
+        } catch (uploadError) {
+          failures.push(`${file.name}: ${getLocalAdminCatalogErrorMessage(uploadError)}`);
+        }
+      }
+    } finally {
+      setUploadProgress(null);
+    }
+
+    if (failures.length) {
+      const failedMessage = summarizeUploadMessages(failures);
+      const description = uploadedCount
+        ? `${pluralizeImages(uploadedCount)} uploaded. ${failedMessage}`
+        : failedMessage;
+
+      setActionError(description);
+      showToast({
+        title: uploadedCount ? "Some images uploaded" : "Could not upload images",
+        description,
+        variant: uploadedCount ? "info" : "error"
+      });
+      return;
+    }
+
+    const uploadedMessage = `${pluralizeImages(uploadedCount)} uploaded.`;
+    setActionError(skippedMessage);
+    setMessage(uploadedMessage);
+    showToast({ title: "Images uploaded", description: uploadedMessage, variant: "success" });
   }
 
   return (
@@ -600,8 +786,10 @@ export function AdminProductFormView({ id }: { id?: string }) {
             <ImageGalleryField
               label="Product images"
               images={splitLines(form.images)}
+              isDisabled={isUploadingAny}
               isUploading={isUploadingTarget({ type: "product" })}
-              onUpload={(file) => uploadMutation.mutate({ file, target: { type: "product" } })}
+              progressLabel={uploadProgressLabel({ type: "product" })}
+              onUpload={(files) => uploadImages(files, { type: "product" })}
               onRemove={(image) =>
                 setForm((current) => ({
                   ...current,
@@ -708,10 +896,10 @@ export function AdminProductFormView({ id }: { id?: string }) {
                     <ImageGalleryField
                       label="Variant images"
                       images={splitLines(variant.images)}
+                      isDisabled={isUploadingAny}
                       isUploading={isUploadingTarget({ type: "variant", index })}
-                      onUpload={(file) =>
-                        uploadMutation.mutate({ file, target: { type: "variant", index } })
-                      }
+                      progressLabel={uploadProgressLabel({ type: "variant", index })}
+                      onUpload={(files) => uploadImages(files, { type: "variant", index })}
                       onRemove={(image) =>
                         updateVariant(index, {
                           ...variant,
@@ -816,10 +1004,16 @@ export function AdminProductFormView({ id }: { id?: string }) {
           <button
             type="submit"
             className={getButtonClassName("primary", "w-full min-[390px]:w-auto")}
-            disabled={saveMutation.isPending}
-            aria-busy={saveMutation.isPending}
+            disabled={saveMutation.isPending || isUploadingAny}
+            aria-busy={saveMutation.isPending || isUploadingAny}
           >
-            {saveMutation.isPending ? "Saving..." : isEditing ? "Save product" : "Create product"}
+            {saveMutation.isPending
+              ? "Saving..."
+              : isUploadingAny
+                ? "Uploading images..."
+                : isEditing
+                  ? "Save product"
+                  : "Create product"}
           </button>
           <button
             type="button"

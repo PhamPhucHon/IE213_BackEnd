@@ -8,8 +8,8 @@ export default function AdminUsersPage() {
     <main className="container-page py-8 sm:py-10">
       <PageHeader
         eyebrow="Admin"
-        title="Users"
-        description="Manage customer and admin accounts with status toggles, detail views, and pagination."
+        title="Customers"
+        description="Manage customer accounts with status toggles, detail views, and pagination."
       />
       <div className="mt-8">
         <Suspense fallback={<Skeleton className="h-72 rounded-lg" />}>

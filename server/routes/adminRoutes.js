@@ -10,6 +10,7 @@ router.use(protect, isAdmin);
 
 router.get('/stats/overview', adminController.getStatsOverview);
 router.get('/stats/top-products', adminController.getTopProducts);
+router.get('/stats/revenue', adminController.getRevenueSeries);
 
 router.get('/users', adminController.getAllUsers);
 router.get('/users/:id', validateObjectId('id'), adminController.getUserById);

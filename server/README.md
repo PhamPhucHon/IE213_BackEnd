@@ -53,7 +53,7 @@ Các biến quan trọng:
 | `CLIENT_URL` | Có | Frontend URL dùng cho CORS và reset password link |
 | `TRUST_PROXY` | Không | Bật khi chạy sau reverse proxy đáng tin cậy |
 | `EMAIL_HOST`, `EMAIL_USER`, `EMAIL_PASS` | Có | SMTP cho forgot/reset password |
-| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Có | Upload ảnh sản phẩm |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Có | Upload ảnh qua `/api/uploads/images` |
 | `LOG_LEVEL` | Không | Mức log: `fatal`, `error`, `warn`, `info`, `debug`, `trace`, `silent` |
 | `ENABLE_REQUEST_LOGGING` | Không | Bật/tắt HTTP request logging |
 | `LOG_SINK_URL` | Không | Forward log tới HTTP sink ngoài |
@@ -101,7 +101,8 @@ npx jest --config jest.unit.config.js --runInBand --runTestsByPath tests/unit/se
 | `/api/auth` | Register, login, logout, refresh token, forgot/reset password, me |
 | `/api/users` | Profile, password, addresses, account actions |
 | `/api/categories` | Public/admin category operations |
-| `/api/products` | Product catalog, detail, upload image |
+| `/api/products` | Product catalog and detail |
+| `/api/uploads/images` | Upload ảnh duy nhất cho avatar, category, product và variant |
 | `/api/reviews` | Product reviews, like, update/delete own review |
 | `/api/cart` | User cart |
 | `/api/orders` | User orders, checkout, cancel |

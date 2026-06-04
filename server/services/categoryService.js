@@ -50,8 +50,17 @@ exports.createCategory = async (data) => {
     throw new AppError('Tên danh mục này đã tồn tại. Vui lòng chọn tên khác.', 409);
   }
 
+  const latestCategory = await Category.findOne({})
+    .sort({ order: -1 })
+    .select('order')
+    .lean();
+  const latestOrder = Number(latestCategory?.order);
+  const nextOrder = Number.isFinite(latestOrder) ? latestOrder + 1 : 1;
+  const categoryData = { ...data };
+  delete categoryData.order;
+
   // Tạo mới (Trường Slug sẽ được Model tự động sinh ra nhờ Hook pre-validate)
-  const newCategory = await Category.create(data);
+  const newCategory = await Category.create({ ...categoryData, order: nextOrder });
   return categoryDTO(newCategory);
 };
 

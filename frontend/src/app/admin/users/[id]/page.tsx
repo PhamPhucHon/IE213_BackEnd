@@ -12,8 +12,8 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
     <main className="container-page py-8 sm:py-10">
       <PageHeader
         eyebrow="Admin"
-        title="User detail"
-        description="Inspect profile data, addresses, activity status, and account actions."
+        title="Customer detail"
+        description="Inspect customer profile data, addresses, activity status, and account actions."
       />
       <div className="mt-8">
         <AdminUserDetailView id={id} />

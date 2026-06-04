@@ -643,10 +643,10 @@ Base: /api/admin
 - Params:
   - id: Mongo ObjectId
 
-9.9) Upload anh cho admin catalog
+9.9) Upload anh
 - Method: POST
-- Endpoint: /api/admin/uploads/images
-- Auth: Admin
+- Endpoint: /api/uploads/images
+- Auth: User/Admin
 - Content-Type: multipart/form-data
 - Form-data:
   - image: file (JPG, PNG, WEBP hoac AVIF, toi da 5MB tu FE proxy)
@@ -663,8 +663,8 @@ Base: /api/admin
     "meta": { "timestamp": "2026-04-29T10:00:00.000Z" }
   }
 - Ghi chu:
-  - Day la endpoint upload anh duy nhat cho admin catalog
-  - FE admin dung URL tra ve de luu vao images cua product/variant, nhung khong hien URL cho admin tren form
+  - Day la endpoint upload anh duy nhat cua he thong
+  - FE dung URL tra ve de luu vao avatar, category image, product images hoac variant images
 
 9.10) San pham ban chay nhat
 - Method: GET
