@@ -23,6 +23,8 @@ import {
 } from "@/lib/catalog/product-utils";
 import { cartQueryKey } from "@/lib/hooks/use-cart";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
+import { useProductReviews } from "@/lib/hooks/use-reviews";
+import { getReviewRatingSummary } from "@/lib/reviews/review-utils";
 import { cn, formatCurrency } from "@/lib/utils";
 import { StatusAlert } from "@/components/ui/status-alert";
 import {
@@ -113,6 +115,7 @@ export function ProductDetailView({ product, relatedProducts = [] }: ProductDeta
   );
   const images = useMemo(() => getProductImages(product, selectedVariant), [product, selectedVariant]);
   const [activeImage, setActiveImage] = useState(images[0] ?? "");
+  const { data: reviewsResponse } = useProductReviews(product._id, 1, "all");
   const price = getProductPrice(product, selectedVariant);
   const originalPrice = getProductOriginalPrice(product, selectedVariant);
   const categoryName = getCategoryName(product.categoryId);
@@ -130,6 +133,10 @@ export function ProductDetailView({ product, relatedProducts = [] }: ProductDeta
     0
   );
   const hasImageCarousel = images.length > 1;
+  const detailRatingSummary = getReviewRatingSummary(reviewsResponse?.meta, {
+    avg: product.rating?.avg ?? 0,
+    count: product.rating?.count ?? 0
+  });
 
   useEffect(() => {
     setActiveImage(images[0] ?? "");
@@ -273,8 +280,8 @@ export function ProductDetailView({ product, relatedProducts = [] }: ProductDeta
 
           <div className="mt-4 inline-flex items-center gap-2 rounded-md bg-surface px-2.5 py-1.5 text-sm text-muted">
             <Star className="h-4 w-4 fill-brand-500 text-brand-500" />
-            <span>{product.rating?.avg?.toFixed(1) ?? "0.0"}</span>
-            <span>({product.rating?.count ?? 0} reviews)</span>
+            <span>{detailRatingSummary.avg.toFixed(1)}</span>
+            <span>({detailRatingSummary.count} reviews)</span>
           </div>
 
           <div className="mt-5 rounded-lg bg-surface p-4">
@@ -295,10 +302,10 @@ export function ProductDetailView({ product, relatedProducts = [] }: ProductDeta
                       key={variant.sku}
                       type="button"
                       className={cn(
-                        "focus-ring inline-flex min-h-10 items-center gap-2 rounded-md border px-2.5 py-2 text-sm font-medium transition",
+                        "focus-ring inline-flex min-h-8 items-center gap-2 rounded-md px-1.5 py-1 text-sm transition",
                         variant.sku === selectedVariant?.sku
-                          ? "border-ink bg-ink text-white"
-                          : "border-line bg-white text-ink hover:bg-surface"
+                          ? "font-semibold text-ink"
+                          : "font-medium text-muted hover:text-ink"
                       )}
                       onClick={() => setSelectedSku(variant.sku)}
                       aria-label={`Choose ${variantLabel(variant, index)}`}
@@ -307,7 +314,7 @@ export function ProductDetailView({ product, relatedProducts = [] }: ProductDeta
                       <span
                         className={`h-5 w-5 rounded-full ${
                           variant.sku === selectedVariant?.sku
-                            ? "border border-white shadow-[0_0_0_1px_rgba(17,24,39,0.9)]"
+                            ? "border border-white shadow-[0_0_0_1px_rgba(17,24,39,0.35),0_0_0_4px_rgba(17,24,39,0.08)]"
                             : "border border-black/10"
                         }`}
                         style={getVariantSwatchStyle(variant.color)}
@@ -385,6 +392,8 @@ export function ProductDetailView({ product, relatedProducts = [] }: ProductDeta
         </section>
       </div>
 
+      <ProductReviews product={product} />
+
       {relatedProducts.length ? (
         <section className="mt-12 border-t border-line pt-8">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -412,8 +421,6 @@ export function ProductDetailView({ product, relatedProducts = [] }: ProductDeta
           </div>
         </section>
       ) : null}
-
-      <ProductReviews product={product} />
     </div>
   );
 }

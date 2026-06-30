@@ -68,11 +68,39 @@ describe('reviewService', () => {
   it('returns paginated approved reviews for a product', async () => {
     Review.find.mockReturnValue(createQueryMock([{ _id: 'review-1', rating: 5, likes: 1 }]));
     Review.countDocuments.mockResolvedValue(1);
+    Review.aggregate.mockResolvedValue([{ avgRating: 4.5, totalReviews: 2 }]);
 
     const result = await reviewService.getReviewsByProduct('product-1', 1, 5, 'all');
 
-    expect(result.pagination).toEqual({ totalReviews: 1, currentPage: 1, totalPages: 1, limit: 5 });
+    expect(Review.aggregate).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({ $match: { productId: 'product-1', isApproved: true } }),
+    ]));
+    expect(result.pagination).toEqual({
+      totalReviews: 1,
+      currentPage: 1,
+      totalPages: 1,
+      limit: 5,
+      ratingSummary: { avg: 4.5, count: 2 },
+    });
     expect(result.reviews).toEqual([{ _id: 'review-1', rating: 5, likes: 1 }]);
+  });
+
+  it('casts product id before aggregating the rating summary', async () => {
+    const productId = new mongoose.Types.ObjectId().toString();
+    Review.find.mockReturnValue(createQueryMock([]));
+    Review.countDocuments.mockResolvedValue(0);
+    Review.aggregate.mockResolvedValue([]);
+
+    await reviewService.getReviewsByProduct(productId, 1, 5, 'all');
+
+    expect(Review.aggregate).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({
+        $match: {
+          productId: new mongoose.Types.ObjectId(productId),
+          isApproved: true,
+        },
+      }),
+    ]));
   });
 
   it('returns paginated reviews for admin moderation', async () => {

@@ -5,6 +5,130 @@ const Review = require('../models/Review');
 const { productDTO } = require('../utils/dto');
 const { AppError } = require('../utils/asyncHandler');
 
+const emptyRatingStats = () => ({ avg: 0, count: 0 });
+
+const normalizeRatingStats = (avgRating = 0, totalReviews = 0) => ({
+  avg: Math.round((Number(avgRating) || 0) * 10) / 10,
+  count: Number(totalReviews) || 0
+});
+
+const normalizeObjectId = (value) => {
+  const rawValue = value?._id ?? value;
+  if (!rawValue) return null;
+  if (rawValue instanceof mongoose.Types.ObjectId) return rawValue;
+
+  const stringValue = rawValue.toString();
+  return mongoose.Types.ObjectId.isValid(stringValue)
+    ? new mongoose.Types.ObjectId(stringValue)
+    : null;
+};
+
+const getProductIdKey = (product) => {
+  const rawId = product?._id ?? product;
+  return rawId?.toString?.() ?? String(rawId ?? '');
+};
+
+const getRatingStatsByProductIds = async (productIds, session = null) => {
+  const objectIdsByKey = new Map();
+
+  productIds.forEach((productId) => {
+    const objectId = normalizeObjectId(productId);
+    if (objectId) objectIdsByKey.set(objectId.toString(), objectId);
+  });
+
+  const statsByProductId = new Map(
+    Array.from(objectIdsByKey.keys()).map((key) => [key, emptyRatingStats()])
+  );
+
+  if (objectIdsByKey.size === 0) return statsByProductId;
+
+  const aggregation = Review.aggregate([
+    {
+      $match: {
+        productId: { $in: Array.from(objectIdsByKey.values()) },
+        isApproved: true
+      }
+    },
+    {
+      $group: {
+        _id: '$productId',
+        avgRating: { $avg: '$rating' },
+        totalReviews: { $sum: 1 }
+      }
+    }
+  ]);
+
+  if (session && typeof aggregation?.session === 'function') {
+    aggregation.session(session);
+  }
+
+  const statsRows = await aggregation;
+  (statsRows ?? []).forEach((stats) => {
+    statsByProductId.set(
+      stats._id.toString(),
+      normalizeRatingStats(stats.avgRating, stats.totalReviews)
+    );
+  });
+
+  return statsByProductId;
+};
+
+const ratingsAreEqual = (currentRating, nextRating) => {
+  const current = normalizeRatingStats(currentRating?.avg, currentRating?.count);
+  return current.avg === nextRating.avg && current.count === nextRating.count;
+};
+
+const toPlainProduct = (product) => (
+  typeof product?.toObject === 'function' ? product.toObject() : { ...product }
+);
+
+const mergeProductRating = (product, statsByProductId) => {
+  const nextRating = statsByProductId.get(getProductIdKey(product)) ?? emptyRatingStats();
+  return {
+    ...toPlainProduct(product),
+    rating: nextRating
+  };
+};
+
+const syncRatingStatsForProducts = async (products, session = null) => {
+  if (!Array.isArray(products) || products.length === 0) return [];
+
+  const statsByProductId = await getRatingStatsByProductIds(products.map((product) => product._id), session);
+  const operations = products.reduce((ops, product) => {
+    const objectId = normalizeObjectId(product._id);
+    const nextRating = statsByProductId.get(getProductIdKey(product)) ?? emptyRatingStats();
+
+    if (objectId && !ratingsAreEqual(product.rating, nextRating)) {
+      ops.push({
+        updateOne: {
+          filter: { _id: objectId },
+          update: { $set: { rating: nextRating } }
+        }
+      });
+    }
+
+    return ops;
+  }, []);
+
+  if (operations.length > 0) {
+    if (session) {
+      await Product.bulkWrite(operations, { session });
+    } else {
+      await Product.bulkWrite(operations);
+    }
+  }
+
+  return products.map((product) => mergeProductRating(product, statsByProductId));
+};
+
+const syncRatingStatsForQuery = async (query) => {
+  const products = await Product.find(query)
+    .select('_id rating')
+    .lean();
+
+  await syncRatingStatsForProducts(products);
+};
+
 /**
  * Lọc, phân trang, tìm kiếm, sắp xếp sản phẩm
  * @param {Object} filters - Các tiêu chí lọc (keyword, categoryId, brand, minPrice, maxPrice)
@@ -41,6 +165,10 @@ exports.getProducts = async (filters = {}, page = 1, limit = 12, sort = 'newest'
   if (sort === 'priceDesc') sortOption = { 'variants.price': -1 };
   if (sort === 'topRated') sortOption = { 'rating.avg': -1 };
 
+  if (sort === 'topRated') {
+    await syncRatingStatsForQuery(query);
+  }
+
   // 5. Tính toán phân trang
   const skip = (page - 1) * limit;
 
@@ -54,9 +182,10 @@ exports.getProducts = async (filters = {}, page = 1, limit = 12, sort = 'newest'
       .lean(),
     Product.countDocuments(query)
   ]);
+  const productsWithFreshRatings = await syncRatingStatsForProducts(products);
 
   return {
-    products: products.map(productDTO),
+    products: productsWithFreshRatings.map(productDTO),
     pagination: {
       totalProducts,
       currentPage: Number(page),
@@ -72,7 +201,8 @@ exports.getProductById = async (id) => {
   if (!product) {
     throw new AppError('Không tìm thấy sản phẩm.', 404);
   }
-  return productDTO(product);
+  const [productWithFreshRating] = await syncRatingStatsForProducts([product]);
+  return productDTO(productWithFreshRating);
 };
 
 // Lấy chi tiết sản phẩm theo Slug (Dùng cho trang chi tiết sản phẩm SEO)
@@ -83,7 +213,8 @@ exports.getProductBySlug = async (slug) => {
   if (!product) {
     throw new AppError('Không tìm thấy sản phẩm.', 404);
   }
-  return productDTO(product);
+  const [productWithFreshRating] = await syncRatingStatsForProducts([product]);
+  return productDTO(productWithFreshRating);
 };
 
 // Tạo sản phẩm mới (Kèm tạo tự động Inventory cho từng Variant)
@@ -282,48 +413,15 @@ exports.deleteProduct = async (id) => {
 
 // Cập nhật lại thống kê đánh giá (Dùng sau khi có thay đổi về review)
 exports.updateRatingStats = async (productId, session = null) => {
-  // Dùng Aggregation để gom các review đã duyệt của sản phẩm này lại
-  const aggregation = Review.aggregate([
-    { $match: { productId: new mongoose.Types.ObjectId(productId), isApproved: true } },
-    {
-      $group: {
-        _id: '$productId',
-        avgRating: { $avg: '$rating' },
-        totalReviews: { $sum: 1 }
-      }
-    }
-  ]);
+  const statsByProductId = await getRatingStatsByProductIds([productId], session);
+  const update = {
+    rating: statsByProductId.get(getProductIdKey(productId)) ?? emptyRatingStats()
+  };
 
   if (session) {
-    aggregation.session(session);
-  }
-
-  const stats = await aggregation;
-
-  if (stats.length > 0) {
-    const update = {
-      rating: {
-        avg: Math.round(stats[0].avgRating * 10) / 10, // Làm tròn 1 chữ số (VD: 4.5)
-        count: stats[0].totalReviews
-      }
-    };
-
-    if (session) {
-      await Product.findByIdAndUpdate(productId, update, { session });
-    } else {
-      await Product.findByIdAndUpdate(productId, update);
-    }
+    await Product.findByIdAndUpdate(productId, update, { session });
   } else {
-    // Nếu không còn review nào thì reset về 0
-    const update = {
-      rating: { avg: 0, count: 0 }
-    };
-
-    if (session) {
-      await Product.findByIdAndUpdate(productId, update, { session });
-    } else {
-      await Product.findByIdAndUpdate(productId, update);
-    }
+    await Product.findByIdAndUpdate(productId, update);
   }
 
   return { message: 'Đã cập nhật lại thống kê đánh giá.' };

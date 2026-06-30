@@ -9,12 +9,17 @@ const mongoose = require('mongoose');
 const Product = require('../../../models/Product');
 const Inventory = require('../../../models/Inventory');
 const Review = require('../../../models/Review');
+const { productDTO } = require('../../../utils/dto');
 const productService = require('../../../services/productService');
 const { createQueryMock, createSessionMock } = require('../utils/testHelpers');
 
 describe('productService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    if (!Product.bulkWrite?.mockResolvedValue) Product.bulkWrite = jest.fn();
+    if (!Review.aggregate?.mockResolvedValue) Review.aggregate = jest.fn();
+    Product.bulkWrite.mockResolvedValue({});
+    Review.aggregate.mockResolvedValue([]);
     mongoose.startSession = jest.fn().mockResolvedValue(createSessionMock());
   });
 
@@ -61,6 +66,33 @@ describe('productService', () => {
       type: 'Sunglasses',
     }));
     expect(result.pagination.totalProducts).toBe(1);
+  });
+
+  it('hydrates stale product ratings from approved reviews and refreshes the cache', async () => {
+    const productId = new mongoose.Types.ObjectId();
+    const staleProduct = {
+      _id: productId,
+      name: 'Rated Product',
+      variants: [],
+      rating: { avg: 0, count: 0 },
+    };
+
+    Product.find.mockReturnValue(createQueryMock([staleProduct]));
+    Product.countDocuments.mockResolvedValue(1);
+    Review.aggregate.mockResolvedValue([{ _id: productId, avgRating: 4.66, totalReviews: 3 }]);
+
+    await productService.getProducts({}, 1, 12, 'newest');
+
+    expect(Product.bulkWrite).toHaveBeenCalledWith([{
+      updateOne: {
+        filter: { _id: productId },
+        update: { $set: { rating: { avg: 4.7, count: 3 } } },
+      },
+    }]);
+    expect(productDTO.mock.calls[0][0]).toEqual(expect.objectContaining({
+      _id: productId,
+      rating: { avg: 4.7, count: 3 },
+    }));
   });
 
   it('returns product detail by id and slug', async () => {
@@ -168,11 +200,16 @@ describe('productService', () => {
   });
 
   it('updates rating stats with the aggregated review average', async () => {
-    Review.aggregate.mockResolvedValue([{ avgRating: 4.44, totalReviews: 3 }]);
+    const productId = '507f1f77bcf86cd799439011';
+    Review.aggregate.mockResolvedValue([{
+      _id: new mongoose.Types.ObjectId(productId),
+      avgRating: 4.44,
+      totalReviews: 3,
+    }]);
 
-    await productService.updateRatingStats('507f1f77bcf86cd799439011');
+    await productService.updateRatingStats(productId);
 
-    expect(Product.findByIdAndUpdate).toHaveBeenCalledWith('507f1f77bcf86cd799439011', {
+    expect(Product.findByIdAndUpdate).toHaveBeenCalledWith(productId, {
       rating: { avg: 4.4, count: 3 },
     });
   });

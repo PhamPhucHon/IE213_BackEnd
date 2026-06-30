@@ -71,6 +71,10 @@ exports.createReview = async (userId, productId, reviewData) => {
  */
 exports.getReviewsByProduct = async (productId, page = 1, limit = 5, ratingFilter = 'all') => {
   const query = { productId, isApproved: true };
+  const summaryProductId = mongoose.Types.ObjectId.isValid(productId)
+    ? new mongoose.Types.ObjectId(productId)
+    : productId;
+  const summaryQuery = { productId: summaryProductId, isApproved: true };
 
   // Thêm điều kiện lọc theo sao nếu có
   if (ratingFilter !== 'all' && !isNaN(ratingFilter)) {
@@ -79,14 +83,25 @@ exports.getReviewsByProduct = async (productId, page = 1, limit = 5, ratingFilte
 
   const skip = (page - 1) * limit;
 
-  const [reviews, totalReviews] = await Promise.all([
+  const [reviews, totalReviews, ratingSummaryRows] = await Promise.all([
     Review.find(query)
       .sort({ createdAt: -1 }) // Mới nhất xếp trước
       .skip(skip)
       .limit(Number(limit))
       .lean(),
-    Review.countDocuments(query)
+    Review.countDocuments(query),
+    Review.aggregate([
+      { $match: summaryQuery },
+      {
+        $group: {
+          _id: '$productId',
+          avgRating: { $avg: '$rating' },
+          totalReviews: { $sum: 1 }
+        }
+      }
+    ])
   ]);
+  const ratingSummary = ratingSummaryRows[0] ?? { avgRating: 0, totalReviews: 0 };
 
   return {
     reviews: reviews.map(reviewDTO),
@@ -94,7 +109,11 @@ exports.getReviewsByProduct = async (productId, page = 1, limit = 5, ratingFilte
       totalReviews,
       currentPage: Number(page),
       totalPages: Math.ceil(totalReviews / limit),
-      limit: Number(limit)
+      limit: Number(limit),
+      ratingSummary: {
+        avg: Math.round((ratingSummary.avgRating || 0) * 10) / 10,
+        count: ratingSummary.totalReviews || 0
+      }
     }
   };
 };

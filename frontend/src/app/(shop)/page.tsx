@@ -118,10 +118,10 @@ export default async function HomePage() {
           </div>
 
           {heroProduct ? (
-            <div className="hidden rounded-lg border border-white/20 bg-white/10 p-4 text-white shadow-soft backdrop-blur lg:block">
-              <p className="text-xs font-semibold uppercase tracking-wide text-white/70">Featured frame</p>
+            <div className="hidden max-w-xs justify-self-start pb-4 text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.45)] lg:block">
+              <p className="text-xs font-semibold uppercase tracking-wide text-white/65">Featured frame</p>
               <p className="mt-2 line-clamp-2 text-lg font-semibold">{heroProduct.name}</p>
-              <p className="mt-1 text-sm text-white/75">{heroProduct.brand}</p>
+              <p className="mt-1 text-sm text-white/70">{heroProduct.brand}</p>
             </div>
           ) : null}
         </div>

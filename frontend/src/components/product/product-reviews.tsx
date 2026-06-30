@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Pencil, ShieldCheck, Star, ThumbsUp, Trash2 } from "lucide-react";
@@ -32,7 +32,7 @@ import {
 } from "@/lib/api/local-reviews";
 import { productReviewsQueryKey, productReviewsRootQueryKey, useProductReviews } from "@/lib/hooks/use-reviews";
 import { useCurrentUser } from "@/lib/hooks/use-current-user";
-import { getReviewPagination } from "@/lib/reviews/review-utils";
+import { getReviewPagination, getReviewRatingSummary } from "@/lib/reviews/review-utils";
 import { reviewSchema } from "@/lib/validators/product";
 import { cn, formatDate } from "@/lib/utils";
 import { useConfirm } from "@/components/ui/confirm-provider";
@@ -49,6 +49,7 @@ type ReviewFormValues = z.infer<typeof reviewSchema>;
 
 const ratingFilters: ReviewRatingFilter[] = ["all", 5, 4, 3, 2, 1];
 const stars = [1, 2, 3, 4, 5];
+const emptyReviews: Review[] = [];
 
 function reviewInitial(review: Review): string {
   return review.userName?.trim().charAt(0).toUpperCase() || "U";
@@ -231,8 +232,25 @@ export function ProductReviews({ product }: ProductReviewsProps) {
     page,
     ratingFilter
   );
-  const reviews = response?.data ?? [];
+  const reviews = response?.data ?? emptyReviews;
   const pagination = getReviewPagination(response?.meta);
+  const cachedRatingAvg = product.rating?.avg ?? 0;
+  const cachedRatingCount = product.rating?.count ?? 0;
+  const visibleReviewsRatingSummary = useMemo(() => {
+    const cachedRatingSummary = {
+      avg: cachedRatingAvg,
+      count: cachedRatingCount
+    };
+
+    if (cachedRatingSummary.count > 0 || reviews.length === 0) return cachedRatingSummary;
+
+    const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+    return {
+      avg: Math.round(averageRating * 10) / 10,
+      count: Math.max(pagination.totalReviews, reviews.length)
+    };
+  }, [cachedRatingAvg, cachedRatingCount, pagination.totalReviews, reviews]);
+  const ratingSummary = getReviewRatingSummary(response?.meta, visibleReviewsRatingSummary);
 
   useEffect(() => {
     if (response && page > pagination.totalPages) {
@@ -421,9 +439,9 @@ export function ProductReviews({ product }: ProductReviewsProps) {
         <div>
           <h2 className="text-xl font-semibold text-ink">Customer reviews</h2>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
-            <Stars rating={product.rating?.avg ?? 0} />
-            <span>{product.rating?.avg?.toFixed(1) ?? "0.0"}</span>
-            <span>{product.rating?.count ?? 0} total reviews</span>
+            <Stars rating={ratingSummary.avg} />
+            <span>{ratingSummary.avg.toFixed(1)}</span>
+            <span>{ratingSummary.count} total reviews</span>
           </div>
         </div>
 
